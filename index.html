@@ -387,5 +387,33 @@
     </footer>
 
     <script src="script.js"></script>
+
+    <!-- Promo Popup -->
+    <div class="popup-overlay" id="promoPopup">
+        <div class="popup-box">
+            <button class="popup-close" id="popupClose">&times;</button>
+            <iframe src="promo-gif.html" class="popup-iframe"></iframe>
+            <a href="https://t.me/+CHculkRfYbEwYmNl" target="_blank" class="popup-btn">💬 Join Telegram</a>
+        </div>
+    </div>
+
+    <script>
+        // Show popup after 1 second
+        setTimeout(() => {
+            document.getElementById('promoPopup').classList.add('active');
+        }, 1000);
+
+        // Close popup
+        document.getElementById('popupClose').addEventListener('click', () => {
+            document.getElementById('promoPopup').classList.remove('active');
+        });
+
+        // Close on overlay click
+        document.getElementById('promoPopup').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                document.getElementById('promoPopup').classList.remove('active');
+            }
+        });
+    </script>
 </body>
 </html>
