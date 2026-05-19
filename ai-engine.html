@@ -1,17 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-    <title>Grokie Inu - AI Promotion Engine (Beta)</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<title>Grokie Inu - AI Promotion Engine (Beta)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--primary:#8b5cf6;--primary-dark:#7c3aed;--secondary:#06d6a0;--accent:#f72585;--neon-blue:#00f5ff;--dark:#0a0a1a;--dark-light:#12122a;--text:#e8e8f0;--text-muted:#9898b8;--card-bg:#16162e;--border:#2a2a50}
 body{font-family:'Inter',sans-serif;background:var(--dark);color:var(--text);line-height:1.6;min-height:100vh}
 .container{max-width:900px;margin:0 auto;padding:0 20px}
-
-/* Header */
 .header{background:rgba(10,10,26,.98);border-bottom:1px solid var(--border);padding:15px 0;position:sticky;top:0;z-index:100;backdrop-filter:blur(10px)}
 .header-inner{display:flex;align-items:center;justify-content:space-between}
 .logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--accent);font-weight:900;font-size:1.3rem}
@@ -19,417 +18,643 @@ body{font-family:'Inter',sans-serif;background:var(--dark);color:var(--text);lin
 .back-btn{color:var(--text-muted);text-decoration:none;font-size:.9rem;transition:color .3s}
 .back-btn:hover{color:var(--accent)}
 .beta-tag{background:var(--accent);color:#fff;padding:3px 10px;border-radius:50px;font-size:.7rem;font-weight:700}
-
-/* Hero */
-.hero{text-align:center;padding:60px 20px 40px}
-.hero h1{font-size:2.2rem;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--primary),var(--neon-blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:10px}
-.hero p{color:var(--text-muted);max-width:600px;margin:0 auto}
-
-/* Form */
-.engine-form{background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:40px;margin:0 auto 40px;max-width:700px}
-.form-title{font-size:1.3rem;font-weight:700;margin-bottom:5px;color:#fff}
-.form-subtitle{color:var(--text-muted);font-size:.9rem;margin-bottom:30px}
-.form-group{margin-bottom:20px}
-.form-group label{display:block;font-weight:600;margin-bottom:6px;font-size:.9rem;color:var(--text)}
-.form-group input,.form-group textarea,.form-group select{width:100%;padding:12px 16px;background:var(--dark);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:.95rem;font-family:inherit;transition:border-color .3s}
+.hero{text-align:center;padding:50px 20px 30px}
+.hero h1{font-size:2rem;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--primary),var(--neon-blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:10px}
+.hero p{color:var(--text-muted);max-width:600px;margin:0 auto;font-size:.95rem}
+.engine-form{background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:35px;margin:0 auto 40px;max-width:750px}
+.form-title{font-size:1.2rem;font-weight:700;margin-bottom:5px;color:#fff}
+.form-subtitle{color:var(--text-muted);font-size:.85rem;margin-bottom:25px}
+.form-section{margin-bottom:25px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+.form-section:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.form-section-title{font-size:.9rem;font-weight:700;color:var(--neon-blue);margin-bottom:15px;text-transform:uppercase;letter-spacing:.5px}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-weight:600;margin-bottom:5px;font-size:.85rem;color:var(--text)}
+.form-group input,.form-group textarea,.form-group select{width:100%;padding:11px 14px;background:var(--dark);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:.9rem;font-family:inherit;transition:border-color .3s}
 .form-group input:focus,.form-group textarea:focus,.form-group select:focus{outline:none;border-color:var(--primary)}
-.form-group textarea{resize:vertical;min-height:100px}
-.form-group select{cursor:pointer}
-.form-group small{color:var(--text-muted);font-size:.8rem;margin-top:4px;display:block}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:15px}
-
-.generate-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--accent),var(--primary));color:#fff;border:none;border-radius:50px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all .3s;margin-top:10px}
+.form-group textarea{resize:vertical;min-height:80px}
+.form-group small{color:var(--text-muted);font-size:.75rem;margin-top:3px;display:block}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.upload-area{border:2px dashed var(--border);border-radius:12px;padding:25px;text-align:center;cursor:pointer;transition:all .3s;position:relative;overflow:hidden}
+.upload-area:hover{border-color:var(--primary);background:rgba(139,92,246,.05)}
+.upload-area input{position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.upload-area .upload-icon{font-size:2rem;margin-bottom:8px}
+.upload-area .upload-text{color:var(--text-muted);font-size:.85rem}
+.upload-area .upload-text strong{color:var(--text)}
+.upload-preview{width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid var(--accent);display:none;margin:10px auto 0}
+.theme-picker{display:flex;gap:15px;flex-wrap:wrap}
+.theme-option{cursor:pointer;text-align:center;padding:10px;border:2px solid transparent;border-radius:12px;transition:all .3s}
+.theme-option.selected{border-color:var(--accent);background:rgba(247,37,133,.05)}
+.theme-option:hover{border-color:var(--primary)}
+.theme-preview{width:70px;height:50px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin:0 auto 6px}
+.theme-preview span{font-size:1.3rem;font-weight:900}
+.theme-option span:last-child{font-size:.75rem;color:var(--text-muted);font-weight:600}
+.generate-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--accent),var(--primary));color:#fff;border:none;border-radius:50px;font-size:1.05rem;font-weight:700;cursor:pointer;transition:all .3s;margin-top:10px}
 .generate-btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(247,37,133,.4)}
-.generate-btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
-
-/* Loading */
 .loading{display:none;text-align:center;padding:40px}
 .loading.active{display:block}
 .loading-spinner{width:50px;height:50px;border:4px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 20px}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading p{color:var(--text-muted);font-size:.95rem}
 .loading-steps{list-style:none;margin-top:15px;text-align:left;max-width:350px;margin-left:auto;margin-right:auto}
-.loading-steps li{padding:6px 0;color:var(--text-muted);font-size:.85rem;opacity:.4;transition:all .5s}
-.loading-steps li.active{opacity:1;color:var(--secondary)}
+.loading-steps li{padding:5px 0;color:var(--text-muted);font-size:.82rem;opacity:.4;transition:all .5s}
+.loading-steps li.active{opacity:1;color:var(--neon-blue)}
 .loading-steps li.done{opacity:1;color:var(--secondary)}
-
-/* Result */
-.result{display:none;margin:0 auto 60px;max-width:700px}
+.result{display:none;margin:0 auto 60px;max-width:750px}
 .result.active{display:block}
-.result-header{text-align:center;margin-bottom:30px}
-.result-header h2{font-size:1.5rem;color:var(--secondary);margin-bottom:5px}
-.result-header p{color:var(--text-muted);font-size:.9rem}
-
+.result-header{text-align:center;margin-bottom:25px}
+.result-header h2{font-size:1.4rem;color:var(--secondary);margin-bottom:5px}
+.result-header p{color:var(--text-muted);font-size:.85rem}
 .result-preview{background:var(--card-bg);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:20px}
 .preview-bar{background:var(--dark);padding:10px 15px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border)}
 .preview-dot{width:10px;height:10px;border-radius:50%}
-.preview-dot.red{background:#ff5f57}
-.preview-dot.yellow{background:#ffbd2e}
-.preview-dot.green{background:#28c840}
-.preview-url{color:var(--text-muted);font-size:.8rem;margin-left:10px}
-.preview-content{padding:30px}
-.preview-content h3{color:var(--neon-blue);font-size:1.4rem;margin-bottom:10px}
-.preview-content .tagline{color:var(--accent);font-weight:600;margin-bottom:15px}
-.preview-content .desc{color:var(--text-muted);font-size:.9rem;margin-bottom:20px;line-height:1.7}
-.preview-content .features{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
-.preview-content .feature-item{background:var(--dark);padding:12px;border-radius:8px;font-size:.8rem;color:var(--text-muted)}
-.preview-content .feature-item strong{color:var(--text);display:block;margin-bottom:3px}
-.preview-content .cta-preview{display:inline-block;background:linear-gradient(135deg,var(--accent),var(--primary));color:#fff;padding:10px 24px;border-radius:50px;font-weight:600;font-size:.9rem}
-
-.result-social{background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:25px;margin-bottom:20px}
-.result-social h4{color:#fff;margin-bottom:12px;font-size:1rem}
-.social-post{background:var(--dark);border-radius:10px;padding:15px;font-size:.85rem;color:var(--text-muted);line-height:1.6;white-space:pre-wrap}
-
-.result-score{background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:25px}
-.result-score h4{color:#fff;margin-bottom:15px;font-size:1rem}
-.score-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.score-item{text-align:center;padding:12px;background:var(--dark);border-radius:10px}
-.score-value{font-size:1.5rem;font-weight:800;color:var(--secondary)}
-.score-label{font-size:.75rem;color:var(--text-muted);margin-top:3px}
-
-.try-again-btn{display:block;width:200px;margin:30px auto 0;padding:12px;background:transparent;border:2px solid var(--primary);color:var(--primary);border-radius:50px;font-weight:600;cursor:pointer;transition:all .3s;text-align:center}
-.try-again-btn:hover{background:var(--primary);color:#fff}
-
-/* Responsive */
-.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-20px);background:linear-gradient(135deg,#f72585,#8b5cf6);color:#fff;padding:14px 28px;border-radius:12px;font-size:.9rem;font-weight:600;z-index:9999;opacity:0;transition:all .3s ease;box-shadow:0 10px 30px rgba(247,37,133,.3);pointer-events:none}
+.preview-dot.red{background:#ff5f57}.preview-dot.yellow{background:#ffbd2e}.preview-dot.green{background:#28c840}
+.preview-url{color:var(--text-muted);font-size:.75rem;margin-left:10px}
+.preview-content{padding:25px}
+.preview-content h3{color:var(--neon-blue);font-size:1.3rem;margin-bottom:8px}
+.preview-content .tagline{color:var(--accent);font-weight:600;margin-bottom:12px;font-size:.9rem}
+.preview-content .desc{color:var(--text-muted);font-size:.85rem;margin-bottom:15px;line-height:1.7}
+.preview-content .features{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px}
+.preview-content .feature-item{background:var(--dark);padding:10px;border-radius:8px;font-size:.78rem;color:var(--text-muted)}
+.preview-content .feature-item strong{color:var(--text);display:block;margin-bottom:2px}
+.preview-content .cta-preview{display:inline-block;background:linear-gradient(135deg,var(--accent),var(--primary));color:#fff;padding:8px 20px;border-radius:50px;font-weight:600;font-size:.85rem}
+.result-social{background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:20px}
+.result-social h4{color:#fff;margin-bottom:10px;font-size:.95rem}
+.social-post{background:var(--dark);border-radius:10px;padding:12px;font-size:.8rem;color:var(--text-muted);line-height:1.6;white-space:pre-wrap}
+.result-score{background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:20px}
+.result-score h4{color:#fff;margin-bottom:12px;font-size:.95rem}
+.score-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.score-item{text-align:center;padding:10px;background:var(--dark);border-radius:10px}
+.score-value{font-size:1.3rem;font-weight:800;color:var(--secondary)}
+.score-label{font-size:.7rem;color:var(--text-muted);margin-top:2px}
+.result-download{background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:25px;margin-bottom:20px;text-align:center}
+.result-download h4{color:#fff;margin-bottom:8px;font-size:1rem}
+.result-download p{color:var(--text-muted);font-size:.8rem;margin-bottom:15px}
+.download-btn{display:inline-block;padding:14px 30px;background:linear-gradient(135deg,var(--secondary),#059669);color:#fff;border:none;border-radius:50px;font-weight:700;font-size:1rem;cursor:pointer;transition:all .3s}
+.download-btn:hover{transform:translateY(-2px);box-shadow:0 10px 25px rgba(6,214,160,.3)}
+.preview-btn{display:inline-block;padding:12px 25px;background:transparent;border:2px solid var(--primary);color:var(--primary);border-radius:50px;font-weight:600;font-size:.9rem;cursor:pointer;transition:all .3s;margin-left:10px}
+.preview-btn:hover{background:var(--primary);color:#fff}
+.try-again-btn{display:block;width:200px;margin:25px auto 0;padding:12px;background:transparent;border:2px solid var(--border);color:var(--text-muted);border-radius:50px;font-weight:600;cursor:pointer;transition:all .3s;text-align:center}
+.try-again-btn:hover{border-color:var(--primary);color:var(--primary)}
+.preview-modal{position:fixed;top:0;left:0;width:100%;height:100%;z-index:10000;background:var(--dark);display:flex;flex-direction:column}
+.preview-modal-header{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;background:var(--card-bg);border-bottom:1px solid var(--border)}
+.preview-modal-header span{color:var(--text);font-weight:600}
+.preview-modal-header button{background:var(--accent);color:#fff;border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:1rem}
+.preview-frame{flex:1;width:100%;border:none;background:#fff}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-20px);background:linear-gradient(135deg,#f72585,#8b5cf6);color:#fff;padding:12px 24px;border-radius:12px;font-size:.85rem;font-weight:600;z-index:9999;opacity:0;transition:all .3s ease;box-shadow:0 10px 30px rgba(247,37,133,.3);pointer-events:none;max-width:90%;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-
-@media(max-width:768px){
-    .hero h1{font-size:1.6rem}
-    .engine-form{padding:25px}
-    .form-row{grid-template-columns:1fr}
-    .preview-content .features{grid-template-columns:1fr}
-    .score-grid{grid-template-columns:1fr}
-}
-    </style>
+@media(max-width:768px){.hero h1{font-size:1.5rem}.engine-form{padding:20px}.form-row,.form-row-3{grid-template-columns:1fr}.preview-content .features{grid-template-columns:1fr}.score-grid{grid-template-columns:1fr}}
+</style>
 </head>
 <body>
+<header class="header"><div class="container header-inner">
+<a href="index.html" class="logo"><img src="grokie inu.png" alt="Grokie"> Grokie Inu</a>
+<span class="beta-tag">BETA v0.2</span>
+<a href="index.html" class="back-btn">← Back to Home</a>
+</div></header>
 
-    <!-- Header -->
-    <header class="header">
-        <div class="container header-inner">
-            <a href="index.html" class="logo"><img src="grokie inu.png" alt="Grokie"> Grokie Inu</a>
-            <span class="beta-tag">BETA v0.1</span>
-            <a href="index.html" class="back-btn">← Back to Home</a>
-        </div>
-    </header>
+<section class="hero"><div class="container">
+<h1><img src="grokie inu.png" alt="Grokie" style="width:36px;height:36px;border-radius:50%;vertical-align:middle;margin-right:8px">AI Promotion Engine</h1>
+<p>Generate a complete promotional website for any crypto project. Fill in the details, and get a ready-to-deploy website package.</p>
+</div></section>
 
-    <!-- Hero -->
-    <section class="hero">
-        <div class="container">
-            <h1><img src="grokie inu.png" alt="Grokie" style="width:40px;height:40px;border-radius:50%;vertical-align:middle;margin-right:10px">AI Promotion Engine</h1>
-            <p>Submit a crypto project and our AI will generate a promotional website preview, social media content, and a trust score — all in seconds.</p>
-        </div>
-    </section>
+<!-- FORM -->
+<div class="container">
+<div class="engine-form" id="engineForm">
+<h3 class="form-title">Submit Project for Promotion</h3>
+<p class="form-subtitle">Fill in all details to generate a complete promotional website package.</p>
 
-    <!-- Form -->
-    <div class="container">
-        <div class="engine-form" id="engineForm">
-            <h3 class="form-title">Submit a Project for AI Promotion</h3>
-            <p class="form-subtitle">Fill in the project details below. Our AI will analyze and generate promotional content.</p>
+<div class="form-section">
+<div class="form-section-title">📋 Basic Information</div>
+<div class="form-row">
+<div class="form-group"><label>Project Name *</label><input type="text" id="projectName" placeholder="e.g. SolanaFloki"></div>
+<div class="form-group"><label>Token Ticker *</label><input type="text" id="tokenTicker" placeholder="e.g. $SFLOKI"></div>
+</div>
+<div class="form-row">
+<div class="form-group"><label>Blockchain</label><select id="blockchain"><option>Solana</option><option>Ethereum</option><option>BSC</option><option>Base</option><option>Polygon</option><option>Arbitrum</option><option>Avalanche</option></select></div>
+<div class="form-group"><label>Category</label><select id="projectCategory"><option>Meme Coin</option><option>DeFi</option><option>GameFi</option><option>NFT</option><option>AI</option><option>Infrastructure</option><option>Other</option></select></div>
+</div>
+<div class="form-group"><label>Project Description *</label><textarea id="projectDesc" placeholder="What does the project do? What makes it unique?"></textarea></div>
+</div>
 
-            <div class="form-group">
-                <label>Project Name *</label>
-                <input type="text" id="projectName" placeholder="e.g. SolanaFloki, MoonDoge" required>
-            </div>
+<div class="form-section">
+<div class="form-section-title">🖼️ Project Logo</div>
+<div class="upload-area" id="uploadArea">
+<input type="file" id="logoUpload" accept="image/*">
+<div class="upload-icon">📁</div>
+<div class="upload-text"><strong>Click to upload</strong> or drag & drop<br>PNG, JPG, SVG (max 2MB)</div>
+<img class="upload-preview" id="logoPreview">
+</div>
+</div>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Token Ticker *</label>
-                    <input type="text" id="tokenTicker" placeholder="e.g. $SFLOKI" required>
-                </div>
-                <div class="form-group">
-                    <label>Blockchain</label>
-                    <select id="blockchain">
-                        <option value="Solana">Solana</option>
-                        <option value="Ethereum">Ethereum</option>
-                        <option value="BSC">BSC</option>
-                        <option value="Base">Base</option>
-                        <option value="Polygon">Polygon</option>
-                    </select>
-                </div>
-            </div>
+<div class="form-section">
+<div class="form-section-title">💰 Tokenomics</div>
+<div class="form-row-3">
+<div class="form-group"><label>Total Supply</label><input type="text" id="totalSupply" placeholder="e.g. 1,000,000,000"></div>
+<div class="form-group"><label>Buy/Sell Tax</label><input type="text" id="taxInfo" placeholder="e.g. 0% / 5%"></div>
+<div class="form-group"><label>Launch Platform</label><input type="text" id="launchPlatform" placeholder="e.g. Pump.fun"></div>
+</div>
+<div class="form-row">
+<div class="form-group"><label>Contract Address</label><input type="text" id="contractAddr" placeholder="0x... or So1..."><small>Optional</small></div>
+<div class="form-group"><label>Launch Date</label><input type="text" id="launchDate" placeholder="e.g. July 2026"></div>
+</div>
+</div>
 
-            <div class="form-group">
-                <label>Project Description *</label>
-                <textarea id="projectDesc" placeholder="Describe what the project does, its utility, and what makes it unique..."></textarea>
-            </div>
+<div class="form-section">
+<div class="form-section-title">🔗 Social & Links</div>
+<div class="form-row">
+<div class="form-group"><label>Website URL</label><input type="url" id="projectUrl" placeholder="https://example.com"></div>
+<div class="form-group"><label>Twitter/X</label><input type="text" id="projectTwitter" placeholder="@handle or full URL"></div>
+</div>
+<div class="form-row">
+<div class="form-group"><label>Telegram</label><input type="text" id="projectTelegram" placeholder="t.me/group or invite link"></div>
+<div class="form-group"><label>Discord</label><input type="text" id="projectDiscord" placeholder="discord.gg/invite"></div>
+</div>
+</div>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Website URL</label>
-                    <input type="url" id="projectUrl" placeholder="https://example.com">
-                </div>
-                <div class="form-group">
-                    <label>Contract Address</label>
-                    <input type="text" id="contractAddr" placeholder="0x... or So1...">
-                    <small>Optional — used for trust score analysis</small>
-                </div>
-            </div>
+<div class="form-section">
+<div class="form-section-title">🗺️ Roadmap (Optional)</div>
+<div class="form-group"><label>Phase 1</label><input type="text" id="roadmap1" placeholder="e.g. Website launch, Community building"></div>
+<div class="form-group"><label>Phase 2</label><input type="text" id="roadmap2" placeholder="e.g. Token launch, DEX listing"></div>
+<div class="form-group"><label>Phase 3</label><input type="text" id="roadmap3" placeholder="e.g. CEX listing, Partnerships"></div>
+<div class="form-group"><label>Phase 4</label><input type="text" id="roadmap4" placeholder="e.g. Expansion, New features"></div>
+</div>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Twitter/X</label>
-                    <input type="text" id="projectTwitter" placeholder="@projecthandle">
-                </div>
-                <div class="form-group">
-                    <label>Telegram</label>
-                    <input type="text" id="projectTelegram" placeholder="t.me/projectgroup">
-                </div>
-            </div>
+<div class="form-section">
+<div class="form-section-title">🎨 Website Theme</div>
+<div class="form-group"><label>Choose a theme for the generated website</label>
+<div class="theme-picker" id="themePicker">
+<div class="theme-option selected" data-theme="neon-dark" onclick="selectTheme(this)">
+<div class="theme-preview" style="background:linear-gradient(135deg,#0a0a1a,#16162e);border:2px solid #f72585"><span style="color:#f72585">A</span></div>
+<span>Neon Dark</span>
+</div>
+<div class="theme-option" data-theme="ocean-blue" onclick="selectTheme(this)">
+<div class="theme-preview" style="background:linear-gradient(135deg,#0c1929,#132f4c);border:2px solid #38bdf8"><span style="color:#38bdf8">A</span></div>
+<span>Ocean Blue</span>
+</div>
+<div class="theme-option" data-theme="gold-luxury" onclick="selectTheme(this)">
+<div class="theme-preview" style="background:linear-gradient(135deg,#1a1a0f,#2a2510);border:2px solid #f59e0b"><span style="color:#f59e0b">A</span></div>
+<span>Gold Luxury</span>
+</div>
+</div>
+</div>
+</div>
 
-            <div class="form-group">
-                <label>Category</label>
-                <select id="projectCategory">
-                    <option value="Meme Coin">Meme Coin</option>
-                    <option value="DeFi">DeFi</option>
-                    <option value="GameFi">GameFi</option>
-                    <option value="NFT">NFT</option>
-                    <option value="AI">AI</option>
-                    <option value="Infrastructure">Infrastructure</option>
-                    <option value="Other">Other</option>
-                </select>
-            </div>
+<button class="generate-btn" onclick="generatePromotion()">Generate Promotional Website</button>
+</div>
+</div>
 
-            <button class="generate-btn" id="generateBtn" onclick="generatePromotion()">Generate AI Promotion</button>
-        </div>
-    </div>
 
-    <!-- Loading -->
-    <div class="loading" id="loadingSection">
-        <div class="loading-spinner"></div>
-        <p>AI is analyzing and generating content...</p>
-        <ul class="loading-steps">
-            <li id="step1">🔍 Analyzing project information...</li>
-            <li id="step2">🛡️ Running safety checks...</li>
-            <li id="step3">✍️ Generating promotional copy...</li>
-            <li id="step4">🎨 Building website preview...</li>
-            <li id="step5">📱 Creating social media content...</li>
-            <li id="step6">📊 Calculating trust score...</li>
-        </ul>
-    </div>
+<!-- LOADING -->
+<div class="loading" id="loadingSection">
+<div class="loading-spinner"></div>
+<p>Generating your promotional website...</p>
+<ul class="loading-steps">
+<li id="step1">🔍 Analyzing project information...</li>
+<li id="step2">🛡️ Running safety checks...</li>
+<li id="step3">✍️ Generating promotional copy...</li>
+<li id="step4">🎨 Building website template...</li>
+<li id="step5">📱 Creating social media content...</li>
+<li id="step6">📦 Packaging files for download...</li>
+</ul>
+</div>
 
-    <!-- Result -->
-    <div class="container">
-        <div class="result" id="resultSection">
-            <div class="result-header">
-                <h2>✅ AI Promotion Generated!</h2>
-                <p>Here's what our AI created for <span id="resultName"></span></p>
-            </div>
+<!-- RESULT -->
+<div class="container">
+<div class="result" id="resultSection">
+<div class="result-header"><h2>✅ Website Generated!</h2><p>Your promotional website for <span id="resultName"></span> is ready</p></div>
 
-            <!-- Website Preview -->
-            <div class="result-preview">
-                <div class="preview-bar">
-                    <span class="preview-dot red"></span>
-                    <span class="preview-dot yellow"></span>
-                    <span class="preview-dot green"></span>
-                    <span class="preview-url" id="previewUrl"></span>
-                </div>
-                <div class="preview-content">
-                    <h3 id="previewTitle"></h3>
-                    <p class="tagline" id="previewTagline"></p>
-                    <p class="desc" id="previewDesc"></p>
-                    <div class="features" id="previewFeatures"></div>
-                    <span class="cta-preview" id="previewCta"></span>
-                </div>
-            </div>
+<div class="result-preview">
+<div class="preview-bar"><span class="preview-dot red"></span><span class="preview-dot yellow"></span><span class="preview-dot green"></span><span class="preview-url" id="previewUrl"></span></div>
+<div class="preview-content">
+<h3 id="previewTitle"></h3>
+<p class="tagline" id="previewTagline"></p>
+<p class="desc" id="previewDesc"></p>
+<div class="features" id="previewFeatures"></div>
+<span class="cta-preview" id="previewCta"></span>
+</div>
+</div>
 
-            <!-- Social Media Post -->
-            <div class="result-social">
-                <h4>📱 Generated Twitter/X Thread</h4>
-                <div class="social-post" id="socialPost"></div>
-            </div>
+<div class="result-social"><h4>📱 Generated Twitter/X Thread</h4><div class="social-post" id="socialPost"></div></div>
 
-            <!-- Trust Score -->
-            <div class="result-score">
-                <h4>📊 AI Trust Score Analysis</h4>
-                <div class="score-grid">
-                    <div class="score-item">
-                        <div class="score-value" id="scoreOverall">--</div>
-                        <div class="score-label">Overall Score</div>
-                    </div>
-                    <div class="score-item">
-                        <div class="score-value" id="scoreCommunity">--</div>
-                        <div class="score-label">Community</div>
-                    </div>
-                    <div class="score-item">
-                        <div class="score-value" id="scoreTransparency">--</div>
-                        <div class="score-label">Transparency</div>
-                    </div>
-                </div>
-            </div>
+<div class="result-score"><h4>📊 Trust Score</h4>
+<div class="score-grid">
+<div class="score-item"><div class="score-value" id="scoreOverall">--</div><div class="score-label">Overall</div></div>
+<div class="score-item"><div class="score-value" id="scoreCommunity">--</div><div class="score-label">Community</div></div>
+<div class="score-item"><div class="score-value" id="scoreTransparency">--</div><div class="score-label">Transparency</div></div>
+</div></div>
 
-            <button class="try-again-btn" onclick="resetForm()">🔄 Try Another Project</button>
-        </div>
-    </div>
+<div class="result-download">
+<h4>📦 Download Complete Website Package</h4>
+<p>Includes: index.html, style.css, script.js, and logo image — ready to deploy</p>
+<button class="download-btn" onclick="downloadZip()">⬇️ Download ZIP</button>
+<button class="preview-btn" onclick="previewWebCode()">👁️ Live Preview</button>
+</div>
 
-    <script>
-    // Toast notification
-    function showToast(message) {
-        const existing = document.querySelector('.toast');
-        if (existing) existing.remove();
+<button class="try-again-btn" onclick="resetForm()">🔄 Try Another Project</button>
+</div>
+</div>
 
-        const toast = document.createElement('div');
-        toast.className = 'toast';
-        toast.textContent = message;
-        document.body.appendChild(toast);
+<!-- Preview Modal -->
+<div class="preview-modal" id="previewModal" style="display:none">
+<div class="preview-modal-header"><span>Live Preview</span><button onclick="closePreview()">✕</button></div>
+<iframe id="previewFrame" class="preview-frame"></iframe>
+</div>
 
-        setTimeout(() => toast.classList.add('show'), 10);
-        setTimeout(() => {
-            toast.classList.remove('show');
-            setTimeout(() => toast.remove(), 300);
-        }, 3000);
+<script>
+// ===== GLOBALS =====
+let logoDataUrl = '';
+let projectData = {};
+let selectedTheme = 'neon-dark';
+
+function selectTheme(el) {
+    document.querySelectorAll('.theme-option').forEach(t => t.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedTheme = el.dataset.theme;
+}
+
+// Logo upload handler
+document.getElementById('logoUpload').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 2*1024*1024) { showToast('⚠️ Image must be under 2MB'); return; }
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+        logoDataUrl = ev.target.result;
+        const preview = document.getElementById('logoPreview');
+        preview.src = logoDataUrl;
+        preview.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+});
+
+function showToast(msg) {
+    const ex = document.querySelector('.toast'); if (ex) ex.remove();
+    const t = document.createElement('div'); t.className='toast'; t.textContent=msg;
+    document.body.appendChild(t);
+    setTimeout(()=>t.classList.add('show'),10);
+    setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),300)},3000);
+}
+
+function generatePromotion() {
+    const name = document.getElementById('projectName').value.trim();
+    const ticker = document.getElementById('tokenTicker').value.trim();
+    const desc = document.getElementById('projectDesc').value.trim();
+    if (!name||!ticker||!desc) { showToast('⚠️ Please fill in Project Name, Ticker, and Description.'); return; }
+
+    projectData = {
+        name, ticker, desc,
+        blockchain: document.getElementById('blockchain').value,
+        category: document.getElementById('projectCategory').value,
+        url: document.getElementById('projectUrl').value.trim(),
+        twitter: document.getElementById('projectTwitter').value.trim(),
+        telegram: document.getElementById('projectTelegram').value.trim(),
+        discord: document.getElementById('projectDiscord').value.trim(),
+        contract: document.getElementById('contractAddr').value.trim(),
+        totalSupply: document.getElementById('totalSupply').value.trim() || '1,000,000,000',
+        tax: document.getElementById('taxInfo').value.trim() || '0%',
+        launchPlatform: document.getElementById('launchPlatform').value.trim() || 'DEX',
+        launchDate: document.getElementById('launchDate').value.trim() || 'TBA',
+        roadmap: [
+            document.getElementById('roadmap1').value.trim(),
+            document.getElementById('roadmap2').value.trim(),
+            document.getElementById('roadmap3').value.trim(),
+            document.getElementById('roadmap4').value.trim()
+        ].filter(r=>r),
+        logo: logoDataUrl,
+        theme: selectedTheme
+    };
+
+    document.getElementById('engineForm').style.display='none';
+    document.getElementById('loadingSection').classList.add('active');
+    const steps=['step1','step2','step3','step4','step5','step6'];
+    let si=0;
+    const iv=setInterval(()=>{
+        if(si>0){document.getElementById(steps[si-1]).classList.remove('active');document.getElementById(steps[si-1]).classList.add('done');}
+        if(si<steps.length){document.getElementById(steps[si]).classList.add('active');si++;}
+        else{clearInterval(iv);setTimeout(()=>{document.getElementById('loadingSection').classList.remove('active');displayResult();},500);}
+    },500);
+}
+// ===== TEMPLATE ENGINE =====
+function getTagline(name,cat,chain){const t=[`The Future of ${cat} on ${chain}`,`${chain}'s Most Innovative ${cat} Project`,`Next-Gen ${cat} Built for the Community`,`${name}: Where ${cat} Meets Innovation`,`Redefining ${cat} — Powered by ${chain}`];return t[Math.floor(Math.random()*t.length)];}
+
+function getFeatures(cat,chain){const m={'Meme Coin':[{t:'🐕 Viral Meme Power',d:'Community-driven memes that spread like wildfire'},{t:'🔥 Deflationary Burns',d:'Regular token burns to increase scarcity'},{t:'💎 Diamond Hands',d:'Earn rewards for holding long-term'},{t:'🚀 Fair Launch',d:'No presale, no team tokens — 100% community'}],'DeFi':[{t:'💰 High Yield',d:'Earn passive income through optimized strategies'},{t:'🔒 Audited',d:'Smart contracts verified by top auditors'},{t:'⚡ Fast Swaps',d:'Instant token swaps with minimal slippage'},{t:'📊 Analytics',d:'Real-time portfolio tracking and insights'}],'GameFi':[{t:'🎮 Play to Earn',d:'Earn real tokens while gaming'},{t:'🏆 Tournaments',d:'Compete for massive prizes'},{t:'🎨 NFT Items',d:'Unique in-game assets as NFTs'},{t:'🌍 Open World',d:'Expansive metaverse to explore'}],'NFT':[{t:'🎨 Unique Art',d:'One-of-a-kind digital art'},{t:'💎 Rarity Tiers',d:'Exclusive perks for rare holders'},{t:'🏪 Marketplace',d:'Zero-fee trading platform'},{t:'🎁 Airdrops',d:'Regular rewards for holders'}],'AI':[{t:'🤖 AI-Powered',d:'Advanced ML driving innovation'},{t:'🧠 Automation',d:'Smart processes that save time'},{t:'📈 Predictions',d:'AI-driven market insights'},{t:'🔗 Decentralized',d:'Community-owned AI'}],'Infrastructure':[{t:'🏗️ Scalable',d:'Handles millions of transactions'},{t:'⚡ Ultra-Fast',d:'Sub-second finality'},{t:'🔐 Secure',d:'Enterprise-grade security'},{t:'🌐 Cross-Chain',d:'Multi-chain interoperability'}]};return m[cat]||[{t:`⚡ ${chain} Powered`,d:'Fast and cheap transactions'},{t:'🔒 Secure',d:'Audited smart contract'},{t:'👥 Community',d:'Governed by holders'},{t:'📈 Growth',d:'Strategic roadmap'}];}
+
+function getScores(){const d=projectData;let o=38+Math.floor(Math.random()*8),c=30+Math.floor(Math.random()*8),t=32+Math.floor(Math.random()*8);if(d.url){o+=15;t+=18;}if(d.twitter){o+=10;c+=22;}if(d.telegram){o+=10;c+=22;}if(d.contract){o+=12;t+=20;}if(d.desc.length>100){o+=5;t+=8;}if(d.desc.length>200){o+=5;c+=5;}if(d.discord){c+=10;}if(d.roadmap.length>2){o+=5;t+=5;}return{overall:Math.min(95,o),community:Math.min(95,c),transparency:Math.min(95,t)};}
+
+function displayResult(){
+    const d=projectData;
+    const tagline=getTagline(d.name,d.category,d.blockchain);
+    const features=getFeatures(d.category,d.blockchain);
+    const scores=getScores();
+    const description=`${d.name} (${d.ticker}) is a ${d.category.toLowerCase()} project on ${d.blockchain}. ${d.desc} Built for the community with transparency and real utility.`;
+
+    let social=`🚀 Introducing ${d.name} (${d.ticker})\n\n${tagline}\n\n🔹 ${d.desc.substring(0,140)}${d.desc.length>140?'...':''}\n\n⛓️ ${d.blockchain} | 💰 Supply: ${d.totalSupply}\n📅 Launch: ${d.launchDate}\n\n💎 Why ${d.ticker}?\n✅ ${features[0].d}\n✅ ${features[1].d}\n✅ ${features[2].d}\n✅ Fair & transparent\n`;
+    if(d.twitter) social+=`\n🐦 ${d.twitter}`;
+    if(d.telegram) social+=`\n💬 ${d.telegram}`;
+    social+=`\n\n#${d.name.replace(/\s+/g,'')} #${d.ticker.replace('$','')} #${d.blockchain} #Crypto`;
+
+    projectData.tagline=tagline;projectData.features=features;projectData.scores=scores;projectData.description=description;
+
+    document.getElementById('resultSection').classList.add('active');
+    document.getElementById('resultName').textContent=d.name;
+    document.getElementById('previewUrl').textContent=`${d.name.toLowerCase().replace(/\s+/g,'')}.com`;
+    document.getElementById('previewTitle').textContent=d.name;
+    document.getElementById('previewTagline').textContent=tagline;
+    document.getElementById('previewDesc').textContent=description;
+    document.getElementById('previewFeatures').innerHTML=features.map(f=>`<div class="feature-item"><strong>${f.t}</strong>${f.d}</div>`).join('');
+    document.getElementById('previewCta').textContent=`Buy ${d.ticker} Now`;
+    document.getElementById('socialPost').textContent=social;
+    document.getElementById('scoreOverall').textContent=scores.overall+'/100';
+    document.getElementById('scoreCommunity').textContent=scores.community+'/100';
+    document.getElementById('scoreTransparency').textContent=scores.transparency+'/100';
+}
+
+function resetForm(){
+    document.getElementById('resultSection').classList.remove('active');
+    document.getElementById('engineForm').style.display='block';
+    document.querySelectorAll('.loading-steps li').forEach(li=>li.classList.remove('active','done'));
+}
+// ===== WEBSITE TEMPLATE & ZIP DOWNLOAD =====
+function buildHTML(d){
+const logoTag=d.logo?`<img src="logo.png" alt="${d.name}" class="hero-logo">`:`<div class="hero-logo-placeholder">${d.ticker}</div>`;
+let roadmapHtml='';
+if(d.roadmap.length>0){roadmapHtml=`<section class="roadmap" id="roadmap"><div class="container"><h2>Roadmap</h2><p class="section-desc">Our journey to building something great</p><div class="roadmap-timeline">${d.roadmap.map((r,i)=>`<div class="roadmap-item"><div class="roadmap-marker"><span>Phase ${i+1}</span></div><div class="roadmap-card"><h3>Phase ${i+1}</h3><p>${r}</p></div></div>`).join('')}</div></div></section>`;}
+let socialsHtml='';
+if(d.twitter||d.telegram||d.discord){socialsHtml=`<section class="community" id="community"><div class="container"><h2>Join the Community</h2><p class="section-desc">Be part of the ${d.name} movement</p><div class="social-links">${d.telegram?`<a href="${d.telegram}" target="_blank" class="social-btn tg"><span class="social-icon">💬</span><span>Telegram</span></a>`:''}${d.twitter?`<a href="${d.twitter}" target="_blank" class="social-btn tw"><span class="social-icon">🐦</span><span>Twitter</span></a>`:''}${d.discord?`<a href="${d.discord}" target="_blank" class="social-btn dc"><span class="social-icon">🎮</span><span>Discord</span></a>`:''}</div><div class="community-stats"><div class="cs-item"><span class="cs-val">24/7</span><span class="cs-lbl">Active Community</span></div><div class="cs-item"><span class="cs-val">Global</span><span class="cs-lbl">Worldwide Reach</span></div><div class="cs-item"><span class="cs-val">Open</span><span class="cs-lbl">Transparent Dev</span></div></div></div></section>`;}
+return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="description" content="${d.name} - ${d.tagline}. ${d.category} on ${d.blockchain}.">
+<title>${d.name} - ${d.tagline}</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="bg-animation"><canvas id="bgCanvas"></canvas></div>
+<nav class="navbar"><div class="container nav-inner"><a href="#" class="nav-logo">${d.logo?'<img src="logo.png" alt="'+d.name+'">':''}<span>${d.name}</span></a><ul class="nav-links"><li><a href="#about">About</a></li><li><a href="#features">Features</a></li><li><a href="#tokenomics">Tokenomics</a></li>${d.roadmap.length?'<li><a href="#roadmap">Roadmap</a></li>':''}${(d.twitter||d.telegram)?'<li><a href="#community">Community</a></li>':''}<li><a href="#buy" class="nav-cta">Buy ${d.ticker}</a></li></ul><button class="mobile-menu" id="mobileMenu">☰</button></div></nav>
+
+<section class="hero" id="hero">
+<div class="hero-particles" id="heroParticles"></div>
+<div class="container hero-content">
+${d.logo?'<img src="logo.png" alt="'+d.name+'" class="hero-logo-main">':''}
+<h1>${d.name}</h1>
+<p class="hero-tagline">${d.tagline}</p>
+<p class="hero-desc">${d.description}</p>
+<div class="hero-btns">
+<a href="#buy" class="btn-primary">🚀 Buy ${d.ticker} Now</a>
+<a href="#about" class="btn-secondary">Learn More</a>
+</div>
+<div class="hero-stats">
+<div class="stat"><span class="stat-val">${d.totalSupply}</span><span class="stat-lbl">Total Supply</span></div>
+<div class="stat"><span class="stat-val">${d.tax}</span><span class="stat-lbl">Tax</span></div>
+<div class="stat"><span class="stat-val">${d.blockchain}</span><span class="stat-lbl">Network</span></div>
+<div class="stat"><span class="stat-val">${d.launchDate}</span><span class="stat-lbl">Launch</span></div>
+</div>
+</div>
+</section>
+
+<section class="about" id="about">
+<div class="container">
+<h2>What is ${d.name}?</h2>
+<p class="section-desc">${d.description}</p>
+<div class="about-highlights">
+<div class="highlight-item"><span class="hl-icon">⛓️</span><span class="hl-text">Built on ${d.blockchain}</span></div>
+<div class="highlight-item"><span class="hl-icon">📁</span><span class="hl-text">${d.category}</span></div>
+<div class="highlight-item"><span class="hl-icon">🚀</span><span class="hl-text">Launch: ${d.launchPlatform}</span></div>
+</div>
+</div>
+</section>
+
+<section class="features" id="features">
+<div class="container">
+<h2>Why Choose ${d.name}?</h2>
+<p class="section-desc">Key features that make ${d.ticker} stand out</p>
+<div class="features-grid">
+${d.features.map(f=>`<div class="feature-card"><div class="feature-icon">${f.t.split(' ')[0]}</div><h3>${f.t.substring(f.t.indexOf(' ')+1)}</h3><p>${f.d}</p></div>`).join('')}
+</div>
+</div>
+</section>
+
+<section class="tokenomics" id="tokenomics">
+<div class="container">
+<h2>Tokenomics</h2>
+<p class="section-desc">Fair, transparent, and community-first</p>
+<div class="token-grid">
+<div class="token-card"><div class="token-icon">💰</div><h3>Total Supply</h3><p>${d.totalSupply}</p></div>
+<div class="token-card"><div class="token-icon">📊</div><h3>Buy/Sell Tax</h3><p>${d.tax}</p></div>
+<div class="token-card"><div class="token-icon">⛓️</div><h3>Network</h3><p>${d.blockchain}</p></div>
+<div class="token-card"><div class="token-icon">🚀</div><h3>Platform</h3><p>${d.launchPlatform}</p></div>
+</div>
+${d.contract?`<div class="contract-box"><p>📋 Contract Address</p><code id="contractAddr">${d.contract}</code><button class="copy-btn" onclick="navigator.clipboard.writeText('${d.contract}');this.textContent='✅ Copied!';setTimeout(()=>this.textContent='📋 Copy',2000)">📋 Copy</button></div>`:'<div class="contract-box"><p>📋 Contract Address</p><code>TBA — Will be announced on launch day</code></div>'}
+</div>
+</section>
+
+${roadmapHtml}
+
+<section class="buy" id="buy">
+<div class="container">
+<h2>How to Buy ${d.ticker}</h2>
+<p class="section-desc">Get your tokens in 4 simple steps</p>
+<div class="steps">
+<div class="step"><div class="step-num">1</div><h3>Create Wallet</h3><p>Download ${d.blockchain==='Solana'?'Phantom':'MetaMask'} wallet and secure your seed phrase</p></div>
+<div class="step"><div class="step-num">2</div><h3>Get ${d.blockchain==='Solana'?'SOL':'ETH'}</h3><p>Buy ${d.blockchain==='Solana'?'SOL':'ETH'} from any exchange and send to your wallet</p></div>
+<div class="step"><div class="step-num">3</div><h3>Visit ${d.launchPlatform}</h3><p>Go to ${d.launchPlatform}, connect your wallet, and find ${d.ticker}</p></div>
+<div class="step"><div class="step-num">4</div><h3>Swap & Hold</h3><p>Enter amount, confirm swap, and welcome to the ${d.name} family!</p></div>
+</div>
+</div>
+</section>
+
+${socialsHtml}
+
+<footer class="footer">
+<div class="container">
+<div class="footer-top">
+<div class="footer-brand">${d.logo?'<img src="logo.png" alt="'+d.name+'" class="footer-logo">':''}<span>${d.name}</span></div>
+<div class="footer-links">
+<a href="#about">About</a>
+<a href="#tokenomics">Tokenomics</a>
+${d.roadmap.length?'<a href="#roadmap">Roadmap</a>':''}
+<a href="#buy">Buy</a>
+</div>
+</div>
+<div class="footer-bottom">
+<p>&copy; 2026 ${d.name}. All rights reserved.</p>
+<p class="disclaimer">⚠️ Disclaimer: This is not financial advice. Cryptocurrency investments carry high risk. Always DYOR. Only invest what you can afford to lose.</p>
+</div>
+</div>
+</footer>
+<` + `script src="script.js"><` + `/script>
+</body>
+</html>`;}
+
+function buildCSS(d){
+const themes = {
+'neon-dark': {primary:'#8b5cf6',accent:'#f72585',cyan:'#00f5ff',green:'#06d6a0',dark:'#0a0a1a',card:'#16162e',border:'#2a2a50',text:'#e8e8f0',muted:'#9898b8'},
+'ocean-blue': {primary:'#3b82f6',accent:'#38bdf8',cyan:'#67e8f9',green:'#34d399',dark:'#0c1929',card:'#132f4c',border:'#1e4976',text:'#e2e8f0',muted:'#94a3b8'},
+'gold-luxury': {primary:'#d97706',accent:'#f59e0b',cyan:'#fbbf24',green:'#a3e635',dark:'#1a1a0f',card:'#2a2510',border:'#3d3520',text:'#fef3c7',muted:'#a8a080'}
+};
+const t = themes[d.theme] || themes['neon-dark'];
+return `*{margin:0;padding:0;box-sizing:border-box}
+:root{--primary:${t.primary};--accent:${t.accent};--cyan:${t.cyan};--green:${t.green};--dark:${t.dark};--card:${t.card};--border:${t.border};--text:${t.text};--muted:${t.muted}}
+body{font-family:'Segoe UI',sans-serif;background:var(--dark);color:var(--text);line-height:1.6}
+.container{max-width:1100px;margin:0 auto;padding:0 20px}
+.navbar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(${hexToRgb(t.dark)},.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:15px 0}
+.nav-inner{display:flex;align-items:center;justify-content:space-between}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--accent);font-weight:800;font-size:1.3rem}
+.nav-logo img,.hero-logo{width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid var(--accent)}
+.hero-logo-placeholder{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--primary));display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.2rem;margin:0 auto 20px;color:#fff}
+.nav-links{display:flex;list-style:none;gap:25px;align-items:center}
+.nav-links a{color:var(--text);text-decoration:none;font-weight:500;transition:color .3s}
+.nav-links a:hover{color:var(--accent)}
+.nav-cta{background:linear-gradient(135deg,var(--accent),var(--primary));color:#fff!important;padding:8px 20px;border-radius:50px}
+.hero{min-height:100vh;display:flex;align-items:center;text-align:center;padding:120px 20px 80px}
+.hero-content{max-width:700px;margin:0 auto}
+.hero h1{font-size:3.5rem;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--primary),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:15px 0}
+.hero .tagline{font-size:1.2rem;color:var(--cyan);font-weight:600;margin-bottom:15px}
+.hero .desc{color:var(--muted);margin-bottom:30px;font-size:1.05rem}
+.btn-primary{display:inline-block;padding:14px 35px;background:linear-gradient(135deg,var(--accent),var(--primary));color:#fff;text-decoration:none;border-radius:50px;font-weight:700;font-size:1.1rem;transition:all .3s}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(${hexToRgb(t.accent)},.4)}
+.hero-stats{display:flex;justify-content:center;gap:40px;margin-top:40px;flex-wrap:wrap}
+.stat{text-align:center}.stat-val{display:block;font-size:1.5rem;font-weight:700;color:var(--green)}.stat-lbl{font-size:.8rem;color:var(--muted)}
+section{padding:80px 0}
+h2{font-size:2rem;font-weight:800;text-align:center;margin-bottom:40px;background:linear-gradient(135deg,var(--accent),var(--primary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.about p{text-align:center;color:var(--muted);max-width:700px;margin:0 auto 40px;font-size:1.05rem}
+.features-grid,.token-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px}
+.feature-card,.token-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:25px;text-align:center;transition:all .3s}
+.feature-card:hover,.token-card:hover{transform:translateY(-5px);border-color:var(--accent);box-shadow:0 10px 30px rgba(${hexToRgb(t.accent)},.1)}
+.feature-card h3,.token-card h3{color:#fff;margin-bottom:8px}
+.feature-card p,.token-card p{color:var(--muted);font-size:.9rem}
+.token-card h3{font-size:.9rem;color:var(--muted)}.token-card p{font-size:1.3rem;font-weight:700;color:var(--cyan)}
+.contract-box{text-align:center;margin-top:30px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px}
+.contract-box p{color:var(--muted);margin-bottom:8px;font-size:.85rem}
+.contract-box code{color:var(--cyan);font-size:.85rem;word-break:break-all}
+.roadmap-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px}
+.roadmap-item{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:25px;text-align:center;transition:all .3s}
+.roadmap-item:hover{border-color:var(--primary)}
+.roadmap-item .phase{background:linear-gradient(135deg,var(--accent),var(--primary));color:#fff;display:inline-block;padding:5px 15px;border-radius:50px;font-weight:700;font-size:.8rem;margin-bottom:12px}
+.roadmap-item p{color:var(--muted);font-size:.9rem}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px}
+.step{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:25px;text-align:center}
+.step span{display:inline-flex;width:40px;height:40px;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--accent),var(--primary));border-radius:50%;color:#fff;font-weight:700;margin-bottom:12px}
+.step p{color:var(--muted);font-size:.9rem}
+.social-links{display:flex;justify-content:center;gap:15px;flex-wrap:wrap}
+.social-btn{display:inline-block;padding:12px 25px;border-radius:50px;text-decoration:none;font-weight:600;color:#fff;transition:all .3s}
+.social-btn.tg{background:#0088cc}.social-btn.tw{background:#1da1f2}.social-btn.dc{background:#5865f2}
+.social-btn:hover{transform:translateY(-3px);box-shadow:0 5px 15px rgba(0,0,0,.3)}
+.footer{border-top:1px solid var(--border);padding:30px 0;text-align:center}
+.footer p{color:var(--muted);font-size:.85rem;margin-bottom:5px}
+.disclaimer{font-size:.75rem!important;opacity:.6}
+@media(max-width:768px){.nav-links{display:none}.nav-links.active{display:flex;position:absolute;top:100%;left:0;right:0;background:var(--dark);flex-direction:column;padding:20px;gap:15px;border-bottom:1px solid var(--border)}.mobile-menu{display:block}.hero h1{font-size:2.2rem}.hero-stats{gap:20px}.stat-val{font-size:1.2rem}.hero-btns{flex-direction:column;align-items:center}}
+.bg-animation{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;pointer-events:none}
+#bgCanvas{width:100%;height:100%}
+.mobile-menu{display:none;background:none;border:none;color:var(--text);font-size:1.5rem;cursor:pointer}
+.hero-logo-main{width:120px;height:120px;border-radius:50%;object-fit:cover;border:3px solid var(--accent);box-shadow:0 0 30px rgba(${hexToRgb(t.accent)},.4);animation:float 3s ease-in-out infinite;margin-bottom:15px}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.hero-tagline{font-size:1.2rem;color:var(--cyan);font-weight:600;margin-bottom:12px}
+.hero-desc{color:var(--muted);margin-bottom:25px;font-size:1rem;max-width:600px;margin-left:auto;margin-right:auto}
+.hero-btns{display:flex;gap:15px;justify-content:center;margin-bottom:40px;flex-wrap:wrap}
+.btn-secondary{display:inline-block;padding:14px 35px;border:2px solid var(--primary);color:var(--primary);text-decoration:none;border-radius:50px;font-weight:700;font-size:1rem;transition:all .3s}
+.btn-secondary:hover{background:var(--primary);color:#fff;transform:translateY(-3px)}
+.section-desc{text-align:center;color:var(--muted);max-width:600px;margin:0 auto 40px;font-size:1rem}
+.about-highlights{display:flex;justify-content:center;gap:20px;flex-wrap:wrap;margin-top:30px}
+.highlight-item{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);padding:10px 20px;border-radius:50px}
+.hl-icon{font-size:1.2rem}.hl-text{color:var(--muted);font-size:.85rem;font-weight:500}
+.feature-icon{font-size:2.5rem;margin-bottom:12px}
+.token-icon{font-size:2rem;margin-bottom:10px}
+.copy-btn{background:var(--primary);color:#fff;border:none;padding:6px 14px;border-radius:8px;cursor:pointer;font-size:.8rem;margin-top:8px;transition:all .3s}
+.copy-btn:hover{background:var(--accent)}
+.roadmap-timeline{position:relative;padding-left:30px}
+.roadmap-timeline::before{content:'';position:absolute;left:12px;top:0;bottom:0;width:3px;background:linear-gradient(to bottom,var(--accent),var(--primary),var(--cyan));border-radius:3px}
+.roadmap-item{position:relative;margin-bottom:30px}
+.roadmap-marker{position:absolute;left:-30px;top:0}
+.roadmap-marker span{display:inline-block;background:linear-gradient(135deg,var(--accent),var(--primary));color:#fff;padding:4px 12px;border-radius:50px;font-size:.7rem;font-weight:700}
+.roadmap-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:25px;margin-left:10px;transition:all .3s}
+.roadmap-card:hover{border-color:var(--accent);transform:translateX(5px)}
+.roadmap-card h3{color:#fff;margin-bottom:8px;font-size:1rem}
+.roadmap-card p{color:var(--muted);font-size:.9rem}
+.step-num{width:50px;height:50px;display:inline-flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--accent),var(--primary));border-radius:50%;color:#fff;font-weight:800;font-size:1.2rem;margin-bottom:15px}
+.step h3{color:#fff;margin-bottom:8px;font-size:1rem}
+.social-btn{display:flex;flex-direction:column;align-items:center;gap:5px;padding:20px 30px;border-radius:16px}
+.social-icon{font-size:2rem}
+.community-stats{display:flex;justify-content:center;gap:40px;margin-top:40px;flex-wrap:wrap}
+.cs-item{text-align:center}
+.cs-val{display:block;font-size:1.3rem;font-weight:700;color:var(--cyan)}
+.cs-lbl{font-size:.8rem;color:var(--muted)}
+.footer-top{display:flex;justify-content:space-between;align-items:center;padding-bottom:20px;margin-bottom:20px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:20px}
+.footer-brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.2rem;color:var(--accent)}
+.footer-logo{width:30px;height:30px;border-radius:50%;object-fit:cover}
+.footer-links{display:flex;gap:20px;flex-wrap:wrap}
+.footer-links a{color:var(--muted);text-decoration:none;font-size:.9rem;transition:color .3s}
+.footer-links a:hover{color:var(--accent)}
+.footer-bottom{text-align:center}
+.animate-in{opacity:0;transform:translateY(25px);transition:all .6s ease}
+.animate-in.visible{opacity:1;transform:translateY(0)}
+@media(max-width:480px){.hero h1{font-size:1.8rem}.hero-logo-main{width:90px;height:90px}.about-highlights{flex-direction:column;align-items:center}}`;}
+
+function hexToRgb(hex){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return `${r},${g},${b}`;}
+
+function buildJS(){return `// Background Animation
+const canvas=document.getElementById('bgCanvas');const ctx=canvas.getContext('2d');let w,h,particles=[];
+function resize(){w=canvas.width=window.innerWidth;h=canvas.height=window.innerHeight;}
+resize();window.addEventListener('resize',resize);
+class Particle{constructor(){this.x=Math.random()*w;this.y=Math.random()*h;this.vx=(Math.random()-.5)*.3;this.vy=(Math.random()-.5)*.3;this.r=Math.random()*2+1;this.color=getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();}
+update(){this.x+=this.vx;this.y+=this.vy;if(this.x<0||this.x>w)this.vx*=-1;if(this.y<0||this.y>h)this.vy*=-1;}
+draw(){ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);ctx.fillStyle=this.color;ctx.globalAlpha=.4;ctx.fill();ctx.globalAlpha=1;}}
+for(let i=0;i<60;i++)particles.push(new Particle());
+function drawLines(){for(let i=0;i<particles.length;i++){for(let j=i+1;j<particles.length;j++){const dx=particles[i].x-particles[j].x;const dy=particles[i].y-particles[j].y;const dist=Math.sqrt(dx*dx+dy*dy);if(dist<150){ctx.beginPath();ctx.moveTo(particles[i].x,particles[i].y);ctx.lineTo(particles[j].x,particles[j].y);ctx.strokeStyle=particles[i].color;ctx.globalAlpha=(1-dist/150)*.1;ctx.stroke();ctx.globalAlpha=1;}}}}
+function animate(){ctx.clearRect(0,0,w,h);particles.forEach(p=>{p.update();p.draw();});drawLines();requestAnimationFrame(animate);}
+animate();
+
+// Mobile menu
+const mm=document.getElementById('mobileMenu');const nl=document.querySelector('.nav-links');
+if(mm)mm.addEventListener('click',()=>nl.classList.toggle('active'));
+
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',function(e){e.preventDefault();const t=document.querySelector(this.getAttribute('href'));if(t)t.scrollIntoView({behavior:'smooth'});if(nl)nl.classList.remove('active');});});
+
+// Navbar scroll
+window.addEventListener('scroll',()=>{const n=document.querySelector('.navbar');if(window.scrollY>50){n.style.background='rgba(0,0,0,0.95)';n.style.boxShadow='0 5px 20px rgba(0,0,0,0.3)';}else{n.style.boxShadow='none';}});
+
+// Scroll animations
+const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');}});},{threshold:0.1});
+document.querySelectorAll('.feature-card,.token-card,.roadmap-item,.roadmap-card,.step,.social-btn,.highlight-item,.cs-item').forEach(el=>{el.classList.add('animate-in');obs.observe(el);});`;}
+
+async function downloadZip(){
+    const d=projectData;
+    const zip=new JSZip();
+    zip.file('index.html',buildHTML(d));
+    zip.file('style.css',buildCSS(d));
+    zip.file('script.js',buildJS());
+    if(d.logo){
+        const base64=d.logo.split(',')[1];
+        zip.file('logo.png',base64,{base64:true});
     }
+    zip.file('README.md',`# ${d.name}\n\n${d.tagline}\n\n## Deploy\n1. Upload all files to any web hosting\n2. Or open index.html in browser\n\n## Files\n- index.html - Main page\n- style.css - Styles\n- script.js - Animations\n- logo.png - Project logo\n\nGenerated by Grokie Inu AI Promotion Engine`);
 
-    function generatePromotion() {
-        const name = document.getElementById('projectName').value.trim();
-        const ticker = document.getElementById('tokenTicker').value.trim();
-        const desc = document.getElementById('projectDesc').value.trim();
-        const blockchain = document.getElementById('blockchain').value;
-        const category = document.getElementById('projectCategory').value;
-        const url = document.getElementById('projectUrl').value.trim();
-        const twitter = document.getElementById('projectTwitter').value.trim();
-        const telegram = document.getElementById('projectTelegram').value.trim();
-        const contract = document.getElementById('contractAddr').value.trim();
+    const blob=await zip.generateAsync({type:'blob'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    a.download=`${d.name.toLowerCase().replace(/\s+/g,'-')}-website.zip`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('✅ ZIP downloaded!');
+}
 
-        if (!name || !ticker || !desc) {
-            showToast('⚠️ Please fill in Project Name, Token Ticker, and Description.');
-            return;
-        }
+function previewWebCode(){
+    const d=projectData;
+    const css = buildCSS(d);
+    const js = buildJS();
+    let html = buildHTML(d);
+    html = html.replace('<link rel="stylesheet" href="style.css">', '<sty' + 'le>' + css + '</sty' + 'le>');
+    html = html.replace(/<scr.pt src="script\.js"><\/scr.pt>/, '<scr' + 'ipt>' + js + '</scr' + 'ipt>');
+    document.getElementById('previewModal').style.display='flex';
+    document.getElementById('previewFrame').srcdoc=html;
+}
 
-        // Hide form, show loading
-        document.getElementById('engineForm').style.display = 'none';
-        document.getElementById('loadingSection').classList.add('active');
-
-        // Simulate AI processing steps
-        const steps = ['step1','step2','step3','step4','step5','step6'];
-        let i = 0;
-        const interval = setInterval(() => {
-            if (i > 0) document.getElementById(steps[i-1]).classList.remove('active');
-            if (i > 0) document.getElementById(steps[i-1]).classList.add('done');
-            if (i < steps.length) {
-                document.getElementById(steps[i]).classList.add('active');
-                i++;
-            } else {
-                clearInterval(interval);
-                setTimeout(() => showResult(name, ticker, desc, blockchain, category, url, twitter, telegram, contract), 500);
-            }
-        }, 800);
-    }
-
-    function showResult(name, ticker, desc, blockchain, category, url, twitter, telegram, contract) {
-        document.getElementById('loadingSection').classList.remove('active');
-        document.getElementById('resultSection').classList.add('active');
-
-        // Generate content based on input
-        const taglines = [
-            `The Next-Gen ${category} Project on ${blockchain}`,
-            `Revolutionizing ${category} with ${name}`,
-            `${blockchain}'s Most Promising ${category} Token`,
-            `Building the Future of ${category} — Powered by ${name}`
-        ];
-        const tagline = taglines[Math.floor(Math.random() * taglines.length)];
-
-        const features = generateFeatures(category, blockchain, ticker);
-        const socialContent = generateSocialPost(name, ticker, desc, blockchain, tagline, twitter, telegram);
-        const scores = generateScores(url, twitter, telegram, contract, desc);
-
-        // Fill result
-        document.getElementById('resultName').textContent = name;
-        document.getElementById('previewUrl').textContent = `${name.toLowerCase().replace(/\s+/g,'')}.grokie.ai`;
-        document.getElementById('previewTitle').textContent = name;
-        document.getElementById('previewTagline').textContent = tagline;
-        document.getElementById('previewDesc').textContent = generateLongDesc(name, ticker, desc, category, blockchain);
-
-        const featuresHtml = features.map(f => `<div class="feature-item"><strong>${f.title}</strong>${f.desc}</div>`).join('');
-        document.getElementById('previewFeatures').innerHTML = featuresHtml;
-        document.getElementById('previewCta').textContent = `Buy ${ticker} Now`;
-
-        document.getElementById('socialPost').textContent = socialContent;
-
-        document.getElementById('scoreOverall').textContent = scores.overall + '/100';
-        document.getElementById('scoreCommunity').textContent = scores.community + '/100';
-        document.getElementById('scoreTransparency').textContent = scores.transparency + '/100';
-    }
-
-    function generateFeatures(category, blockchain, ticker) {
-        const base = [
-            {title: '⚡ Fast & Cheap', desc: `Built on ${blockchain} for instant transactions`},
-            {title: '🔒 Secure', desc: 'Audited smart contract with locked liquidity'},
-            {title: '👥 Community', desc: 'Active and growing community of holders'},
-            {title: '📈 Growth', desc: `${ticker} is designed for long-term value`}
-        ];
-        const extras = {
-            'Meme Coin': {title: '🐕 Meme Power', desc: 'Viral potential with strong meme culture'},
-            'DeFi': {title: '💰 Yield', desc: 'Earn passive income through staking & farming'},
-            'GameFi': {title: '🎮 Play & Earn', desc: 'Gaming ecosystem with real rewards'},
-            'NFT': {title: '🎨 Digital Art', desc: 'Unique NFT collection with utility'},
-            'AI': {title: '🤖 AI-Powered', desc: 'Leveraging artificial intelligence for innovation'},
-            'Infrastructure': {title: '🏗️ Building', desc: 'Core infrastructure for the ecosystem'}
-        };
-        if (extras[category]) base[0] = extras[category];
-        return base;
-    }
-
-    function generateLongDesc(name, ticker, desc, category, blockchain) {
-        return `${name} (${ticker}) is a ${category.toLowerCase()} project built on the ${blockchain} blockchain. ${desc} With a focus on community-driven growth and transparent development, ${name} aims to deliver real value to its holders while pushing the boundaries of what's possible in the ${category.toLowerCase()} space.`;
-    }
-
-    function generateSocialPost(name, ticker, desc, blockchain, tagline, twitter, telegram) {
-        let post = `🚀 Introducing ${name} (${ticker})\n\n`;
-        post += `${tagline}\n\n`;
-        post += `🔹 ${desc.substring(0, 120)}${desc.length > 120 ? '...' : ''}\n\n`;
-        post += `⛓️ Chain: ${blockchain}\n`;
-        post += `💎 Why ${ticker}?\n`;
-        post += `✅ Strong community\n`;
-        post += `✅ Transparent team\n`;
-        post += `✅ Real utility\n\n`;
-        if (twitter) post += `🐦 Follow: ${twitter}\n`;
-        if (telegram) post += `💬 Join: ${telegram}\n`;
-        post += `\n#${name.replace(/\s+/g,'')} #${blockchain} #Crypto #${ticker.replace('$','')}`;
-        return post;
-    }
-
-    function generateScores(url, twitter, telegram, contract, desc) {
-        let overall = 40;
-        let community = 30;
-        let transparency = 35;
-
-        if (url) { overall += 15; transparency += 20; }
-        if (twitter) { overall += 10; community += 25; }
-        if (telegram) { overall += 10; community += 25; }
-        if (contract) { overall += 10; transparency += 20; }
-        if (desc.length > 100) { overall += 5; transparency += 10; }
-        if (desc.length > 200) { overall += 5; }
-
-        overall = Math.min(overall, 95);
-        community = Math.min(community, 95);
-        transparency = Math.min(transparency, 95);
-
-        // Add some randomness
-        overall += Math.floor(Math.random() * 5) - 2;
-        community += Math.floor(Math.random() * 5) - 2;
-        transparency += Math.floor(Math.random() * 5) - 2;
-
-        return { overall: Math.max(20, Math.min(95, overall)), community: Math.max(20, Math.min(95, community)), transparency: Math.max(20, Math.min(95, transparency)) };
-    }
-
-    function resetForm() {
-        document.getElementById('resultSection').classList.remove('active');
-        document.getElementById('engineForm').style.display = 'block';
-        document.getElementById('projectName').value = '';
-        document.getElementById('tokenTicker').value = '';
-        document.getElementById('projectDesc').value = '';
-        document.getElementById('projectUrl').value = '';
-        document.getElementById('contractAddr').value = '';
-        document.getElementById('projectTwitter').value = '';
-        document.getElementById('projectTelegram').value = '';
-
-        // Reset loading steps
-        document.querySelectorAll('.loading-steps li').forEach(li => {
-            li.classList.remove('active','done');
-        });
-    }
-    </script>
+function closePreview(){document.getElementById('previewModal').style.display='none';}
+</script>
 </body>
 </html>
