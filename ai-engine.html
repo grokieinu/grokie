@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>Grokie Inu - AI Promotion Engine (Beta)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--primary:#8b5cf6;--primary-dark:#7c3aed;--secondary:#06d6a0;--accent:#f72585;--neon-blue:#00f5ff;--dark:#0a0a1a;--dark-light:#12122a;--text:#e8e8f0;--text-muted:#9898b8;--card-bg:#16162e;--border:#2a2a50}
+body{font-family:'Inter',sans-serif;background:var(--dark);color:var(--text);line-height:1.6;min-height:100vh}
+.container{max-width:900px;margin:0 auto;padding:0 20px}
+
+/* Header */
+.header{background:rgba(10,10,26,.98);border-bottom:1px solid var(--border);padding:15px 0;position:sticky;top:0;z-index:100;backdrop-filter:blur(10px)}
+.header-inner{display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--accent);font-weight:900;font-size:1.3rem}
+.logo img{width:32px;height:32px;border-radius:50%;border:2px solid var(--accent)}
+.back-btn{color:var(--text-muted);text-decoration:none;font-size:.9rem;transition:color .3s}
+.back-btn:hover{color:var(--accent)}
+.beta-tag{background:var(--accent);color:#fff;padding:3px 10px;border-radius:50px;font-size:.7rem;font-weight:700}
+
+/* Hero */
+.hero{text-align:center;padding:60px 20px 40px}
+.hero h1{font-size:2.2rem;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--primary),var(--neon-blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:10px}
+.hero p{color:var(--text-muted);max-width:600px;margin:0 auto}
+
+/* Form */
+.engine-form{background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:40px;margin:0 auto 40px;max-width:700px}
+.form-title{font-size:1.3rem;font-weight:700;margin-bottom:5px;color:#fff}
+.form-subtitle{color:var(--text-muted);font-size:.9rem;margin-bottom:30px}
+.form-group{margin-bottom:20px}
+.form-group label{display:block;font-weight:600;margin-bottom:6px;font-size:.9rem;color:var(--text)}
+.form-group input,.form-group textarea,.form-group select{width:100%;padding:12px 16px;background:var(--dark);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:.95rem;font-family:inherit;transition:border-color .3s}
+.form-group input:focus,.form-group textarea:focus,.form-group select:focus{outline:none;border-color:var(--primary)}
+.form-group textarea{resize:vertical;min-height:100px}
+.form-group select{cursor:pointer}
+.form-group small{color:var(--text-muted);font-size:.8rem;margin-top:4px;display:block}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+
+.generate-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--accent),var(--primary));color:#fff;border:none;border-radius:50px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all .3s;margin-top:10px}
+.generate-btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(247,37,133,.4)}
+.generate-btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+
+/* Loading */
+.loading{display:none;text-align:center;padding:40px}
+.loading.active{display:block}
+.loading-spinner{width:50px;height:50px;border:4px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 20px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading p{color:var(--text-muted);font-size:.95rem}
+.loading-steps{list-style:none;margin-top:15px;text-align:left;max-width:350px;margin-left:auto;margin-right:auto}
+.loading-steps li{padding:6px 0;color:var(--text-muted);font-size:.85rem;opacity:.4;transition:all .5s}
+.loading-steps li.active{opacity:1;color:var(--secondary)}
+.loading-steps li.done{opacity:1;color:var(--secondary)}
+
+/* Result */
+.result{display:none;margin:0 auto 60px;max-width:700px}
+.result.active{display:block}
+.result-header{text-align:center;margin-bottom:30px}
+.result-header h2{font-size:1.5rem;color:var(--secondary);margin-bottom:5px}
+.result-header p{color:var(--text-muted);font-size:.9rem}
+
+.result-preview{background:var(--card-bg);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:20px}
+.preview-bar{background:var(--dark);padding:10px 15px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border)}
+.preview-dot{width:10px;height:10px;border-radius:50%}
+.preview-dot.red{background:#ff5f57}
+.preview-dot.yellow{background:#ffbd2e}
+.preview-dot.green{background:#28c840}
+.preview-url{color:var(--text-muted);font-size:.8rem;margin-left:10px}
+.preview-content{padding:30px}
+.preview-content h3{color:var(--neon-blue);font-size:1.4rem;margin-bottom:10px}
+.preview-content .tagline{color:var(--accent);font-weight:600;margin-bottom:15px}
+.preview-content .desc{color:var(--text-muted);font-size:.9rem;margin-bottom:20px;line-height:1.7}
+.preview-content .features{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.preview-content .feature-item{background:var(--dark);padding:12px;border-radius:8px;font-size:.8rem;color:var(--text-muted)}
+.preview-content .feature-item strong{color:var(--text);display:block;margin-bottom:3px}
+.preview-content .cta-preview{display:inline-block;background:linear-gradient(135deg,var(--accent),var(--primary));color:#fff;padding:10px 24px;border-radius:50px;font-weight:600;font-size:.9rem}
+
+.result-social{background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:25px;margin-bottom:20px}
+.result-social h4{color:#fff;margin-bottom:12px;font-size:1rem}
+.social-post{background:var(--dark);border-radius:10px;padding:15px;font-size:.85rem;color:var(--text-muted);line-height:1.6;white-space:pre-wrap}
+
+.result-score{background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:25px}
+.result-score h4{color:#fff;margin-bottom:15px;font-size:1rem}
+.score-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.score-item{text-align:center;padding:12px;background:var(--dark);border-radius:10px}
+.score-value{font-size:1.5rem;font-weight:800;color:var(--secondary)}
+.score-label{font-size:.75rem;color:var(--text-muted);margin-top:3px}
+
+.try-again-btn{display:block;width:200px;margin:30px auto 0;padding:12px;background:transparent;border:2px solid var(--primary);color:var(--primary);border-radius:50px;font-weight:600;cursor:pointer;transition:all .3s;text-align:center}
+.try-again-btn:hover{background:var(--primary);color:#fff}
+
+/* Responsive */
+@media(max-width:768px){
+    .hero h1{font-size:1.6rem}
+    .engine-form{padding:25px}
+    .form-row{grid-template-columns:1fr}
+    .preview-content .features{grid-template-columns:1fr}
+    .score-grid{grid-template-columns:1fr}
+}
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container header-inner">
+            <a href="index.html" class="logo"><img src="grokie inu.png" alt="Grokie"> Grokie Inu</a>
+            <span class="beta-tag">BETA v0.1</span>
+            <a href="index.html" class="back-btn">← Back to Home</a>
+        </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="container">
+            <h1>🤖 AI Promotion Engine</h1>
+            <p>Submit a crypto project and our AI will generate a promotional website preview, social media content, and a trust score — all in seconds.</p>
+        </div>
+    </section>
+
+    <!-- Form -->
+    <div class="container">
+        <div class="engine-form" id="engineForm">
+            <h3 class="form-title">Submit a Project for AI Promotion</h3>
+            <p class="form-subtitle">Fill in the project details below. Our AI will analyze and generate promotional content.</p>
+
+            <div class="form-group">
+                <label>Project Name *</label>
+                <input type="text" id="projectName" placeholder="e.g. SolanaFloki, MoonDoge" required>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Token Ticker *</label>
+                    <input type="text" id="tokenTicker" placeholder="e.g. $SFLOKI" required>
+                </div>
+                <div class="form-group">
+                    <label>Blockchain</label>
+                    <select id="blockchain">
+                        <option value="Solana">Solana</option>
+                        <option value="Ethereum">Ethereum</option>
+                        <option value="BSC">BSC</option>
+                        <option value="Base">Base</option>
+                        <option value="Polygon">Polygon</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Project Description *</label>
+                <textarea id="projectDesc" placeholder="Describe what the project does, its utility, and what makes it unique..."></textarea>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Website URL</label>
+                    <input type="url" id="projectUrl" placeholder="https://example.com">
+                </div>
+                <div class="form-group">
+                    <label>Contract Address</label>
+                    <input type="text" id="contractAddr" placeholder="0x... or So1...">
+                    <small>Optional — used for trust score analysis</small>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Twitter/X</label>
+                    <input type="text" id="projectTwitter" placeholder="@projecthandle">
+                </div>
+                <div class="form-group">
+                    <label>Telegram</label>
+                    <input type="text" id="projectTelegram" placeholder="t.me/projectgroup">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Category</label>
+                <select id="projectCategory">
+                    <option value="Meme Coin">Meme Coin</option>
+                    <option value="DeFi">DeFi</option>
+                    <option value="GameFi">GameFi</option>
+                    <option value="NFT">NFT</option>
+                    <option value="AI">AI</option>
+                    <option value="Infrastructure">Infrastructure</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <button class="generate-btn" id="generateBtn" onclick="generatePromotion()">🤖 Generate AI Promotion</button>
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading" id="loadingSection">
+        <div class="loading-spinner"></div>
+        <p>AI is analyzing and generating content...</p>
+        <ul class="loading-steps">
+            <li id="step1">🔍 Analyzing project information...</li>
+            <li id="step2">🛡️ Running safety checks...</li>
+            <li id="step3">✍️ Generating promotional copy...</li>
+            <li id="step4">🎨 Building website preview...</li>
+            <li id="step5">📱 Creating social media content...</li>
+            <li id="step6">📊 Calculating trust score...</li>
+        </ul>
+    </div>
+
+    <!-- Result -->
+    <div class="container">
+        <div class="result" id="resultSection">
+            <div class="result-header">
+                <h2>✅ AI Promotion Generated!</h2>
+                <p>Here's what our AI created for <span id="resultName"></span></p>
+            </div>
+
+            <!-- Website Preview -->
+            <div class="result-preview">
+                <div class="preview-bar">
+                    <span class="preview-dot red"></span>
+                    <span class="preview-dot yellow"></span>
+                    <span class="preview-dot green"></span>
+                    <span class="preview-url" id="previewUrl"></span>
+                </div>
+                <div class="preview-content">
+                    <h3 id="previewTitle"></h3>
+                    <p class="tagline" id="previewTagline"></p>
+                    <p class="desc" id="previewDesc"></p>
+                    <div class="features" id="previewFeatures"></div>
+                    <span class="cta-preview" id="previewCta"></span>
+                </div>
+            </div>
+
+            <!-- Social Media Post -->
+            <div class="result-social">
+                <h4>📱 Generated Twitter/X Thread</h4>
+                <div class="social-post" id="socialPost"></div>
+            </div>
+
+            <!-- Trust Score -->
+            <div class="result-score">
+                <h4>📊 AI Trust Score Analysis</h4>
+                <div class="score-grid">
+                    <div class="score-item">
+                        <div class="score-value" id="scoreOverall">--</div>
+                        <div class="score-label">Overall Score</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-value" id="scoreCommunity">--</div>
+                        <div class="score-label">Community</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-value" id="scoreTransparency">--</div>
+                        <div class="score-label">Transparency</div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="try-again-btn" onclick="resetForm()">🔄 Try Another Project</button>
+        </div>
+    </div>
+
+    <script>
+    function generatePromotion() {
+        const name = document.getElementById('projectName').value.trim();
+        const ticker = document.getElementById('tokenTicker').value.trim();
+        const desc = document.getElementById('projectDesc').value.trim();
+        const blockchain = document.getElementById('blockchain').value;
+        const category = document.getElementById('projectCategory').value;
+        const url = document.getElementById('projectUrl').value.trim();
+        const twitter = document.getElementById('projectTwitter').value.trim();
+        const telegram = document.getElementById('projectTelegram').value.trim();
+        const contract = document.getElementById('contractAddr').value.trim();
+
+        if (!name || !ticker || !desc) {
+            alert('Please fill in Project Name, Token Ticker, and Description.');
+            return;
+        }
+
+        // Hide form, show loading
+        document.getElementById('engineForm').style.display = 'none';
+        document.getElementById('loadingSection').classList.add('active');
+
+        // Simulate AI processing steps
+        const steps = ['step1','step2','step3','step4','step5','step6'];
+        let i = 0;
+        const interval = setInterval(() => {
+            if (i > 0) document.getElementById(steps[i-1]).classList.remove('active');
+            if (i > 0) document.getElementById(steps[i-1]).classList.add('done');
+            if (i < steps.length) {
+                document.getElementById(steps[i]).classList.add('active');
+                i++;
+            } else {
+                clearInterval(interval);
+                setTimeout(() => showResult(name, ticker, desc, blockchain, category, url, twitter, telegram, contract), 500);
+            }
+        }, 800);
+    }
+
+    function showResult(name, ticker, desc, blockchain, category, url, twitter, telegram, contract) {
+        document.getElementById('loadingSection').classList.remove('active');
+        document.getElementById('resultSection').classList.add('active');
+
+        // Generate content based on input
+        const taglines = [
+            `The Next-Gen ${category} Project on ${blockchain}`,
+            `Revolutionizing ${category} with ${name}`,
+            `${blockchain}'s Most Promising ${category} Token`,
+            `Building the Future of ${category} — Powered by ${name}`
+        ];
+        const tagline = taglines[Math.floor(Math.random() * taglines.length)];
+
+        const features = generateFeatures(category, blockchain, ticker);
+        const socialContent = generateSocialPost(name, ticker, desc, blockchain, tagline, twitter, telegram);
+        const scores = generateScores(url, twitter, telegram, contract, desc);
+
+        // Fill result
+        document.getElementById('resultName').textContent = name;
+        document.getElementById('previewUrl').textContent = `${name.toLowerCase().replace(/\s+/g,'')}.grokie.ai`;
+        document.getElementById('previewTitle').textContent = name;
+        document.getElementById('previewTagline').textContent = tagline;
+        document.getElementById('previewDesc').textContent = generateLongDesc(name, ticker, desc, category, blockchain);
+
+        const featuresHtml = features.map(f => `<div class="feature-item"><strong>${f.title}</strong>${f.desc}</div>`).join('');
+        document.getElementById('previewFeatures').innerHTML = featuresHtml;
+        document.getElementById('previewCta').textContent = `Buy ${ticker} Now`;
+
+        document.getElementById('socialPost').textContent = socialContent;
+
+        document.getElementById('scoreOverall').textContent = scores.overall + '/100';
+        document.getElementById('scoreCommunity').textContent = scores.community + '/100';
+        document.getElementById('scoreTransparency').textContent = scores.transparency + '/100';
+    }
+
+    function generateFeatures(category, blockchain, ticker) {
+        const base = [
+            {title: '⚡ Fast & Cheap', desc: `Built on ${blockchain} for instant transactions`},
+            {title: '🔒 Secure', desc: 'Audited smart contract with locked liquidity'},
+            {title: '👥 Community', desc: 'Active and growing community of holders'},
+            {title: '📈 Growth', desc: `${ticker} is designed for long-term value`}
+        ];
+        const extras = {
+            'Meme Coin': {title: '🐕 Meme Power', desc: 'Viral potential with strong meme culture'},
+            'DeFi': {title: '💰 Yield', desc: 'Earn passive income through staking & farming'},
+            'GameFi': {title: '🎮 Play & Earn', desc: 'Gaming ecosystem with real rewards'},
+            'NFT': {title: '🎨 Digital Art', desc: 'Unique NFT collection with utility'},
+            'AI': {title: '🤖 AI-Powered', desc: 'Leveraging artificial intelligence for innovation'},
+            'Infrastructure': {title: '🏗️ Building', desc: 'Core infrastructure for the ecosystem'}
+        };
+        if (extras[category]) base[0] = extras[category];
+        return base;
+    }
+
+    function generateLongDesc(name, ticker, desc, category, blockchain) {
+        return `${name} (${ticker}) is a ${category.toLowerCase()} project built on the ${blockchain} blockchain. ${desc} With a focus on community-driven growth and transparent development, ${name} aims to deliver real value to its holders while pushing the boundaries of what's possible in the ${category.toLowerCase()} space.`;
+    }
+
+    function generateSocialPost(name, ticker, desc, blockchain, tagline, twitter, telegram) {
+        let post = `🚀 Introducing ${name} (${ticker})\n\n`;
+        post += `${tagline}\n\n`;
+        post += `🔹 ${desc.substring(0, 120)}${desc.length > 120 ? '...' : ''}\n\n`;
+        post += `⛓️ Chain: ${blockchain}\n`;
+        post += `💎 Why ${ticker}?\n`;
+        post += `✅ Strong community\n`;
+        post += `✅ Transparent team\n`;
+        post += `✅ Real utility\n\n`;
+        if (twitter) post += `🐦 Follow: ${twitter}\n`;
+        if (telegram) post += `💬 Join: ${telegram}\n`;
+        post += `\n#${name.replace(/\s+/g,'')} #${blockchain} #Crypto #${ticker.replace('$','')}`;
+        return post;
+    }
+
+    function generateScores(url, twitter, telegram, contract, desc) {
+        let overall = 40;
+        let community = 30;
+        let transparency = 35;
+
+        if (url) { overall += 15; transparency += 20; }
+        if (twitter) { overall += 10; community += 25; }
+        if (telegram) { overall += 10; community += 25; }
+        if (contract) { overall += 10; transparency += 20; }
+        if (desc.length > 100) { overall += 5; transparency += 10; }
+        if (desc.length > 200) { overall += 5; }
+
+        overall = Math.min(overall, 95);
+        community = Math.min(community, 95);
+        transparency = Math.min(transparency, 95);
+
+        // Add some randomness
+        overall += Math.floor(Math.random() * 5) - 2;
+        community += Math.floor(Math.random() * 5) - 2;
+        transparency += Math.floor(Math.random() * 5) - 2;
+
+        return { overall: Math.max(20, Math.min(95, overall)), community: Math.max(20, Math.min(95, community)), transparency: Math.max(20, Math.min(95, transparency)) };
+    }
+
+    function resetForm() {
+        document.getElementById('resultSection').classList.remove('active');
+        document.getElementById('engineForm').style.display = 'block';
+        document.getElementById('projectName').value = '';
+        document.getElementById('tokenTicker').value = '';
+        document.getElementById('projectDesc').value = '';
+        document.getElementById('projectUrl').value = '';
+        document.getElementById('contractAddr').value = '';
+        document.getElementById('projectTwitter').value = '';
+        document.getElementById('projectTelegram').value = '';
+
+        // Reset loading steps
+        document.querySelectorAll('.loading-steps li').forEach(li => {
+            li.classList.remove('active','done');
+        });
+    }
+    </script>
+</body>
+</html>

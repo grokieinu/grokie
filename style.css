@@ -93,6 +93,23 @@ body {
     color: var(--accent);
 }
 
+.nav-badge-new {
+    background: var(--secondary);
+    color: #0a0a1a;
+    font-size: 0.6rem;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 5px;
+    vertical-align: top;
+    animation: badgePulse 1.5s ease-in-out infinite;
+}
+
+@keyframes badgePulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
 .mobile-menu-btn {
     display: none;
     background: none;
