@@ -302,3 +302,44 @@ window.addEventListener('resize', resizeCanvas);
 
 initTechBg();
 animateTechBg();
+
+
+// ===== Countdown Timer =====
+function updateCountdown() {
+    const launchDate = new Date('2026-07-07T00:00:00').getTime();
+    const now = new Date().getTime();
+    const diff = launchDate - now;
+
+    if (diff <= 0) {
+        document.getElementById('countDays').textContent = '🚀';
+        document.getElementById('countHours').textContent = '00';
+        document.getElementById('countMinutes').textContent = '00';
+        document.getElementById('countSeconds').textContent = '00';
+        return;
+    }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+    document.getElementById('countDays').textContent = String(days).padStart(3, '0');
+    document.getElementById('countHours').textContent = String(hours).padStart(2, '0');
+    document.getElementById('countMinutes').textContent = String(minutes).padStart(2, '0');
+    document.getElementById('countSeconds').textContent = String(seconds).padStart(2, '0');
+}
+
+updateCountdown();
+setInterval(updateCountdown, 1000);
+
+// ===== FAQ Toggle =====
+function toggleFaq(btn) {
+    const item = btn.parentElement;
+    const isActive = item.classList.contains('active');
+    // Close all
+    document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('active'));
+    // Open clicked (if wasn't active)
+    if (!isActive) {
+        item.classList.add('active');
+    }
+}
