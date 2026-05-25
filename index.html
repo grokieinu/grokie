@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-    <meta name="description" content="Grokie Inu - AI-Powered Meme Coin on Solana. Our AI engine promotes the best crypto projects. Launching 07 July 2026 on Pump.fun.">
+    <meta name="description" content="Grokie Inu - AI-Powered Meme Coin on Solana. Our AI engine promotes the best crypto projects. Live on Raydium.">
     <title>Grokie Inu - AI-Powered Meme Coin | Promote the Best Projects</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -44,8 +44,8 @@
                 <p class="hero-tagline">The AI Meme Coin That Promotes the Best Projects</p>
                 <p class="hero-description">Grokie Inu combines the power of AI with meme culture. Our AI engine automatically builds websites and promotional content for the best crypto projects — powered by the $GROKIE community.</p>
                 <div class="launch-banner">
-                    <span class="launch-badge">LAUNCHING 07 JULY 2026</span>
-                    <p class="launch-platform">on <strong>Pump.fun</strong> — Solana</p>
+                    <span class="launch-badge">LIVE ON RAYDIUM</span>
+                    <p class="launch-platform">Trade now on <strong>Raydium</strong> — Solana</p>
                 </div>
                 <div class="hero-buttons">
                     <a href="#how-to-buy" class="btn btn-primary">How to Buy</a>
@@ -53,16 +53,20 @@
                 </div>
                 <div class="hero-stats">
                     <div class="stat">
+                        <span class="stat-value" id="livePrice">Loading...</span>
+                        <span class="stat-label">Price (USD)</span>
+                    </div>
+                    <div class="stat">
                         <span class="stat-value">1,000,000,000</span>
                         <span class="stat-label">Total Supply</span>
                     </div>
                     <div class="stat">
-                        <span class="stat-value">Pump.fun</span>
-                        <span class="stat-label">Launch Platform</span>
+                        <span class="stat-value">Raydium</span>
+                        <span class="stat-label">DEX</span>
                     </div>
                     <div class="stat">
-                        <span class="stat-value">07 July 2026</span>
-                        <span class="stat-label">Launch Date</span>
+                        <span class="stat-value">LIVE</span>
+                        <span class="stat-label">Status</span>
                     </div>
                 </div>
             </div>
@@ -70,33 +74,32 @@
         <div class="hero-bg-animation"></div>
     </section>
 
-    <!-- Countdown Timer -->
-    <section id="countdown" class="section section-dark">
+    <!-- Live Trading Section -->
+    <section id="trade" class="section section-dark">
         <div class="container">
-            <h2 class="section-title">Launch Countdown</h2>
-            <p class="section-subtitle">$GROKIE launches on Pump.fun — 07 July 2026</p>
+            <h2 class="section-title">Trade $GROKIE Now</h2>
+            <p class="section-subtitle">$GROKIE is live on Raydium — Solana DEX</p>
             <div class="countdown-wrapper">
                 <div class="countdown-item">
-                    <span class="countdown-value" id="countDays">000</span>
-                    <span class="countdown-label">Days</span>
+                    <span class="countdown-value" id="tradePriceUsd" style="font-size:1.5rem">--</span>
+                    <span class="countdown-label">Price USD</span>
                 </div>
-                <div class="countdown-separator">:</div>
                 <div class="countdown-item">
-                    <span class="countdown-value" id="countHours">00</span>
-                    <span class="countdown-label">Hours</span>
+                    <span class="countdown-value" id="tradeMcap" style="font-size:1.5rem">--</span>
+                    <span class="countdown-label">Market Cap</span>
                 </div>
-                <div class="countdown-separator">:</div>
                 <div class="countdown-item">
-                    <span class="countdown-value" id="countMinutes">00</span>
-                    <span class="countdown-label">Minutes</span>
+                    <span class="countdown-value" id="tradeVolume" style="font-size:1.5rem">--</span>
+                    <span class="countdown-label">24h Volume</span>
                 </div>
-                <div class="countdown-separator">:</div>
                 <div class="countdown-item">
-                    <span class="countdown-value" id="countSeconds">00</span>
-                    <span class="countdown-label">Seconds</span>
+                    <span class="countdown-value" id="tradeChange" style="font-size:1.5rem">--</span>
+                    <span class="countdown-label">24h Change</span>
                 </div>
             </div>
-            <p class="countdown-note">Set your reminders. Don't miss the fair launch.</p>
+            <div style="text-align:center;margin-top:30px">
+                <a href="https://raydium.io/swap/?inputMint=sol&outputMint=A1zgiEn7j53myGBLQ1b4ccdeMJsbjiXTaidSrsjoFTRv" target="_blank" class="btn btn-primary">Buy on Raydium</a>
+            </div>
         </div>
     </section>
 
@@ -191,20 +194,20 @@
     <section id="contract" class="section">
         <div class="container">
             <h2 class="section-title">Contract Address</h2>
-            <p class="section-subtitle">Verified and audited smart contract</p>
+            <p class="section-subtitle">Verified smart contract on Solana</p>
             <div class="contract-box">
                 <div class="contract-network">
                     <span class="network-badge">Solana (SPL Token)</span>
                 </div>
                 <div class="contract-address">
-                    <code id="contractAddress">TBA — Will be announced on launch day (July 2026)</code>
-                    <button class="copy-btn" onclick="copyAddress()">📋 Copy</button>
+                    <code id="contractAddress">A1zgiEn7j53myGBLQ1b4ccdeMJsbjiXTaidSrsjoFTRv</code>
+                    <button class="copy-btn" onclick="copyAddress()">Copy</button>
                 </div>
-                <p class="contract-note">⚠️ Contract address will be published on launch day. Only trust links from this official website.</p>
+                <p class="contract-note">Always verify the contract address before trading. Only trust links from this official website.</p>
                 <div class="audit-badges">
-                    <span class="badge">Pump.fun Launch</span>
-                    <span class="badge">LP Auto-Locked</span>
-                    <span class="badge">07 July 2026</span>
+                    <span class="badge">Live on Raydium</span>
+                    <span class="badge">LP Locked</span>
+                    <span class="badge">Solana SPL</span>
                 </div>
             </div>
         </div>
@@ -233,24 +236,38 @@
                 </div>
                 <div class="detail-card">
                     <h3>No Presale</h3>
-                    <p>Fair launch on Pump.fun — everyone gets equal chance</p>
+                    <p>Fair launch via Raydium — everyone gets equal chance</p>
                 </div>
                 <div class="detail-card">
                     <h3>No Tax</h3>
-                    <p>0% buy/sell tax — what you buy is what you get</p>
+                    <p>2% buy/sell tax — used for buyback & development</p>
                 </div>
             </div>
             <div class="tax-info">
                 <h3>100% Community Owned</h3>
                 <div class="tax-breakdown">
                     <div class="tax-item">
+                        <span>2% Buy/Sell Tax</span>
+                    </div>
+                    <div class="tax-item">
                         <span>No Team Wallet</span>
                     </div>
                     <div class="tax-item">
-                        <span>No Dev Wallet</span>
+                        <span>LP Locked</span>
+                    </div>
+                </div>
+            </div>
+            <div class="tax-info" style="margin-top:20px">
+                <h3>Buyback Program</h3>
+                <div class="tax-breakdown">
+                    <div class="tax-item">
+                        <span>Team will periodically buy back tokens from the market</span>
                     </div>
                     <div class="tax-item">
-                        <span>LP Burned on Launch</span>
+                        <span>Maximum 10% of circulating supply</span>
+                    </div>
+                    <div class="tax-item">
+                        <span>Bought tokens will be burned to reduce supply</span>
                     </div>
                 </div>
             </div>
@@ -276,19 +293,19 @@
                         </ul>
                     </div>
                 </div>
-                <div class="roadmap-item active">
-                    <div class="roadmap-marker">🔄</div>
+                <div class="roadmap-item completed">
+                    <div class="roadmap-marker">✅</div>
                     <div class="roadmap-content">
                         <h3>Phase 2 - Launch (Q3 2026)</h3>
                         <ul>
-                            <li>🔄 Grow community to 1,000+ members</li>
-                            <li>⏳ <strong>🚀 Fair Launch on Pump.fun — 07 July 2026</strong></li>
-                            <li>⏳ Initial DEX liquidity established</li>
+                            <li>✅ Grow community to 1,000+ members</li>
+                            <li>✅ <strong>Launched on Raydium (Solana)</strong></li>
+                            <li>✅ DEX liquidity established</li>
                         </ul>
                     </div>
                 </div>
-                <div class="roadmap-item upcoming">
-                    <div class="roadmap-marker">⏳</div>
+                <div class="roadmap-item active">
+                    <div class="roadmap-marker">🔄</div>
                     <div class="roadmap-content">
                         <h3>Phase 3 - Product Development (Q4 2026)</h3>
                         <ul>
@@ -323,7 +340,7 @@
     <section id="how-to-buy" class="section section-dark">
         <div class="container">
             <h2 class="section-title">How to Buy $GROKIE</h2>
-            <p class="section-subtitle">Get your Grokie Inu tokens on launch day — 07 July 2026</p>
+            <p class="section-subtitle">Get your Grokie Inu tokens now on Raydium</p>
             <div class="steps-grid">
                 <div class="step-card">
                     <div class="step-number">1</div>
@@ -337,18 +354,18 @@
                 </div>
                 <div class="step-card">
                     <div class="step-number">3</div>
-                    <h3>Go to Pump.fun</h3>
-                    <p>Visit <strong>pump.fun</strong> on launch day (07 July 2026), connect your wallet, and search for <strong>$GROKIE</strong>.</p>
+                    <h3>Go to Raydium</h3>
+                    <p>Visit <strong>raydium.io</strong>, connect your wallet, and paste the $GROKIE contract address.</p>
                 </div>
                 <div class="step-card">
                     <div class="step-number">4</div>
-                    <h3>Buy $GROKIE</h3>
+                    <h3>Swap SOL for $GROKIE</h3>
                     <p>Enter the amount of SOL you want to swap, confirm the transaction, and you're part of the Grokie pack!</p>
                 </div>
             </div>
             <div class="buy-links">
-                <a href="#" class="btn btn-primary">Pump.fun (Coming 07 July 2026)</a>
-                <a href="#" class="btn btn-secondary">DexScreener</a>
+                <a href="https://raydium.io/swap/?inputMint=sol&outputMint=A1zgiEn7j53myGBLQ1b4ccdeMJsbjiXTaidSrsjoFTRv" target="_blank" class="btn btn-primary">Buy on Raydium</a>
+                <a href="https://dexscreener.com/solana/A1zgiEn7j53myGBLQ1b4ccdeMJsbjiXTaidSrsjoFTRv" target="_blank" class="btn btn-secondary">DexScreener</a>
             </div>
         </div>
     </section>
@@ -400,11 +417,11 @@
                 </div>
                 <div class="faq-item">
                     <button class="faq-question" onclick="toggleFaq(this)">
-                        <span>When does $GROKIE launch?</span>
+                        <span>When did $GROKIE launch?</span>
                         <span class="faq-icon">+</span>
                     </button>
                     <div class="faq-answer">
-                        <p>$GROKIE launches on 07 July 2026 via Pump.fun on the Solana blockchain. It's a fair launch — no presale, no team tokens.</p>
+                        <p>$GROKIE is live on Raydium (Solana). It was a fair launch — no presale, no team tokens. You can buy it now.</p>
                     </div>
                 </div>
                 <div class="faq-item">
@@ -413,7 +430,7 @@
                         <span class="faq-icon">+</span>
                     </button>
                     <div class="faq-answer">
-                        <p>1. Create a Phantom or Solflare wallet. 2. Buy SOL from any exchange. 3. Go to Pump.fun on launch day. 4. Connect wallet and swap SOL for $GROKIE.</p>
+                        <p>1. Create a Phantom or Solflare wallet. 2. Buy SOL from any exchange. 3. Go to Raydium.io. 4. Paste the $GROKIE contract address and swap SOL for $GROKIE.</p>
                     </div>
                 </div>
                 <div class="faq-item">
@@ -422,7 +439,7 @@
                         <span class="faq-icon">+</span>
                     </button>
                     <div class="faq-answer">
-                        <p>No. $GROKIE is 100% community-owned. There is no presale, no team wallet, no dev wallet, and 0% buy/sell tax. Everyone gets an equal chance at launch.</p>
+                        <p>No. $GROKIE is 100% community-owned. There is no presale and no team allocation. There is a 2% buy/sell tax used for buyback and development. The team will periodically buy back up to 10% of circulating supply and burn the tokens.</p>
                     </div>
                 </div>
                 <div class="faq-item">
@@ -440,7 +457,7 @@
                         <span class="faq-icon">+</span>
                     </button>
                     <div class="faq-answer">
-                        <p>$GROKIE launches on Pump.fun which auto-locks liquidity. There is no team wallet, no mint function, and no way to pause trading. The contract will be verified and open-source.</p>
+                        <p>$GROKIE is on Raydium with locked liquidity. There is no team wallet, no mint function, and no way to pause trading. The contract is verified and open-source.</p>
                     </div>
                 </div>
             </div>
@@ -466,10 +483,10 @@
                     <a href="blog/blog-ai-engine-beta.html" class="blog-link">Read more →</a>
                 </article>
                 <article class="blog-card">
-                    <div class="blog-date">Coming Soon</div>
-                    <h3>Launch Date Confirmed: 07 July 2026</h3>
-                    <p>$GROKIE will fair launch on Pump.fun (Solana) on July 7th, 2026. No presale, no team tokens — 100% community.</p>
-                    <a href="blog/blog-launch-date.html" class="blog-link">Read more →</a>
+                    <div class="blog-date">Live Now</div>
+                    <h3>$GROKIE is Live on Raydium</h3>
+                    <p>$GROKIE has launched on Raydium (Solana). No presale, no team tokens — 100% community owned. Trade now.</p>
+                    <a href="blog/blog-live-on-raydium.html" class="blog-link">Read more →</a>
                 </article>
             </div>
         </div>
@@ -505,7 +522,7 @@
         <div class="popup-box">
             <button class="popup-close" id="popupClose">&times;</button>
             <iframe src="promo-gif.html" class="popup-iframe"></iframe>
-            <a href="https://t.me/grokieinucom" target="_blank" class="popup-btn">💬 Join Telegram</a>
+            <a href="https://raydium.io/swap/?inputMint=sol&outputMint=A1zgiEn7j53myGBLQ1b4ccdeMJsbjiXTaidSrsjoFTRv" target="_blank" class="popup-btn">Buy on Raydium</a>
         </div>
     </div>
 

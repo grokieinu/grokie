@@ -343,3 +343,70 @@ function toggleFaq(btn) {
         item.classList.add('active');
     }
 }
+
+
+// ===== Live Price from DexScreener =====
+const GROKIE_CA = 'A1zgiEn7j53myGBLQ1b4ccdeMJsbjiXTaidSrsjoFTRv';
+const DEXSCREENER_API = `https://api.dexscreener.com/latest/dex/tokens/${GROKIE_CA}`;
+
+async function fetchPrice() {
+    try {
+        const response = await fetch(DEXSCREENER_API);
+        if (!response.ok) throw new Error('API error');
+        const data = await response.json();
+
+        if (data.pairs && data.pairs.length > 0) {
+            const pair = data.pairs[0];
+            const price = parseFloat(pair.priceUsd || 0);
+            const mcap = pair.marketCap || pair.fdv || 0;
+            const volume = pair.volume ? pair.volume.h24 : 0;
+            const change = pair.priceChange ? pair.priceChange.h24 : 0;
+
+            // Format price
+            let priceStr;
+            if (price < 0.000001) priceStr = '$' + price.toFixed(10);
+            else if (price < 0.01) priceStr = '$' + price.toFixed(8);
+            else priceStr = '$' + price.toFixed(4);
+
+            // Update hero price
+            const priceEl = document.getElementById('livePrice');
+            if (priceEl) priceEl.textContent = priceStr;
+
+            // Update trade section
+            const tradePriceEl = document.getElementById('tradePriceUsd');
+            if (tradePriceEl) tradePriceEl.textContent = priceStr;
+
+            const mcapEl = document.getElementById('tradeMcap');
+            if (mcapEl) {
+                if (mcap > 1000000) mcapEl.textContent = '$' + (mcap/1000000).toFixed(2) + 'M';
+                else if (mcap > 1000) mcapEl.textContent = '$' + (mcap/1000).toFixed(1) + 'K';
+                else mcapEl.textContent = '$' + Math.round(mcap);
+            }
+
+            const volEl = document.getElementById('tradeVolume');
+            if (volEl) {
+                if (volume > 1000000) volEl.textContent = '$' + (volume/1000000).toFixed(2) + 'M';
+                else if (volume > 1000) volEl.textContent = '$' + (volume/1000).toFixed(1) + 'K';
+                else volEl.textContent = '$' + Math.round(volume);
+            }
+
+            const changeEl = document.getElementById('tradeChange');
+            if (changeEl) {
+                const changeVal = parseFloat(change);
+                changeEl.textContent = (changeVal >= 0 ? '+' : '') + changeVal.toFixed(2) + '%';
+                changeEl.style.color = changeVal >= 0 ? '#06d6a0' : '#f72585';
+            }
+        }
+    } catch (e) {
+        // API failed (likely CORS on local file://) — show note
+        const priceEl = document.getElementById('livePrice');
+        if (priceEl && priceEl.textContent === 'Loading...') {
+            priceEl.textContent = 'Live on DEX';
+            priceEl.style.fontSize = '1.2rem';
+        }
+    }
+}
+
+// Fetch immediately and then every 30 seconds
+fetchPrice();
+setInterval(fetchPrice, 30000);
