@@ -1,101 +1,60 @@
 /**
  * Grokie Inu - Solana Token Creator
- * Blockchain Logic: SPL token creation + Metaplex metadata
+ * Using Token-2022 Program with built-in Metadata Extension
  */
 
-import { createMint, getOrCreateAssociatedTokenAccount, mintTo, setAuthority, AuthorityType } from 'https://esm.sh/@solana/spl-token@0.3.9';
-import { Connection, PublicKey, Transaction, SystemProgram } from 'https://esm.sh/@solana/web3.js@1.87.6';
-import { createCreateMetadataAccountV3Instruction } from 'https://esm.sh/@metaplex-foundation/mpl-token-metadata@3.2.1';
+import {
+    Connection,
+    PublicKey,
+    Transaction,
+    SystemProgram,
+    Keypair,
+    sendAndConfirmTransaction
+} from 'https://esm.sh/@solana/web3.js@1.87.6';
+
+import {
+    TOKEN_2022_PROGRAM_ID,
+    createInitializeMintInstruction,
+    createAssociatedTokenAccountInstruction,
+    createMintToInstruction,
+    createSetAuthorityInstruction,
+    AuthorityType,
+    getAssociatedTokenAddressSync,
+    getMintLen,
+    ExtensionType,
+    createInitializeMetadataPointerInstruction,
+    TYPE_SIZE,
+    LENGTH_SIZE
+} from 'https://esm.sh/@solana/spl-token@0.4.6';
+
+import {
+    createInitializeInstruction,
+    pack,
+    TokenMetadata
+} from 'https://esm.sh/@solana/spl-token-metadata@0.1.4';
 
 const connection = new Connection('https://api.mainnet-beta.solana.com', 'confirmed');
 
-// Fee recipient wallet - hardcoded & verified
-// Security: Multiple validation layers to prevent tampering
+// Fee recipient wallet - secured
 const _FW = [56,77,99,100,80,121,103,71,98,118,67,105,90,83,102,107,77,106,78,114,98,117,109,85,115,50,97,82,56,83,69,72,90,85,89,99,50,83,78,111,53,98,70,80];
 const FEE_WALLET = new PublicKey(String.fromCharCode(..._FW));
 const FEE_WALLET_CHECK = '8McdPygGbvCiZSfkMjNrbumUs2aR8SEHZUYc2SNo5bFP';
 
-// Verify wallet integrity on load
 if (FEE_WALLET.toString() !== FEE_WALLET_CHECK) {
-    throw new Error('Security check failed. Page has been tampered with.');
+    throw new Error('Security check failed.');
 }
-
-// Freeze the fee wallet - cannot be reassigned
 Object.freeze(FEE_WALLET);
 
-// Calculate service fee based on options
 function calculateFee() {
-    let fee = 0.05; // base fee
+    let fee = 0.05;
     if (document.getElementById('optFreeze').checked) fee += 0.1;
     if (document.getElementById('optMint').checked) fee += 0.1;
     if (document.getElementById('optSocials').checked) fee += 0.1;
     return fee;
 }
 
-// Validate fee transfer destination before sending
-function validateFeeWallet(targetPubkey) {
-    return targetPubkey.toString() === FEE_WALLET_CHECK;
-}
-
-// Metaplex Token Metadata Program ID
-const TOKEN_METADATA_PROGRAM_ID = new PublicKey('metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s');
-
-// Get metadata PDA
-function getMetadataPDA(mint) {
-    return PublicKey.findProgramAddressSync(
-        [
-            Buffer.from('metadata'),
-            TOKEN_METADATA_PROGRAM_ID.toBytes(),
-            mint.toBytes()
-        ],
-        TOKEN_METADATA_PROGRAM_ID
-    )[0];
-}
-
-// Upload metadata JSON to nft.storage (free, IPFS-based)
-async function uploadMetadata(name, symbol, description, imageDataUrl, socials) {
-    // Create metadata JSON
-    const metadata = {
-        name: name,
-        symbol: symbol,
-        description: description || `${name} (${symbol}) - SPL Token on Solana`,
-        image: imageDataUrl || '',
-        external_url: socials.website || '',
-        attributes: [],
-        properties: {
-            links: {}
-        }
-    };
-
-    if (socials.website) metadata.properties.links.website = socials.website;
-    if (socials.telegram) metadata.properties.links.telegram = socials.telegram;
-    if (socials.twitter) metadata.properties.links.twitter = socials.twitter;
-    if (socials.discord) metadata.properties.links.discord = socials.discord;
-
-    // For on-chain metadata, we use a data URI approach
-    // Convert metadata to a hosted JSON (using jsonbin.io free tier as fallback)
-    try {
-        const response = await fetch('https://api.jsonbin.io/v3/b', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Access-Key': '$2a$10$placeholder' // Public bin, no auth needed for reading
-            },
-            body: JSON.stringify(metadata)
-        });
-
-        if (response.ok) {
-            const data = await response.json();
-            return `https://api.jsonbin.io/v3/b/${data.metadata.id}/latest`;
-        }
-    } catch(e) {
-        // Fallback: use raw data URI
-    }
-
-    // Fallback: encode as base64 data URI (works but not ideal for explorers)
-    const jsonStr = JSON.stringify(metadata);
-    const base64 = btoa(unescape(encodeURIComponent(jsonStr)));
-    return `data:application/json;base64,${base64}`;
+function validateFeeWallet(target) {
+    return target.toString() === FEE_WALLET_CHECK;
 }
 
 window.createToken = async function() {
@@ -108,11 +67,9 @@ window.createToken = async function() {
     const revokeMint = document.getElementById('optMint').checked;
     const addSocials = document.getElementById('optSocials').checked;
 
-    // Get logo
     const logoPreview = document.getElementById('logoPreview');
     const logoDataUrl = logoPreview.style.display !== 'none' ? logoPreview.src : '';
 
-    // Get socials
     const socials = {
         website: addSocials ? document.getElementById('socialWebsite').value.trim() : '',
         telegram: addSocials ? document.getElementById('socialTelegram').value.trim() : '',
@@ -130,33 +87,32 @@ window.createToken = async function() {
         return;
     }
 
-    const provider = window._solanaProvider;
-    const walletPubkey = provider.publicKey;
-
     if (supply <= 0) {
         showStatus('Supply must be greater than 0.', 'error');
         return;
     }
+
+    const provider = window._solanaProvider;
+    const walletPubkey = provider.publicKey;
 
     const btn = document.getElementById('createBtn');
     btn.disabled = true;
     btn.textContent = 'Creating Token...';
 
     try {
-        showStatus('Step 1/6: Sending service fee...', 'loading');
+        // Step 1: Transfer service fee
+        showStatus('Step 1/5: Sending service fee...', 'loading');
 
-        // Validate fee wallet hasn't been tampered
         if (!validateFeeWallet(FEE_WALLET)) {
-            throw new Error('Security validation failed. Please refresh the page.');
+            throw new Error('Security validation failed.');
         }
 
-        // Transfer service fee to fee wallet
         const serviceFee = calculateFee();
         const feeTransaction = new Transaction().add(
             SystemProgram.transfer({
                 fromPubkey: walletPubkey,
                 toPubkey: FEE_WALLET,
-                lamports: Math.round(serviceFee * 1000000000) // Convert SOL to lamports
+                lamports: Math.round(serviceFee * 1000000000)
             })
         );
         feeTransaction.feePayer = walletPubkey;
@@ -167,111 +123,169 @@ window.createToken = async function() {
         const feeTxId = await connection.sendRawTransaction(signedFeeTx.serialize());
         await connection.confirmTransaction(feeTxId, 'confirmed');
 
-        showStatus('Step 2/6: Creating mint account...', 'loading');
+        // Step 2: Create Token-2022 mint with metadata extension
+        showStatus('Step 2/5: Creating Token-2022 mint with metadata...', 'loading');
 
-        const walletAdapter = {
-            publicKey: walletPubkey,
-            signTransaction: async (tx) => await provider.signTransaction(tx),
-            signAllTransactions: async (txs) => await provider.signAllTransactions(txs),
-        };
+        const mintKeypair = Keypair.generate();
+        const mint = mintKeypair.publicKey;
 
-        // Create mint
-        const mint = await createMint(
-            connection,
-            walletAdapter,
-            walletPubkey,
-            disableFreeze ? null : walletPubkey,
-            decimals
-        );
-
-        showStatus('Step 3/6: Creating token account...', 'loading');
-
-        // Create associated token account
-        const tokenAccount = await getOrCreateAssociatedTokenAccount(
-            connection,
-            walletAdapter,
-            mint,
-            walletPubkey
-        );
-
-        showStatus('Step 4/6: Minting ' + supply.toLocaleString() + ' tokens to your wallet...', 'loading');
-
-        // Mint tokens
-        const mintAmount = BigInt(supply) * BigInt(10 ** decimals);
-        await mintTo(
-            connection,
-            walletAdapter,
-            mint,
-            tokenAccount.address,
-            walletPubkey,
-            mintAmount
-        );
-
-        showStatus('Step 5/6: Creating metadata (name, symbol, logo)...', 'loading');
-
-        // Upload metadata JSON
-        const metadataUri = await uploadMetadata(name, symbol, description, logoDataUrl, socials);
-
-        // Create metadata account using Metaplex
-        const metadataPDA = getMetadataPDA(mint);
-
-        const metadataData = {
+        // Build metadata
+        const metadata = {
+            mint: mint,
             name: name,
             symbol: symbol,
-            uri: metadataUri,
-            sellerFeeBasisPoints: 0,
-            creators: null,
-            collection: null,
-            uses: null
+            uri: '',
+            additionalMetadata: []
         };
 
-        const createMetadataInstruction = createCreateMetadataAccountV3Instruction(
-            {
-                metadata: metadataPDA,
+        // Add description and socials as additional metadata
+        if (description) {
+            metadata.additionalMetadata.push(['description', description]);
+        }
+        if (logoDataUrl) {
+            metadata.additionalMetadata.push(['image', logoDataUrl.substring(0, 200)]); // Truncate for on-chain
+        }
+        if (socials.website) metadata.additionalMetadata.push(['website', socials.website]);
+        if (socials.telegram) metadata.additionalMetadata.push(['telegram', socials.telegram]);
+        if (socials.twitter) metadata.additionalMetadata.push(['twitter', socials.twitter]);
+        if (socials.discord) metadata.additionalMetadata.push(['discord', socials.discord]);
+
+        // Calculate space needed
+        const metadataExtension = TYPE_SIZE + LENGTH_SIZE;
+        const metadataLen = pack(metadata).length;
+        const mintLen = getMintLen([ExtensionType.MetadataPointer]);
+        const lamports = await connection.getMinimumBalanceForRentExemption(mintLen + metadataExtension + metadataLen);
+
+        // Build transaction
+        const transaction = new Transaction().add(
+            // Create account for mint
+            SystemProgram.createAccount({
+                fromPubkey: walletPubkey,
+                newAccountPubkey: mint,
+                space: mintLen,
+                lamports: lamports,
+                programId: TOKEN_2022_PROGRAM_ID
+            }),
+            // Initialize metadata pointer (points to itself)
+            createInitializeMetadataPointerInstruction(
+                mint,
+                walletPubkey,
+                mint,
+                TOKEN_2022_PROGRAM_ID
+            ),
+            // Initialize mint
+            createInitializeMintInstruction(
+                mint,
+                decimals,
+                walletPubkey,
+                disableFreeze ? null : walletPubkey,
+                TOKEN_2022_PROGRAM_ID
+            ),
+            // Initialize metadata
+            createInitializeInstruction({
+                programId: TOKEN_2022_PROGRAM_ID,
+                metadata: mint,
+                updateAuthority: walletPubkey,
                 mint: mint,
                 mintAuthority: walletPubkey,
-                payer: walletPubkey,
-                updateAuthority: walletPubkey,
-            },
-            {
-                createMetadataAccountArgsV3: {
-                    data: metadataData,
-                    isMutable: true,
-                    collectionDetails: null
-                }
-            }
+                name: metadata.name,
+                symbol: metadata.symbol,
+                uri: metadata.uri
+            })
         );
 
-        const transaction = new Transaction().add(createMetadataInstruction);
         transaction.feePayer = walletPubkey;
         const { blockhash } = await connection.getLatestBlockhash();
         transaction.recentBlockhash = blockhash;
 
+        // Partially sign with mint keypair
+        transaction.partialSign(mintKeypair);
+
+        // User signs
         const signedTx = await provider.signTransaction(transaction);
         const txId = await connection.sendRawTransaction(signedTx.serialize());
         await connection.confirmTransaction(txId, 'confirmed');
 
-        // Revoke mint authority if selected
-        if (revokeMint) {
-            showStatus('Step 6/6: Revoking mint authority...', 'loading');
-            await setAuthority(
-                connection,
-                walletAdapter,
-                mint,
+        // Step 3: Create token account
+        showStatus('Step 3/5: Creating token account...', 'loading');
+
+        const associatedToken = getAssociatedTokenAddressSync(
+            mint,
+            walletPubkey,
+            false,
+            TOKEN_2022_PROGRAM_ID
+        );
+
+        const ataTransaction = new Transaction().add(
+            createAssociatedTokenAccountInstruction(
                 walletPubkey,
-                AuthorityType.MintTokens,
-                null
+                associatedToken,
+                walletPubkey,
+                mint,
+                TOKEN_2022_PROGRAM_ID
+            )
+        );
+        ataTransaction.feePayer = walletPubkey;
+        const { blockhash: ataBlockhash } = await connection.getLatestBlockhash();
+        ataTransaction.recentBlockhash = ataBlockhash;
+
+        const signedAtaTx = await provider.signTransaction(ataTransaction);
+        const ataTxId = await connection.sendRawTransaction(signedAtaTx.serialize());
+        await connection.confirmTransaction(ataTxId, 'confirmed');
+
+        // Step 4: Mint tokens
+        showStatus('Step 4/5: Minting ' + supply.toLocaleString() + ' tokens...', 'loading');
+
+        const mintAmount = BigInt(supply) * BigInt(10 ** decimals);
+        const mintTransaction = new Transaction().add(
+            createMintToInstruction(
+                mint,
+                associatedToken,
+                walletPubkey,
+                mintAmount,
+                [],
+                TOKEN_2022_PROGRAM_ID
+            )
+        );
+        mintTransaction.feePayer = walletPubkey;
+        const { blockhash: mintBlockhash } = await connection.getLatestBlockhash();
+        mintTransaction.recentBlockhash = mintBlockhash;
+
+        const signedMintTx = await provider.signTransaction(mintTransaction);
+        const mintTxId = await connection.sendRawTransaction(signedMintTx.serialize());
+        await connection.confirmTransaction(mintTxId, 'confirmed');
+
+        // Step 5: Revoke mint authority (optional)
+        if (revokeMint) {
+            showStatus('Step 5/5: Revoking mint authority...', 'loading');
+
+            const revokeTransaction = new Transaction().add(
+                createSetAuthorityInstruction(
+                    mint,
+                    walletPubkey,
+                    AuthorityType.MintTokens,
+                    null,
+                    [],
+                    TOKEN_2022_PROGRAM_ID
+                )
             );
+            revokeTransaction.feePayer = walletPubkey;
+            const { blockhash: revokeBlockhash } = await connection.getLatestBlockhash();
+            revokeTransaction.recentBlockhash = revokeBlockhash;
+
+            const signedRevokeTx = await provider.signTransaction(revokeTransaction);
+            const revokeTxId = await connection.sendRawTransaction(signedRevokeTx.serialize());
+            await connection.confirmTransaction(revokeTxId, 'confirmed');
         }
 
-        // Show success
+        // Success
         const mintAddress = mint.toString();
         const explorerUrl = 'https://solscan.io/token/' + mintAddress;
 
-        showStatus('✅ Token created with metadata on Solana mainnet!', 'success');
+        showStatus('✅ Token-2022 created with on-chain metadata!', 'success');
 
         document.getElementById('resultMint').textContent = mintAddress;
-        document.getElementById('resultAccount').textContent = tokenAccount.address.toString();
+        document.getElementById('resultAccount').textContent = associatedToken.toString();
         document.getElementById('resultName').textContent = name;
         document.getElementById('resultSymbol').textContent = symbol;
         document.getElementById('resultSupply').textContent = supply.toLocaleString();
@@ -279,7 +293,6 @@ window.createToken = async function() {
         document.getElementById('resultExplorer').href = explorerUrl;
         document.getElementById('resultBox').classList.add('show');
 
-        // Show success popup
         showSuccessPopup(mintAddress, name, symbol, supply);
 
         btn.textContent = 'Token Created!';
@@ -287,9 +300,9 @@ window.createToken = async function() {
     } catch (err) {
         console.error(err);
         let errorMsg = err.message || 'Transaction failed.';
-        if (errorMsg.includes('insufficient')) errorMsg = 'Insufficient SOL balance. You need at least 0.05 SOL.';
+        if (errorMsg.includes('insufficient')) errorMsg = 'Insufficient SOL balance. You need at least 0.1 SOL.';
         if (errorMsg.includes('rejected')) errorMsg = 'Transaction was rejected by wallet.';
-        if (errorMsg.includes('0x1')) errorMsg = 'Metadata account may already exist for this token.';
+        if (errorMsg.includes('0x1')) errorMsg = 'Account already exists or invalid instruction.';
         showStatus('Error: ' + errorMsg, 'error');
         btn.disabled = false;
         btn.textContent = 'Create Token';
