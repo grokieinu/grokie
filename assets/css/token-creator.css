@@ -142,3 +142,8 @@ code.popup-value{font-family:monospace;font-size:.7rem}
 .mobile-notice-url code{color:var(--cyan);font-size:.72rem;word-break:break-all;display:block}
 .mobile-notice-url small{color:var(--muted);font-size:.7rem}
 .mobile-notice-alt{color:var(--muted);font-size:.8rem;margin-top:15px;padding-top:12px;border-top:1px solid var(--border)}
+
+/* Wallet Soon & Disabled */
+.wallet-soon{margin-left:auto;background:rgba(152,152,184,.15);color:var(--muted);font-size:.65rem;padding:3px 8px;border-radius:50px;font-weight:700}
+.wallet-disabled{opacity:.5;cursor:not-allowed!important}
+.wallet-disabled:hover{border-color:var(--border)!important;background:none!important}
