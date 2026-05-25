@@ -1,41 +1,29 @@
-# Grokie Inu - AI-Powered Meme Coin
+# Grokie Inu ($GROKIE)
 
-Official website for Grokie Inu ($GROKIE) — The AI Meme Coin that promotes the best crypto projects.
+AI-Powered Meme Coin on Solana — Promoting the Best Crypto Projects
 
-## Live Site
-https://[username].github.io/[repo-name]/
+## Live
 
-## Tech Stack
-- HTML5, CSS3, JavaScript (Vanilla)
-- No frameworks, no dependencies
-- Fully static — deploy anywhere
+- **Token:** Live on Raydium (Solana)
+- **Contract:** `A1zgiEn7j53myGBLQ1b4ccdeMJsbjiXTaidSrsjoFTRv`
+- **DEX:** [Raydium](https://raydium.io/swap/?inputMint=sol&outputMint=A1zgiEn7j53myGBLQ1b4ccdeMJsbjiXTaidSrsjoFTRv)
+- **Chart:** [DexScreener](https://dexscreener.com/solana/A1zgiEn7j53myGBLQ1b4ccdeMJsbjiXTaidSrsjoFTRv)
 
-## Structure
-```
-├── index.html              # Main landing page
-├── ai-engine.html          # AI Promotion Engine (Beta)
-├── whitepaper.html         # Project whitepaper
-├── promo-gif.html          # Animated promo for Telegram
-├── .nojekyll               # GitHub Pages config
-├── assets/
-│   ├── css/
-│   │   └── style.css       # Main stylesheet
-│   ├── js/
-│   │   └── script.js       # Main JavaScript
-│   └── images/
-│       ├── grokie-inu.png  # Project logo
-│       ├── telegram.jpg    # Telegram icon
-│       └── twiter.png      # Twitter icon
-```
+## Features
 
-## Deploy to GitHub Pages
-1. Push to GitHub repository
-2. Go to Settings → Pages
-3. Source: Deploy from branch `main`, folder `/ (root)`
-4. Save — site will be live in 1-2 minutes
+- **AI Promotion Engine** — Generate promotional websites for any crypto project
+- **Token Creator** — Create SPL tokens on Solana with metadata
+- **Live Price** — Real-time price tracking
+- **Whitepaper** — Full project documentation
 
-## Launch
-07 July 2026 on Pump.fun (Solana)
+## Tokenomics
+
+- Total Supply: 1,000,000,000
+- Tax: 2% (buyback & development)
+- Team Allocation: 10%
+- Buyback: Up to 10% of circulating supply periodically burned
 
 ## Community
-- Telegram: https://t.me/+CHculkRfYbEwYmNl
+
+- Telegram: https://t.me/grokieinucom
+- Twitter: https://x.com/grokieinu1
