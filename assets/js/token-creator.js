@@ -125,7 +125,9 @@ async function connectSpecificWallet(walletType) {
                 } else if (window.solana && window.solana.isTrust) {
                     provider = window.solana;
                 } else if (isMobile) {
-                    window.location.href = 'trust://browser_enable?coin=501&url=' + currentUrl;
+                    // Trust Wallet deep link - open dApp browser
+                    var trustUrl = 'https://link.trustwallet.com/open_url?coin_id=501&url=' + currentUrl;
+                    window.location.href = trustUrl;
                     return;
                 } else {
                     window.open('https://trustwallet.com/', '_blank');
