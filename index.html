@@ -51,24 +51,6 @@
                     <a href="#how-to-buy" class="btn btn-primary">How to Buy</a>
                     <a href="#ai-feature" class="btn btn-secondary">AI Feature</a>
                 </div>
-                <div class="hero-stats">
-                    <div class="stat">
-                        <span class="stat-value" id="livePrice">Loading...</span>
-                        <span class="stat-label">Price (USD)</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-value">1,000,000,000</span>
-                        <span class="stat-label">Total Supply</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-value">Raydium</span>
-                        <span class="stat-label">DEX</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-value">LIVE</span>
-                        <span class="stat-label">Status</span>
-                    </div>
-                </div>
             </div>
         </div>
         <div class="hero-bg-animation"></div>
@@ -76,29 +58,29 @@
 
     <!-- Live Trading Section -->
     <section id="trade" class="section section-dark">
-        <div class="container">
-            <h2 class="section-title">Trade $GROKIE Now</h2>
-            <p class="section-subtitle">$GROKIE is live on Raydium — Solana DEX</p>
+        <div class="container" style="text-align:center">
+            <div class="live-price-display">
+                <span class="live-price-label">$GROKIE Price</span>
+                <span class="live-price-big" id="livePriceBig">Loading...</span>
+                <span class="live-price-change" id="livePriceChange"></span>
+            </div>
             <div class="countdown-wrapper">
                 <div class="countdown-item">
-                    <span class="countdown-value" id="tradePriceUsd" style="font-size:1.5rem">--</span>
-                    <span class="countdown-label">Price USD</span>
-                </div>
-                <div class="countdown-item">
-                    <span class="countdown-value" id="tradeMcap" style="font-size:1.5rem">--</span>
+                    <span class="countdown-value" id="tradeMcap">--</span>
                     <span class="countdown-label">Market Cap</span>
                 </div>
                 <div class="countdown-item">
-                    <span class="countdown-value" id="tradeVolume" style="font-size:1.5rem">--</span>
+                    <span class="countdown-value" id="tradeVolume">--</span>
                     <span class="countdown-label">24h Volume</span>
                 </div>
                 <div class="countdown-item">
-                    <span class="countdown-value" id="tradeChange" style="font-size:1.5rem">--</span>
+                    <span class="countdown-value" id="tradeChange">--</span>
                     <span class="countdown-label">24h Change</span>
                 </div>
             </div>
-            <div style="text-align:center;margin-top:30px">
+            <div style="margin-top:25px">
                 <a href="https://raydium.io/swap/?inputMint=sol&outputMint=A1zgiEn7j53myGBLQ1b4ccdeMJsbjiXTaidSrsjoFTRv" target="_blank" class="btn btn-primary">Buy on Raydium</a>
+                <a href="https://dexscreener.com/solana/A1zgiEn7j53myGBLQ1b4ccdeMJsbjiXTaidSrsjoFTRv" target="_blank" class="btn btn-secondary" style="margin-left:10px">View Chart</a>
             </div>
         </div>
     </section>

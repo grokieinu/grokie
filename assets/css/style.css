@@ -1489,3 +1489,51 @@ body {
         grid-template-columns: 1fr;
     }
 }
+
+/* Live Price Display */
+.live-price-display {
+    margin-bottom: 30px;
+}
+
+.live-price-label {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+}
+
+.live-price-big {
+    display: block;
+    font-size: 3.5rem;
+    font-weight: 900;
+    color: var(--neon-blue);
+    text-shadow: 0 0 20px rgba(0, 245, 255, 0.3);
+    line-height: 1.2;
+}
+
+.live-price-change {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 4px 14px;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.live-price-change.up {
+    background: rgba(6, 214, 160, 0.15);
+    color: #06d6a0;
+}
+
+.live-price-change.down {
+    background: rgba(247, 37, 133, 0.15);
+    color: #f72585;
+}
+
+@media (max-width: 768px) {
+    .live-price-big {
+        font-size: 2.2rem;
+    }
+}
