@@ -152,11 +152,24 @@ async function connectSpecificWallet(walletType) {
 
         // Get balance
         try {
-            var connection = new window.solanaWeb3.Connection('https://api.mainnet-beta.solana.com', 'confirmed');
-            var balance = await connection.getBalance(resp.publicKey);
-            document.getElementById('walletBalance').textContent = (balance / 1000000000).toFixed(4);
+            if (window.solanaWeb3) {
+                var connection = new window.solanaWeb3.Connection('https://api.mainnet-beta.solana.com', 'confirmed');
+                var balance = await connection.getBalance(new window.solanaWeb3.PublicKey(pubkey));
+                document.getElementById('walletBalance').textContent = (balance / 1000000000).toFixed(4);
+            } else {
+                // Fallback: try fetch RPC directly
+                var rpcResp = await fetch('https://api.mainnet-beta.solana.com', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({jsonrpc:'2.0',id:1,method:'getBalance',params:[pubkey]})
+                });
+                var rpcData = await rpcResp.json();
+                if (rpcData.result) {
+                    document.getElementById('walletBalance').textContent = (rpcData.result.value / 1000000000).toFixed(4);
+                }
+            }
         } catch(e) {
-            document.getElementById('walletBalance').textContent = 'Connected';
+            document.getElementById('walletBalance').textContent = '—';
         }
 
         showStatus('Wallet connected successfully!', 'success');
@@ -182,4 +195,24 @@ function showSuccessPopup(mintAddress, name, symbol, supply) {
 
 function closeSuccessPopup() {
     document.getElementById('successPopup').classList.remove('show');
+}
+
+// Progress Steps
+function showProgress() {
+    document.getElementById('progressSteps').style.display = 'block';
+    // Reset all steps
+    for (var i = 1; i <= 5; i++) {
+        var step = document.getElementById('pStep' + i);
+        step.className = 'progress-step';
+    }
+}
+
+function setProgressStep(stepNum, state) {
+    // state: 'active', 'done', 'error'
+    var step = document.getElementById('pStep' + stepNum);
+    step.className = 'progress-step ' + state;
+}
+
+function hideProgress() {
+    document.getElementById('progressSteps').style.display = 'none';
 }

@@ -58,6 +58,7 @@ function validateFeeWallet(target) {
 }
 
 window.createToken = async function() {
+    window._createTokenReady = true;
     const name = document.getElementById('tokenName').value.trim();
     const symbol = document.getElementById('tokenSymbol').value.trim().toUpperCase();
     const supply = parseInt(document.getElementById('tokenSupply').value);
@@ -101,6 +102,8 @@ window.createToken = async function() {
 
     try {
         // Step 1: Transfer service fee
+        showProgress();
+        setProgressStep(1, 'active');
         showStatus('Step 1/5: Sending service fee...', 'loading');
 
         if (!validateFeeWallet(FEE_WALLET)) {
@@ -124,6 +127,8 @@ window.createToken = async function() {
         await connection.confirmTransaction(feeTxId, 'confirmed');
 
         // Step 2: Create Token-2022 mint with metadata extension
+        setProgressStep(1, 'done');
+        setProgressStep(2, 'active');
         showStatus('Step 2/5: Creating Token-2022 mint with metadata...', 'loading');
 
         const mintKeypair = Keypair.generate();
@@ -207,6 +212,8 @@ window.createToken = async function() {
         await connection.confirmTransaction(txId, 'confirmed');
 
         // Step 3: Create token account
+        setProgressStep(2, 'done');
+        setProgressStep(3, 'active');
         showStatus('Step 3/5: Creating token account...', 'loading');
 
         const associatedToken = getAssociatedTokenAddressSync(
@@ -234,6 +241,8 @@ window.createToken = async function() {
         await connection.confirmTransaction(ataTxId, 'confirmed');
 
         // Step 4: Mint tokens
+        setProgressStep(3, 'done');
+        setProgressStep(4, 'active');
         showStatus('Step 4/5: Minting ' + supply.toLocaleString() + ' tokens...', 'loading');
 
         const mintAmount = BigInt(supply) * BigInt(10 ** decimals);
@@ -257,6 +266,8 @@ window.createToken = async function() {
 
         // Step 5: Revoke mint authority (optional)
         if (revokeMint) {
+            setProgressStep(4, 'done');
+            setProgressStep(5, 'active');
             showStatus('Step 5/5: Revoking mint authority...', 'loading');
 
             const revokeTransaction = new Transaction().add(
@@ -279,6 +290,8 @@ window.createToken = async function() {
         }
 
         // Success
+        setProgressStep(4, 'done');
+        if (revokeMint) setProgressStep(5, 'done');
         const mintAddress = mint.toString();
         const explorerUrl = 'https://solscan.io/token/' + mintAddress;
 
@@ -299,6 +312,14 @@ window.createToken = async function() {
 
     } catch (err) {
         console.error(err);
+        // Mark current active step as error
+        for (var i = 1; i <= 5; i++) {
+            var step = document.getElementById('pStep' + i);
+            if (step && step.classList.contains('active')) {
+                setProgressStep(i, 'error');
+                break;
+            }
+        }
         let errorMsg = err.message || 'Transaction failed.';
         if (errorMsg.includes('insufficient')) errorMsg = 'Insufficient SOL balance. You need at least 0.1 SOL.';
         if (errorMsg.includes('rejected')) errorMsg = 'Transaction was rejected by wallet.';
@@ -308,3 +329,8 @@ window.createToken = async function() {
         btn.textContent = 'Create Token';
     }
 };
+
+
+// Signal that module is ready
+window._createTokenReady = true;
+console.log('Token Creator: Solana libraries loaded.');

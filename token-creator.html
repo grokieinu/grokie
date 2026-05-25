@@ -134,6 +134,15 @@
 <!-- Create Button -->
 <button class="create-btn" id="createBtn" onclick="createToken()" disabled>Create Token</button>
 
+<!-- Progress Steps -->
+<div class="progress-steps" id="progressSteps" style="display:none">
+<div class="progress-step" id="pStep1"><span class="progress-dot"></span><span>Sending service fee</span></div>
+<div class="progress-step" id="pStep2"><span class="progress-dot"></span><span>Creating mint with metadata</span></div>
+<div class="progress-step" id="pStep3"><span class="progress-dot"></span><span>Creating token account</span></div>
+<div class="progress-step" id="pStep4"><span class="progress-dot"></span><span>Minting tokens to wallet</span></div>
+<div class="progress-step" id="pStep5"><span class="progress-dot"></span><span>Revoking mint authority</span></div>
+</div>
+
 <!-- Status -->
 <div class="status" id="statusBox"></div>
 
@@ -174,6 +183,21 @@
 <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
 <script src="assets/js/token-creator.js"></script>
 <script type="module" src="assets/js/token-creator-solana.js"></script>
+<script>
+// Fallback: if module hasn't loaded createToken yet, show error
+if (!window.createToken) {
+    window.createToken = function() {
+        showStatus('Loading blockchain libraries... Please wait a moment and try again.', 'loading');
+        setTimeout(function() {
+            if (window._createTokenReady) {
+                window.createToken();
+            } else {
+                showStatus('Libraries still loading. Please try again in a few seconds.', 'error');
+            }
+        }, 2000);
+    };
+}
+</script>
 
 </body>
 </html>
