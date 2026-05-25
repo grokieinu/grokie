@@ -93,6 +93,61 @@ body {
     color: var(--accent);
 }
 
+.nav-dropdown {
+    position: relative;
+}
+
+.nav-dropdown-toggle {
+    cursor: pointer;
+}
+
+.nav-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: var(--dark-light);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 0;
+    min-width: 160px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    z-index: 1000;
+    list-style: none;
+    margin-top: 0;
+    padding-top: 15px;
+}
+
+.nav-dropdown::before {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    height: 15px;
+}
+
+.nav-dropdown:hover .nav-dropdown-menu {
+    display: block;
+}
+
+.nav-dropdown-menu li {
+    padding: 0;
+}
+
+.nav-dropdown-menu a {
+    display: block;
+    padding: 8px 20px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.nav-dropdown-menu a:hover {
+    color: var(--accent);
+    background: rgba(247, 37, 133, 0.05);
+}
+
 .nav-badge-new {
     background: var(--secondary);
     color: #0a0a1a;

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grokie Inu - Solana Token Creator</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/token-creator.css">
+</head>
+<body>
+
+<header class="header"><div class="header-inner">
+<a href="index.html" class="logo"><img src="assets/images/grokie-inu.png" alt="Grokie"> Grokie Inu</a>
+<div class="header-right">
+<button class="connect-btn-header" id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
+<a href="index.html" class="back-btn">← Back</a>
+</div>
+</div></header>
+
+<section class="hero">
+<h1>Solana Token Creator</h1>
+<p>Create your own SPL token on Solana in minutes. No coding required.</p>
+</section>
+
+<div class="container">
+<div class="card">
+
+<div class="info-box">
+<strong>Requirements:</strong> Phantom Wallet + ~0.05 SOL for fees. Token created on Solana mainnet.
+</div>
+
+<!-- Wallet Info -->
+<div class="wallet-info" id="walletInfo">
+<p>Connected: <span class="address" id="walletAddress"></span></p>
+<p class="balance">Balance: <span id="walletBalance">0</span> SOL</p>
+</div>
+
+<!-- Token Details -->
+<div class="section-title">Token Details</div>
+<div class="form-row">
+<div class="form-group"><label>Token Name *</label><input type="text" id="tokenName" placeholder="e.g. Grokie Inu"></div>
+<div class="form-group"><label>Token Symbol *</label><input type="text" id="tokenSymbol" placeholder="e.g. GROKIE" maxlength="10"></div>
+</div>
+<div class="form-row">
+<div class="form-group"><label>Total Supply *</label><input type="number" id="tokenSupply" placeholder="e.g. 1000000000" value="1000000000"></div>
+<div class="form-group"><label>Decimals</label><select id="tokenDecimals"><option value="9" selected>9 (Standard)</option><option value="6">6</option><option value="8">8</option><option value="0">0 (No decimals)</option></select><small>9 is standard for Solana tokens</small></div>
+</div>
+<div class="form-group"><label>Description (optional)</label><textarea id="tokenDesc" placeholder="Brief description of your token..."></textarea></div>
+
+<!-- Logo Upload -->
+<div class="section-title">Token Logo</div>
+<div class="form-group">
+<div class="upload-area">
+<input type="file" id="tokenLogo" accept="image/png,image/jpg,image/jpeg" onchange="handleLogoUpload(event)">
+<div class="upload-icon">🖼️</div>
+<div class="upload-text"><strong>Upload Logo</strong><br>PNG or JPG, 512x512px recommended</div>
+<img class="upload-preview" id="logoPreview">
+</div>
+</div>
+
+<!-- Options -->
+<div class="section-title">Options</div>
+<div class="form-group opt-row">
+<label class="opt-label">
+<span class="opt-text"><strong>Disable Freeze Authority</strong> <span class="fee-tag">+0.1 SOL</span><small>Prevents anyone from freezing token accounts</small></span>
+<input type="checkbox" id="optFreeze" onchange="updateFee()">
+</label>
+</div>
+<div class="form-group opt-row">
+<label class="opt-label">
+<span class="opt-text"><strong>Revoke Mint Authority</strong> <span class="fee-tag">+0.1 SOL</span><small>No more tokens can ever be minted</small></span>
+<input type="checkbox" id="optMint" onchange="updateFee()">
+</label>
+</div>
+<div class="form-group opt-row">
+<label class="opt-label">
+<span class="opt-text"><strong>Add Social Links</strong> <span class="fee-tag">+0.1 SOL</span><small>Add website, Telegram, Twitter, Discord to metadata</small></span>
+<input type="checkbox" id="optSocials" onchange="toggleSocials(); updateFee()">
+</label>
+</div>
+
+<!-- Social Links -->
+<div class="social-fields" id="socialFields" style="display:none">
+<p class="social-fields-title">Project Social Links:</p>
+<div class="form-group"><label>🌐 Website</label><input type="url" id="socialWebsite" placeholder="https://yourproject.com"></div>
+<div class="form-group"><label>💬 Telegram</label><input type="text" id="socialTelegram" placeholder="https://t.me/yourgroup"></div>
+<div class="form-group"><label>🐦 Twitter / X</label><input type="text" id="socialTwitter" placeholder="https://x.com/yourhandle"></div>
+<div class="form-group"><label>🎮 Discord</label><input type="text" id="socialDiscord" placeholder="https://discord.gg/invite"></div>
+</div>
+
+<!-- Fee Summary -->
+<div class="fee-summary">
+<div class="fee-row"><span>Base fee (create token)</span><span>~0.05 SOL</span></div>
+<div class="fee-row" id="feeFreeze" style="display:none"><span>Disable Freeze Authority</span><span>0.1 SOL</span></div>
+<div class="fee-row" id="feeMint" style="display:none"><span>Revoke Mint Authority</span><span>0.1 SOL</span></div>
+<div class="fee-row" id="feeSocials" style="display:none"><span>Add Social Links</span><span>0.1 SOL</span></div>
+<div class="fee-total"><span>Total Estimated</span><span id="feeTotal">~0.05 SOL</span></div>
+</div>
+
+<!-- Create Button -->
+<button class="create-btn" id="createBtn" onclick="createToken()" disabled>Create Token</button>
+
+<!-- Status -->
+<div class="status" id="statusBox"></div>
+
+<!-- Result -->
+<div class="result-box" id="resultBox">
+<h3>Token Created Successfully!</h3>
+<div class="result-item"><span class="label">Token Address</span><span class="value" id="resultMint"></span></div>
+<div class="result-item"><span class="label">Token Account</span><span class="value" id="resultAccount"></span></div>
+<div class="result-item"><span class="label">Name</span><span class="value" id="resultName"></span></div>
+<div class="result-item"><span class="label">Symbol</span><span class="value" id="resultSymbol"></span></div>
+<div class="result-item"><span class="label">Supply</span><span class="value" id="resultSupply"></span></div>
+<div class="result-item"><span class="label">Decimals</span><span class="value" id="resultDecimals"></span></div>
+<div class="result-item"><span class="label">Explorer</span><span class="value"><a id="resultExplorer" href="#" target="_blank">View on Solscan →</a></span></div>
+</div>
+
+</div>
+</div>
+
+<!-- Scripts -->
+<script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+<script src="assets/js/token-creator.js"></script>
+<script type="module" src="assets/js/token-creator-solana.js"></script>
+
+</body>
+</html>
