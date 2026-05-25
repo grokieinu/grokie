@@ -216,3 +216,42 @@ function setProgressStep(stepNum, state) {
 function hideProgress() {
     document.getElementById('progressSteps').style.display = 'none';
 }
+
+// Disconnect Wallet
+async function disconnectWallet() {
+    try {
+        if (window._solanaProvider && window._solanaProvider.disconnect) {
+            await window._solanaProvider.disconnect();
+        }
+    } catch(e) {}
+
+    window._solanaProvider = null;
+    document.getElementById('connectBtn').textContent = 'Connect Wallet';
+    document.getElementById('connectBtn').classList.remove('connected');
+    document.getElementById('walletInfo').classList.remove('show');
+    document.getElementById('walletAddress').textContent = '';
+    document.getElementById('walletBalance').textContent = '0';
+    document.getElementById('createBtn').disabled = true;
+    showStatus('Wallet disconnected.', 'error');
+}
+
+// Mobile detection & notice
+(function() {
+    var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    var isInWalletBrowser = (window.solana && window.solana.isPhantom) || (window.solflare) || (window.backpack) || (window.trustwallet);
+
+    if (isMobile && !isInWalletBrowser) {
+        var notice = document.getElementById('mobileNotice');
+        if (notice) {
+            notice.style.display = 'block';
+            document.getElementById('pageUrl').textContent = window.location.href;
+        }
+    }
+})();
+
+function copyPageUrl() {
+    navigator.clipboard.writeText(window.location.href).then(function() {
+        var el = document.querySelector('.mobile-notice-url small');
+        if (el) { el.textContent = '✅ Copied!'; setTimeout(function() { el.textContent = 'Tap to copy'; }, 2000); }
+    });
+}

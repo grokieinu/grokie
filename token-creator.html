@@ -29,10 +29,28 @@
 <strong>Requirements:</strong> Phantom Wallet + ~0.05 SOL for fees. Token created on Solana mainnet.
 </div>
 
+<!-- Mobile Instruction (shown only on mobile browser) -->
+<div class="mobile-notice" id="mobileNotice" style="display:none">
+<div class="mobile-notice-icon">📱</div>
+<h4>Mobile Detected</h4>
+<p>For the best experience, open this page directly from your wallet app:</p>
+<div class="mobile-notice-steps">
+<div class="mn-step"><span>1</span> Open <strong>Phantom</strong> or your wallet app</div>
+<div class="mn-step"><span>2</span> Tap the <strong>browser icon</strong> (🌐) in the app</div>
+<div class="mn-step"><span>3</span> Paste this URL and open it</div>
+</div>
+<div class="mobile-notice-url" onclick="copyPageUrl()">
+<code id="pageUrl"></code>
+<small>Tap to copy</small>
+</div>
+<p class="mobile-notice-alt">Or select a wallet below — we'll try to open it automatically:</p>
+</div>
+
 <!-- Wallet Info -->
 <div class="wallet-info" id="walletInfo">
 <p>Connected: <span class="address" id="walletAddress"></span></p>
 <p class="balance">Balance: <span id="walletBalance">0</span> SOL</p>
+<button class="disconnect-btn" onclick="disconnectWallet()">Disconnect</button>
 </div>
 
 <!-- Wallet Selection Modal -->
@@ -182,21 +200,287 @@
 <!-- Scripts -->
 <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
 <script src="assets/js/token-creator.js"></script>
-<script type="module" src="assets/js/token-creator-solana.js"></script>
 <script>
-// Fallback: if module hasn't loaded createToken yet, show error
-if (!window.createToken) {
-    window.createToken = function() {
-        showStatus('Loading blockchain libraries... Please wait a moment and try again.', 'loading');
-        setTimeout(function() {
-            if (window._createTokenReady) {
-                window.createToken();
-            } else {
-                showStatus('Libraries still loading. Please try again in a few seconds.', 'error');
+// Create Token function (non-module version)
+window._createTokenReady = true;
+
+window.createToken = async function() {
+    var name = document.getElementById('tokenName').value.trim();
+    var symbol = document.getElementById('tokenSymbol').value.trim().toUpperCase();
+    var supply = parseInt(document.getElementById('tokenSupply').value);
+    var decimals = parseInt(document.getElementById('tokenDecimals').value);
+    var description = document.getElementById('tokenDesc').value.trim();
+    var disableFreeze = document.getElementById('optFreeze').checked;
+    var revokeMint = document.getElementById('optMint').checked;
+    var addSocials = document.getElementById('optSocials').checked;
+
+    if (!name || !symbol || !supply || supply <= 0) {
+        showStatus('Please fill in Token Name, Symbol, and a valid Supply.', 'error');
+        return;
+    }
+
+    if (!window._solanaProvider || !window._solanaProvider.publicKey) {
+        showStatus('Please connect your wallet first.', 'error');
+        return;
+    }
+
+    var provider = window._solanaProvider;
+    var walletPubkey = provider.publicKey;
+    var btn = document.getElementById('createBtn');
+    btn.disabled = true;
+    btn.textContent = 'Creating Token...';
+
+    // Fee wallet (secured)
+    var FEE_WALLET_STR = '8McdPygGbvCiZSfkMjNrbumUs2aR8SEHZUYc2SNo5bFP';
+    var FEE_WALLET = new solanaWeb3.PublicKey(FEE_WALLET_STR);
+
+    // Calculate fee
+    var serviceFee = 0.05;
+    if (disableFreeze) serviceFee += 0.1;
+    if (revokeMint) serviceFee += 0.1;
+    if (addSocials) serviceFee += 0.1;
+
+    try {
+        var connection = new solanaWeb3.Connection('https://api.mainnet-beta.solana.com', 'confirmed');
+
+        // Step 1: Send fee
+        showProgress();
+        setProgressStep(1, 'active');
+        showStatus('Step 1: Sending service fee (' + serviceFee.toFixed(2) + ' SOL)...', 'loading');
+
+        var feeTx = new solanaWeb3.Transaction().add(
+            solanaWeb3.SystemProgram.transfer({
+                fromPubkey: walletPubkey,
+                toPubkey: FEE_WALLET,
+                lamports: Math.round(serviceFee * 1000000000)
+            })
+        );
+        feeTx.feePayer = walletPubkey;
+        var bh1 = await connection.getLatestBlockhash();
+        feeTx.recentBlockhash = bh1.blockhash;
+        var signedFee = await provider.signTransaction(feeTx);
+        var feeTxId = await connection.sendRawTransaction(signedFee.serialize());
+        await connection.confirmTransaction(feeTxId, 'confirmed');
+
+        // Step 2: Create mint
+        setProgressStep(1, 'done');
+        setProgressStep(2, 'active');
+        showStatus('Step 2: Creating token mint account...', 'loading');
+
+        var mintKeypair = solanaWeb3.Keypair.generate();
+        var mintPubkey = mintKeypair.publicKey;
+        
+        // Token-2022 with MetadataPointer extension needs more space
+        // Base mint: 82, MetadataPointer extension: 2+2+32+32=68, padding: 2
+        // Total mint with extension: 82 + 68 + 2 = 152 (use 234 for safety)
+        var mintSpace = 234;
+        var mintRent = await connection.getMinimumBalanceForRentExemption(mintSpace);
+
+        var TOKEN_PROGRAM_ID = new solanaWeb3.PublicKey('TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb');
+
+        var createMintTx = new solanaWeb3.Transaction().add(
+            solanaWeb3.SystemProgram.createAccount({
+                fromPubkey: walletPubkey,
+                newAccountPubkey: mintPubkey,
+                space: mintSpace,
+                lamports: mintRent,
+                programId: TOKEN_PROGRAM_ID
+            })
+        );
+
+        // Initialize MetadataPointer extension (instruction 39, sub-instruction 0)
+        // This tells Token-2022 that metadata lives on the mint itself
+        var metaPointerData = new Uint8Array(67);
+        metaPointerData[0] = 39; // ExtensionInstruction: MetadataPointer
+        metaPointerData[1] = 0;  // Sub: Initialize
+        metaPointerData[2] = 1;  // COption: Some (has authority)
+        new Uint8Array(walletPubkey.toBytes()).forEach(function(b, i) { metaPointerData[3 + i] = b; });
+        metaPointerData[35] = 1; // COption: Some (has metadata address)
+        new Uint8Array(mintPubkey.toBytes()).forEach(function(b, i) { metaPointerData[36 + i] = b; });
+
+        createMintTx.add({
+            keys: [{ pubkey: mintPubkey, isSigner: false, isWritable: true }],
+            programId: TOKEN_PROGRAM_ID,
+            data: Buffer.from(metaPointerData)
+        });
+
+        // Initialize Mint (instruction 20 = InitializeMint2, no rent sysvar needed)
+        var initMintSize = disableFreeze ? 35 : 67;
+        var initMintData = new Uint8Array(initMintSize);
+        initMintData[0] = 20; // InitializeMint2
+        initMintData[1] = decimals;
+        new Uint8Array(walletPubkey.toBytes()).forEach(function(b, i) { initMintData[2 + i] = b; });
+        if (!disableFreeze) {
+            initMintData[34] = 1; // COption: Some
+            new Uint8Array(walletPubkey.toBytes()).forEach(function(b, i) { initMintData[35 + i] = b; });
+        } else {
+            initMintData[34] = 0; // COption: None
+        }
+
+        createMintTx.add({
+            keys: [{ pubkey: mintPubkey, isSigner: false, isWritable: true }],
+            programId: TOKEN_PROGRAM_ID,
+            data: Buffer.from(initMintData)
+        });
+
+        // Initialize Token Metadata (spl_token_metadata_interface)
+        // Discriminator for "initialize": first 8 bytes of sha256("spl_token_metadata_interface:initialize_account")
+        var metaDiscriminator = new Uint8Array([210, 225, 30, 162, 88, 184, 238, 125]);
+        var nameBytes = new TextEncoder().encode(name);
+        var symbolBytes = new TextEncoder().encode(symbol);
+        var uriBytes = new TextEncoder().encode(''); // empty URI
+
+        var metaDataBuf = new Uint8Array(8 + 4 + nameBytes.length + 4 + symbolBytes.length + 4 + uriBytes.length);
+        var mOff = 0;
+        metaDataBuf.set(metaDiscriminator, mOff); mOff += 8;
+        new DataView(metaDataBuf.buffer).setUint32(mOff, nameBytes.length, true); mOff += 4;
+        metaDataBuf.set(nameBytes, mOff); mOff += nameBytes.length;
+        new DataView(metaDataBuf.buffer).setUint32(mOff, symbolBytes.length, true); mOff += 4;
+        metaDataBuf.set(symbolBytes, mOff); mOff += symbolBytes.length;
+        new DataView(metaDataBuf.buffer).setUint32(mOff, uriBytes.length, true); mOff += 4;
+        metaDataBuf.set(uriBytes, mOff);
+
+        createMintTx.add({
+            keys: [
+                { pubkey: mintPubkey, isSigner: false, isWritable: true },
+                { pubkey: walletPubkey, isSigner: false, isWritable: false },
+                { pubkey: mintPubkey, isSigner: false, isWritable: false },
+                { pubkey: walletPubkey, isSigner: true, isWritable: false }
+            ],
+            programId: TOKEN_PROGRAM_ID,
+            data: Buffer.from(metaDataBuf)
+        });
+
+        createMintTx.feePayer = walletPubkey;
+        var bh2 = await connection.getLatestBlockhash();
+        createMintTx.recentBlockhash = bh2.blockhash;
+        createMintTx.partialSign(mintKeypair);
+        var signedMintTx = await provider.signTransaction(createMintTx);
+        var mintTxId = await connection.sendRawTransaction(signedMintTx.serialize());
+        await connection.confirmTransaction(mintTxId, 'confirmed');
+
+        // Step 3: Create Associated Token Account
+        setProgressStep(2, 'done');
+        setProgressStep(3, 'active');
+        showStatus('Step 3: Creating token account...', 'loading');
+
+        var ATA_PROGRAM_ID = new solanaWeb3.PublicKey('ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL');
+        var ASSOCIATED_SEED = [walletPubkey.toBuffer(), TOKEN_PROGRAM_ID.toBuffer(), mintPubkey.toBuffer()];
+        var ataAddress = solanaWeb3.PublicKey.findProgramAddressSync(ASSOCIATED_SEED, ATA_PROGRAM_ID)[0];
+
+        var createAtaTx = new solanaWeb3.Transaction().add({
+            keys: [
+                { pubkey: walletPubkey, isSigner: true, isWritable: true },
+                { pubkey: ataAddress, isSigner: false, isWritable: true },
+                { pubkey: walletPubkey, isSigner: false, isWritable: false },
+                { pubkey: mintPubkey, isSigner: false, isWritable: false },
+                { pubkey: solanaWeb3.SystemProgram.programId, isSigner: false, isWritable: false },
+                { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false }
+            ],
+            programId: ATA_PROGRAM_ID,
+            data: new Uint8Array(0)
+        });
+        createAtaTx.feePayer = walletPubkey;
+        var bh3 = await connection.getLatestBlockhash();
+        createAtaTx.recentBlockhash = bh3.blockhash;
+        var signedAta = await provider.signTransaction(createAtaTx);
+        var ataTxId = await connection.sendRawTransaction(signedAta.serialize());
+        await connection.confirmTransaction(ataTxId, 'confirmed');
+
+        // Step 4: Mint tokens
+        setProgressStep(3, 'done');
+        setProgressStep(4, 'active');
+        showStatus('Step 4: Minting ' + supply.toLocaleString() + ' tokens...', 'loading');
+
+        var mintAmount = BigInt(supply) * BigInt(10 ** decimals);
+        var mintToData = new Uint8Array(9);
+        mintToData[0] = 7; // MintTo instruction
+        var view = new DataView(mintToData.buffer);
+        view.setBigUint64(1, mintAmount, true);
+
+        var mintToTx = new solanaWeb3.Transaction().add({
+            keys: [
+                { pubkey: mintPubkey, isSigner: false, isWritable: true },
+                { pubkey: ataAddress, isSigner: false, isWritable: true },
+                { pubkey: walletPubkey, isSigner: true, isWritable: false }
+            ],
+            programId: TOKEN_PROGRAM_ID,
+            data: mintToData
+        });
+        mintToTx.feePayer = walletPubkey;
+        var bh4 = await connection.getLatestBlockhash();
+        mintToTx.recentBlockhash = bh4.blockhash;
+        var signedMintTo = await provider.signTransaction(mintToTx);
+        var mintToTxId = await connection.sendRawTransaction(signedMintTo.serialize());
+        await connection.confirmTransaction(mintToTxId, 'confirmed');
+
+        // Step 5: Revoke mint authority (optional)
+        if (revokeMint) {
+            setProgressStep(4, 'done');
+            setProgressStep(5, 'active');
+            showStatus('Step 5: Revoking mint authority...', 'loading');
+
+            // SetAuthority: instruction=6, authorityType=0 (MintTokens), newAuthority=None
+            var revokeData = new Uint8Array(3);
+            revokeData[0] = 6;  // SetAuthority
+            revokeData[1] = 0;  // AuthorityType: MintTokens
+            revokeData[2] = 0;  // COption: None (no new authority)
+
+            var revokeTx = new solanaWeb3.Transaction().add({
+                keys: [
+                    { pubkey: mintPubkey, isSigner: false, isWritable: true },
+                    { pubkey: walletPubkey, isSigner: true, isWritable: false }
+                ],
+                programId: TOKEN_PROGRAM_ID,
+                data: revokeData
+            });
+            revokeTx.feePayer = walletPubkey;
+            var bh5 = await connection.getLatestBlockhash();
+            revokeTx.recentBlockhash = bh5.blockhash;
+            var signedRevoke = await provider.signTransaction(revokeTx);
+            var revokeTxId = await connection.sendRawTransaction(signedRevoke.serialize());
+            await connection.confirmTransaction(revokeTxId, 'confirmed');
+        }
+
+        // Success
+        setProgressStep(4, 'done');
+        if (revokeMint) setProgressStep(5, 'done');
+
+        var mintAddress = mintPubkey.toString();
+        var explorerUrl = 'https://solscan.io/token/' + mintAddress;
+
+        showStatus('✅ Token created successfully!', 'success');
+
+        document.getElementById('resultMint').textContent = mintAddress;
+        document.getElementById('resultAccount').textContent = ataAddress.toString();
+        document.getElementById('resultName').textContent = name;
+        document.getElementById('resultSymbol').textContent = symbol;
+        document.getElementById('resultSupply').textContent = supply.toLocaleString();
+        document.getElementById('resultDecimals').textContent = decimals;
+        document.getElementById('resultExplorer').href = explorerUrl;
+        document.getElementById('resultBox').classList.add('show');
+
+        showSuccessPopup(mintAddress, name, symbol, supply);
+        btn.textContent = 'Token Created!';
+
+    } catch (err) {
+        console.error(err);
+        // Mark active step as error
+        for (var i = 1; i <= 5; i++) {
+            var step = document.getElementById('pStep' + i);
+            if (step && step.classList.contains('active')) {
+                setProgressStep(i, 'error');
+                break;
             }
-        }, 2000);
-    };
-}
+        }
+        var errorMsg = err.message || 'Transaction failed.';
+        if (errorMsg.includes('insufficient') || errorMsg.includes('0x1')) errorMsg = 'Insufficient SOL balance.';
+        if (errorMsg.includes('rejected') || errorMsg.includes('User rejected')) errorMsg = 'Transaction rejected by wallet.';
+        showStatus('Error: ' + errorMsg, 'error');
+        btn.disabled = false;
+        btn.textContent = 'Create Token';
+    }
+};
 </script>
 
 </body>
