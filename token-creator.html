@@ -35,6 +35,40 @@
 <p class="balance">Balance: <span id="walletBalance">0</span> SOL</p>
 </div>
 
+<!-- Wallet Selection Modal -->
+<div class="wallet-modal" id="walletModal">
+<div class="wallet-modal-box">
+<div class="wallet-modal-header">
+<h3>Connect Wallet</h3>
+<button onclick="closeWalletModal()">✕</button>
+</div>
+<div class="wallet-modal-list">
+<button class="wallet-option" onclick="connectSpecificWallet('phantom')">
+<img src="assets/images/phantom.png" alt="Phantom">
+<span>Phantom</span>
+<span class="wallet-recommended">Recommended</span>
+</button>
+<button class="wallet-option" onclick="connectSpecificWallet('solflare')">
+<img src="assets/images/Solflare.png" alt="Solflare">
+<span>Solflare</span>
+</button>
+<button class="wallet-option" onclick="connectSpecificWallet('backpack')">
+<img src="assets/images/Backpack.png" alt="Backpack">
+<span>Backpack</span>
+</button>
+<button class="wallet-option" onclick="connectSpecificWallet('coinbase')">
+<img src="assets/images/coinbase.png" alt="Coinbase">
+<span>Coinbase Wallet</span>
+</button>
+<button class="wallet-option" onclick="connectSpecificWallet('trust')">
+<img src="assets/images/trust.png" alt="Trust">
+<span>Trust Wallet</span>
+</button>
+</div>
+<p class="wallet-modal-note">Don't have a wallet? <a href="https://phantom.app/" target="_blank">Get Phantom</a></p>
+</div>
+</div>
+
 <!-- Token Details -->
 <div class="section-title">Token Details</div>
 <div class="form-row">
@@ -42,7 +76,7 @@
 <div class="form-group"><label>Token Symbol *</label><input type="text" id="tokenSymbol" placeholder="e.g. GROKIE" maxlength="10"></div>
 </div>
 <div class="form-row">
-<div class="form-group"><label>Total Supply *</label><input type="number" id="tokenSupply" placeholder="e.g. 1000000000" value="1000000000"></div>
+<div class="form-group"><label>Total Supply *</label><input type="number" id="tokenSupply" placeholder="e.g. 1000000000"></div>
 <div class="form-group"><label>Decimals</label><select id="tokenDecimals"><option value="9" selected>9 (Standard)</option><option value="6">6</option><option value="8">8</option><option value="0">0 (No decimals)</option></select><small>9 is standard for Solana tokens</small></div>
 </div>
 <div class="form-group"><label>Description (optional)</label><textarea id="tokenDesc" placeholder="Brief description of your token..."></textarea></div>
@@ -82,10 +116,10 @@
 <!-- Social Links -->
 <div class="social-fields" id="socialFields" style="display:none">
 <p class="social-fields-title">Project Social Links:</p>
-<div class="form-group"><label>🌐 Website</label><input type="url" id="socialWebsite" placeholder="https://yourproject.com"></div>
-<div class="form-group"><label>💬 Telegram</label><input type="text" id="socialTelegram" placeholder="https://t.me/yourgroup"></div>
-<div class="form-group"><label>🐦 Twitter / X</label><input type="text" id="socialTwitter" placeholder="https://x.com/yourhandle"></div>
-<div class="form-group"><label>🎮 Discord</label><input type="text" id="socialDiscord" placeholder="https://discord.gg/invite"></div>
+<div class="form-group"><label>Website</label><input type="url" id="socialWebsite" placeholder="https://yourproject.com"></div>
+<div class="form-group"><label>Telegram</label><input type="text" id="socialTelegram" placeholder="https://t.me/yourgroup"></div>
+<div class="form-group"><label>Twitter / X</label><input type="text" id="socialTwitter" placeholder="https://x.com/yourhandle"></div>
+<div class="form-group"><label>Discord</label><input type="text" id="socialDiscord" placeholder="https://discord.gg/invite"></div>
 </div>
 
 <!-- Fee Summary -->
@@ -115,6 +149,24 @@
 <div class="result-item"><span class="label">Explorer</span><span class="value"><a id="resultExplorer" href="#" target="_blank">View on Solscan →</a></span></div>
 </div>
 
+</div>
+</div>
+
+<!-- Success Popup -->
+<div class="popup-overlay" id="successPopup">
+<div class="popup-box">
+<div class="popup-icon">✅</div>
+<h2 class="popup-title">Token Created!</h2>
+<div class="popup-info">
+<div class="popup-row"><span class="popup-label">Token Address</span><code class="popup-value" id="popupMint"></code></div>
+<div class="popup-row"><span class="popup-label">Name</span><span class="popup-value" id="popupName"></span></div>
+<div class="popup-row"><span class="popup-label">Symbol</span><span class="popup-value" id="popupSymbol"></span></div>
+<div class="popup-row"><span class="popup-label">Total Supply</span><span class="popup-value" id="popupSupply"></span></div>
+</div>
+<div class="popup-buttons">
+<a class="popup-btn-primary" id="popupSolscan" href="#" target="_blank">View on Solscan</a>
+<button class="popup-btn-secondary" onclick="closeSuccessPopup()">Close</button>
+</div>
 </div>
 </div>
 

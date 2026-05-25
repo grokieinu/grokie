@@ -50,15 +50,79 @@ function showStatus(msg, type) {
 
 // Connect Phantom Wallet
 async function connectWallet() {
+    // Show wallet selection modal
+    document.getElementById('walletModal').classList.add('show');
+}
+
+function closeWalletModal() {
+    document.getElementById('walletModal').classList.remove('show');
+}
+
+// Connect specific wallet
+async function connectSpecificWallet(walletType) {
+    closeWalletModal();
+
     try {
-        if (!window.solana || !window.solana.isPhantom) {
-            showStatus('Phantom Wallet not detected. Please install it from phantom.app', 'error');
-            window.open('https://phantom.app/', '_blank');
-            return;
+        var provider = null;
+
+        switch(walletType) {
+            case 'phantom':
+                if (window.solana && window.solana.isPhantom) {
+                    provider = window.solana;
+                } else {
+                    window.open('https://phantom.app/', '_blank');
+                    showStatus('Please install Phantom Wallet', 'error');
+                    return;
+                }
+                break;
+            case 'solflare':
+                if (window.solflare && window.solflare.isSolflare) {
+                    provider = window.solflare;
+                } else {
+                    window.open('https://solflare.com/', '_blank');
+                    showStatus('Please install Solflare Wallet', 'error');
+                    return;
+                }
+                break;
+            case 'backpack':
+                if (window.backpack) {
+                    provider = window.backpack;
+                } else {
+                    window.open('https://backpack.app/', '_blank');
+                    showStatus('Please install Backpack Wallet', 'error');
+                    return;
+                }
+                break;
+            case 'coinbase':
+                if (window.coinbaseSolana) {
+                    provider = window.coinbaseSolana;
+                } else {
+                    window.open('https://www.coinbase.com/wallet', '_blank');
+                    showStatus('Please install Coinbase Wallet', 'error');
+                    return;
+                }
+                break;
+            case 'trust':
+                if (window.trustwallet && window.trustwallet.solana) {
+                    provider = window.trustwallet.solana;
+                } else if (window.solana && window.solana.isTrust) {
+                    provider = window.solana;
+                } else {
+                    window.open('https://trustwallet.com/', '_blank');
+                    showStatus('Please install Trust Wallet', 'error');
+                    return;
+                }
+                break;
+            default:
+                showStatus('Wallet not supported', 'error');
+                return;
         }
 
-        var resp = await window.solana.connect();
+        var resp = await provider.connect();
         var pubkey = resp.publicKey.toString();
+
+        // Store provider globally for transaction signing
+        window._solanaProvider = provider;
 
         document.getElementById('connectBtn').textContent = pubkey.substring(0,4) + '...' + pubkey.substring(pubkey.length-4);
         document.getElementById('connectBtn').classList.add('connected');
@@ -84,4 +148,18 @@ async function connectWallet() {
             showStatus('Failed to connect: ' + err.message, 'error');
         }
     }
+}
+
+// Success Popup
+function showSuccessPopup(mintAddress, name, symbol, supply) {
+    document.getElementById('popupMint').textContent = mintAddress;
+    document.getElementById('popupName').textContent = name;
+    document.getElementById('popupSymbol').textContent = symbol;
+    document.getElementById('popupSupply').textContent = Number(supply).toLocaleString();
+    document.getElementById('popupSolscan').href = 'https://solscan.io/token/' + mintAddress;
+    document.getElementById('successPopup').classList.add('show');
+}
+
+function closeSuccessPopup() {
+    document.getElementById('successPopup').classList.remove('show');
 }
