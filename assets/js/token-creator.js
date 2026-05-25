@@ -62,6 +62,10 @@ function closeWalletModal() {
 async function connectSpecificWallet(walletType) {
     closeWalletModal();
 
+    // Detect mobile
+    var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    var currentUrl = encodeURIComponent(window.location.href);
+
     try {
         var provider = null;
 
@@ -69,6 +73,10 @@ async function connectSpecificWallet(walletType) {
             case 'phantom':
                 if (window.solana && window.solana.isPhantom) {
                     provider = window.solana;
+                } else if (isMobile) {
+                    // Deep link to Phantom app
+                    window.location.href = 'https://phantom.app/ul/browse/' + currentUrl;
+                    return;
                 } else {
                     window.open('https://phantom.app/', '_blank');
                     showStatus('Please install Phantom Wallet', 'error');
@@ -78,6 +86,9 @@ async function connectSpecificWallet(walletType) {
             case 'solflare':
                 if (window.solflare && window.solflare.isSolflare) {
                     provider = window.solflare;
+                } else if (isMobile) {
+                    window.location.href = 'https://solflare.com/ul/v1/browse/' + currentUrl;
+                    return;
                 } else {
                     window.open('https://solflare.com/', '_blank');
                     showStatus('Please install Solflare Wallet', 'error');
@@ -87,6 +98,9 @@ async function connectSpecificWallet(walletType) {
             case 'backpack':
                 if (window.backpack) {
                     provider = window.backpack;
+                } else if (isMobile) {
+                    window.location.href = 'https://backpack.app/ul/browse/' + currentUrl;
+                    return;
                 } else {
                     window.open('https://backpack.app/', '_blank');
                     showStatus('Please install Backpack Wallet', 'error');
@@ -96,6 +110,9 @@ async function connectSpecificWallet(walletType) {
             case 'coinbase':
                 if (window.coinbaseSolana) {
                     provider = window.coinbaseSolana;
+                } else if (isMobile) {
+                    window.location.href = 'https://go.cb-w.com/dapp?cb_url=' + currentUrl;
+                    return;
                 } else {
                     window.open('https://www.coinbase.com/wallet', '_blank');
                     showStatus('Please install Coinbase Wallet', 'error');
@@ -107,6 +124,9 @@ async function connectSpecificWallet(walletType) {
                     provider = window.trustwallet.solana;
                 } else if (window.solana && window.solana.isTrust) {
                     provider = window.solana;
+                } else if (isMobile) {
+                    window.location.href = 'trust://browser_enable?coin=501&url=' + currentUrl;
+                    return;
                 } else {
                     window.open('https://trustwallet.com/', '_blank');
                     showStatus('Please install Trust Wallet', 'error');
