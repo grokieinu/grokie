@@ -147,3 +147,6 @@ code.popup-value{font-family:monospace;font-size:.7rem}
 .wallet-soon{margin-left:auto;background:rgba(152,152,184,.15);color:var(--muted);font-size:.65rem;padding:3px 8px;border-radius:50px;font-weight:700}
 .wallet-disabled{opacity:.5;cursor:not-allowed!important}
 .wallet-disabled:hover{border-color:var(--border)!important;background:none!important}
+
+/* Wallet Modal Subtitle */
+.wallet-modal-subtitle{color:var(--muted);font-size:.8rem;margin-bottom:15px;text-align:center}
