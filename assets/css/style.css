@@ -1592,3 +1592,43 @@ body {
         font-size: 2.2rem;
     }
 }
+
+/* Supported Wallets */
+.wallets-grid {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+}
+
+.wallet-logo-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 25px 30px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    transition: all 0.3s;
+    min-width: 130px;
+}
+
+.wallet-logo-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--primary);
+    box-shadow: 0 10px 25px rgba(139, 92, 246, 0.15);
+}
+
+.wallet-logo-card img {
+    width: 100px;
+    height: 100px;
+    border-radius: 20px;
+    object-fit: cover;
+}
+
+.wallet-logo-card span {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}

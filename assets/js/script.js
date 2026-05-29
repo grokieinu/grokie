@@ -335,7 +335,7 @@ async function fetchPrice() {
             const price = parseFloat(pair.priceUsd || 0);
             const mcap = pair.marketCap || pair.fdv || 0;
             const volume = pair.volume ? pair.volume.h24 : 0;
-            const change = pair.priceChange ? pair.priceChange.h24 : 0;
+            const change = pair.priceChange ? (pair.priceChange.h24 || 0) : 0;
 
             // Format price
             let priceStr;
@@ -354,7 +354,7 @@ async function fetchPrice() {
             // Update price change badge
             const bigChangeEl = document.getElementById('livePriceChange');
             if (bigChangeEl) {
-                const changeVal = parseFloat(change);
+                const changeVal = parseFloat(change) || 0;
                 bigChangeEl.textContent = (changeVal >= 0 ? '▲ +' : '▼ ') + changeVal.toFixed(2) + '% (24h)';
                 bigChangeEl.className = 'live-price-change ' + (changeVal >= 0 ? 'up' : 'down');
             }
@@ -379,7 +379,7 @@ async function fetchPrice() {
 
             const changeEl = document.getElementById('tradeChange');
             if (changeEl) {
-                const changeVal = parseFloat(change);
+                const changeVal = parseFloat(change) || 0;
                 changeEl.textContent = (changeVal >= 0 ? '+' : '') + changeVal.toFixed(2) + '%';
                 changeEl.style.color = changeVal >= 0 ? '#06d6a0' : '#f72585';
             }
