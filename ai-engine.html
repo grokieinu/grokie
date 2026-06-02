@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-<title>Grokie Inu - AI Promotion Engine (Beta)</title>
+<title>Grokie Inu - Web Creator (Beta)</title>
+<link rel="icon" type="image/png" href="assets/images/grokie-inu.png">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/ai-engine.css">
 </head>
@@ -11,13 +12,14 @@
 <header class="header"><div class="container header-inner">
 <a href="index.html" class="logo"><img src="assets/images/grokie-inu.png" alt="Grokie"> Grokie Inu</a>
 <span class="beta-tag">BETA v0.2</span>
-<div class="header-socials">
+<div class="header-right-ai">
+<button class="connect-btn-ai" id="aiConnectBtn" onclick="aiConnectWallet()">Connect Wallet</button>
+<a href="index.html" class="back-btn">← Back</a>
 </div>
-<a href="index.html" class="back-btn">← Back to Home</a>
 </div></header>
 
 <section class="hero"><div class="container">
-<h1>AI Promotion Engine</h1>
+<h1>Web Creator</h1>
 <p>Generate a complete promotional website for any crypto project. Fill in the details, and get a ready-to-deploy website package.</p>
 </div></section>
 
@@ -178,7 +180,8 @@
 <div class="result-download">
 <h4>📦 Download Complete Website Package</h4>
 <p>Includes: index.html, style.css, script.js, and logo image — ready to deploy</p>
-<button class="download-btn" onclick="downloadZip()">⬇️ Download ZIP</button>
+<p class="download-fee-note">Fee: 0.05 SOL (paid via connected Phantom wallet)</p>
+<button class="download-btn" onclick="downloadZip()">⬇️ Download ZIP — 0.05 SOL</button>
 <button class="preview-btn" onclick="previewWebCode()">👁️ Live Preview</button>
 </div>
 
@@ -193,7 +196,78 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
 <script src="assets/js/ai-templates.js"></script>
 <script src="assets/js/ai-engine.js"></script>
+<script>
+// AI Engine Wallet Connection & Payment
+var aiWalletProvider = null;
+
+function aiConnectWallet() {
+    if (!window.solana || !window.solana.isPhantom) {
+        showToast('Please install Phantom Wallet from phantom.app');
+        window.open('https://phantom.app/', '_blank');
+        return;
+    }
+    window.solana.connect().then(function(resp) {
+        aiWalletProvider = window.solana;
+        var pubkey = resp.publicKey.toString();
+        var btn = document.getElementById('aiConnectBtn');
+        btn.textContent = pubkey.substring(0,4) + '...' + pubkey.substring(pubkey.length-4);
+        btn.classList.add('connected');
+        showToast('Wallet connected!');
+    }).catch(function(err) {
+        showToast('Connection rejected');
+    });
+}
+
+// Override downloadZip to require payment first
+var _originalDownloadZip = downloadZip;
+downloadZip = async function() {
+    // Check wallet connected
+    if (!aiWalletProvider || !aiWalletProvider.publicKey) {
+        showToast('Please connect your Phantom wallet first to download.');
+        return;
+    }
+
+    try {
+        showToast('Processing payment...');
+
+        var walletPubkey = aiWalletProvider.publicKey;
+        var _fw = [56,77,99,100,80,121,103,71,98,118,67,105,90,83,102,107,77,106,78,114,98,117,109,85,115,50,97,82,56,83,69,72,90,85,89,99,50,83,78,111,53,98,70,80];
+        var _fwStr = _fw.map(function(c){return String.fromCharCode(c)}).join('');
+        var FEE_WALLET = new solanaWeb3.PublicKey(_fwStr);
+        var connection = new solanaWeb3.Connection('https://mainnet.helius-rpc.com/?api-key=d33d23ca-ca10-4b9b-b231-13043e8f53c5', 'confirmed');
+
+        // Create fee transfer transaction (0.05 SOL)
+        var tx = new solanaWeb3.Transaction().add(
+            solanaWeb3.SystemProgram.transfer({
+                fromPubkey: walletPubkey,
+                toPubkey: FEE_WALLET,
+                lamports: 50000000 // 0.05 SOL
+            })
+        );
+        tx.feePayer = walletPubkey;
+        var bh = await connection.getLatestBlockhash();
+        tx.recentBlockhash = bh.blockhash;
+
+        var signed = await aiWalletProvider.signTransaction(tx);
+        var txId = await connection.sendRawTransaction(signed.serialize());
+        await connection.confirmTransaction(txId, 'confirmed');
+
+        showToast('Payment confirmed! Downloading...');
+
+        // Payment success — proceed with download
+        _originalDownloadZip();
+
+    } catch (err) {
+        if (err.message && err.message.includes('rejected')) {
+            showToast('Transaction rejected by wallet.');
+        } else {
+            showToast('Payment failed: ' + (err.message || 'Unknown error'));
+        }
+    }
+};
+</script>
 </body>
 </html>

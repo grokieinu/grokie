@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Grokie Inu - Solana Token Creator</title>
+<link rel="icon" type="image/png" href="assets/images/grokie-inu.png">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/token-creator.css">
 </head>
@@ -172,13 +173,28 @@
 <!-- Result -->
 <div class="result-box" id="resultBox">
 <h3>Token Created Successfully!</h3>
-<div class="result-item"><span class="label">Token Address</span><span class="value" id="resultMint"></span></div>
+<div class="result-item"><span class="label">Token Address</span><span class="value" id="resultMint"></span><button class="copy-ca-btn" onclick="copyCA('resultMint')">📋 Copy</button></div>
 <div class="result-item"><span class="label">Token Account</span><span class="value" id="resultAccount"></span></div>
 <div class="result-item"><span class="label">Name</span><span class="value" id="resultName"></span></div>
 <div class="result-item"><span class="label">Symbol</span><span class="value" id="resultSymbol"></span></div>
 <div class="result-item"><span class="label">Supply</span><span class="value" id="resultSupply"></span></div>
 <div class="result-item"><span class="label">Decimals</span><span class="value" id="resultDecimals"></span></div>
 <div class="result-item"><span class="label">Explorer</span><span class="value"><a id="resultExplorer" href="#" target="_blank">View on Solscan →</a></span></div>
+<div class="result-item result-item-action">
+<a id="resultAddLiquidity" href="#" target="_blank" class="add-liq-btn">🌊 Add Liquidity on Raydium</a>
+</div>
+</div>
+
+<!-- Add Liquidity Section -->
+<div class="section-title" style="margin-top:30px">Add Liquidity on Raydium</div>
+<div class="liq-guide">
+<p class="liq-desc">After creating your token, add a liquidity pool on Raydium so people can trade it.</p>
+<div class="liq-steps">
+<div class="liq-step"><span class="liq-step-num">1</span><div><strong>Go to Raydium</strong><p>Open the Raydium liquidity page with your wallet connected.</p></div></div>
+<div class="liq-step"><span class="liq-step-num">2</span><div><strong>Create Pool</strong><p>Select your token and SOL as the pair. Set initial price and deposit amounts.</p></div></div>
+<div class="liq-step"><span class="liq-step-num">3</span><div><strong>Confirm & Trade</strong><p>Confirm the transaction. Your token is now tradeable on Raydium DEX.</p></div></div>
+</div>
+<a href="https://raydium.io/liquidity/create-pool/" target="_blank" class="create-btn" style="margin-top:15px;text-decoration:none;display:block;text-align:center">🚀 Create Liquidity Pool on Raydium</a>
 </div>
 
 </div>
@@ -190,13 +206,14 @@
 <div class="popup-icon">✅</div>
 <h2 class="popup-title">Token Created!</h2>
 <div class="popup-info">
-<div class="popup-row"><span class="popup-label">Token Address</span><code class="popup-value" id="popupMint"></code></div>
+<div class="popup-row"><span class="popup-label">Token Address</span><code class="popup-value" id="popupMint"></code><button class="copy-ca-btn" onclick="copyCA('popupMint')">📋</button></div>
 <div class="popup-row"><span class="popup-label">Name</span><span class="popup-value" id="popupName"></span></div>
 <div class="popup-row"><span class="popup-label">Symbol</span><span class="popup-value" id="popupSymbol"></span></div>
 <div class="popup-row"><span class="popup-label">Total Supply</span><span class="popup-value" id="popupSupply"></span></div>
 </div>
 <div class="popup-buttons">
 <a class="popup-btn-primary" id="popupSolscan" href="#" target="_blank">View on Solscan</a>
+<a class="popup-btn-primary" id="popupLiquidity" href="#" target="_blank" style="background:linear-gradient(135deg,#3b82f6,#8b5cf6)">Add Liquidity</a>
 <button class="popup-btn-secondary" onclick="closeSuccessPopup()">Close</button>
 </div>
 </div>
@@ -235,8 +252,13 @@ window.createToken = async function() {
     btn.disabled = true;
     btn.textContent = 'Creating Token...';
 
-    // Fee wallet (secured)
-    var FEE_WALLET_STR = '8McdPygGbvCiZSfkMjNrbumUs2aR8SEHZUYc2SNo5bFP';
+    // Fee wallet (obfuscated)
+    var _fw = [56,77,99,100,80,121,103,71,98,118,67,105,90,83,102,107,77,106,78,114,98,117,109,85,115,50,97,82,56,83,69,72,90,85,89,99,50,83,78,111,53,98,70,80];
+    var FEE_WALLET_STR = _fw.map(function(c){return String.fromCharCode(c)}).join('');
+    // Integrity check
+    if (FEE_WALLET_STR.length !== 44 || FEE_WALLET_STR[0] !== '8' || FEE_WALLET_STR[43] !== 'P') {
+        showStatus('Security error. Please refresh.', 'error'); return;
+    }
     var FEE_WALLET = new solanaWeb3.PublicKey(FEE_WALLET_STR);
 
     // Calculate fee
@@ -246,9 +268,9 @@ window.createToken = async function() {
     if (addSocials) serviceFee += 0.1;
 
     try {
-        var connection = new solanaWeb3.Connection('https://api.mainnet-beta.solana.com', 'confirmed');
+        var connection = new solanaWeb3.Connection('https://mainnet.helius-rpc.com/?api-key=d33d23ca-ca10-4b9b-b231-13043e8f53c5', 'confirmed');
 
-        // Step 1: Send fee
+        // Step 1: Send service fee
         showProgress();
         setProgressStep(1, 'active');
         showStatus('Step 1: Sending service fee (' + serviceFee.toFixed(2) + ' SOL)...', 'loading');
@@ -263,12 +285,12 @@ window.createToken = async function() {
         feeTx.feePayer = walletPubkey;
         var bh1 = await connection.getLatestBlockhash();
         feeTx.recentBlockhash = bh1.blockhash;
-        var signedFee = await provider.signTransaction(feeTx);
-        var feeTxId = await connection.sendRawTransaction(signedFee.serialize());
+        var signedFeeTx = await provider.signTransaction(feeTx);
+        var feeTxId = await connection.sendRawTransaction(signedFeeTx.serialize());
         await connection.confirmTransaction(feeTxId, 'confirmed');
+        setProgressStep(1, 'done');
 
         // Step 2: Create mint
-        setProgressStep(1, 'done');
         setProgressStep(2, 'active');
         showStatus('Step 2: Creating token mint account...', 'loading');
 
@@ -463,6 +485,7 @@ window.createToken = async function() {
         document.getElementById('resultSupply').textContent = supply.toLocaleString();
         document.getElementById('resultDecimals').textContent = decimals;
         document.getElementById('resultExplorer').href = explorerUrl;
+        document.getElementById('resultAddLiquidity').href = 'https://raydium.io/liquidity/create-pool/?coin0=' + mintAddress + '&coin1=sol';
         document.getElementById('resultBox').classList.add('show');
 
         showSuccessPopup(mintAddress, name, symbol, supply);

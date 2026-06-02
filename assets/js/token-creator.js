@@ -155,12 +155,12 @@ async function connectSpecificWallet(walletType) {
         // Get balance
         try {
             if (window.solanaWeb3) {
-                var connection = new window.solanaWeb3.Connection('https://api.mainnet-beta.solana.com', 'confirmed');
+                var connection = new window.solanaWeb3.Connection('https://mainnet.helius-rpc.com/?api-key=d33d23ca-ca10-4b9b-b231-13043e8f53c5', 'confirmed');
                 var balance = await connection.getBalance(new window.solanaWeb3.PublicKey(pubkey));
                 document.getElementById('walletBalance').textContent = (balance / 1000000000).toFixed(4);
             } else {
                 // Fallback: try fetch RPC directly
-                var rpcResp = await fetch('https://api.mainnet-beta.solana.com', {
+                var rpcResp = await fetch('https://mainnet.helius-rpc.com/?api-key=d33d23ca-ca10-4b9b-b231-13043e8f53c5', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({jsonrpc:'2.0',id:1,method:'getBalance',params:[pubkey]})
@@ -192,6 +192,7 @@ function showSuccessPopup(mintAddress, name, symbol, supply) {
     document.getElementById('popupSymbol').textContent = symbol;
     document.getElementById('popupSupply').textContent = Number(supply).toLocaleString();
     document.getElementById('popupSolscan').href = 'https://solscan.io/token/' + mintAddress;
+    document.getElementById('popupLiquidity').href = 'https://raydium.io/liquidity/create-pool/?coin0=' + mintAddress + '&coin1=sol';
     document.getElementById('successPopup').classList.add('show');
 }
 
@@ -255,5 +256,23 @@ function copyPageUrl() {
     navigator.clipboard.writeText(window.location.href).then(function() {
         var el = document.querySelector('.mobile-notice-url small');
         if (el) { el.textContent = '✅ Copied!'; setTimeout(function() { el.textContent = 'Tap to copy'; }, 2000); }
+    });
+}
+
+// Copy Contract Address
+function copyCA(elementId) {
+    var text = document.getElementById(elementId).textContent;
+    navigator.clipboard.writeText(text).then(function() {
+        var btn = document.getElementById(elementId).nextElementSibling;
+        if (btn) { btn.textContent = '✅ Copied!'; setTimeout(function() { btn.textContent = '📋 Copy'; }, 2000); }
+    }).catch(function() {
+        var textArea = document.createElement('textarea');
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        var btn = document.getElementById(elementId).nextElementSibling;
+        if (btn) { btn.textContent = '✅ Copied!'; setTimeout(function() { btn.textContent = '📋 Copy'; }, 2000); }
     });
 }

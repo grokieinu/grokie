@@ -150,3 +150,20 @@ code.popup-value{font-family:monospace;font-size:.7rem}
 
 /* Wallet Modal Subtitle */
 .wallet-modal-subtitle{color:var(--muted);font-size:.8rem;margin-bottom:15px;text-align:center}
+
+/* Add Liquidity Section */
+.liq-guide{background:var(--dark);border:1px solid var(--border);border-radius:12px;padding:20px;margin-top:10px}
+.liq-desc{color:var(--muted);font-size:.85rem;margin-bottom:15px;text-align:center}
+.liq-steps{display:flex;flex-direction:column;gap:12px}
+.liq-step{display:flex;align-items:flex-start;gap:12px;padding:12px;background:var(--card);border:1px solid var(--border);border-radius:10px;transition:border-color .3s}
+.liq-step:hover{border-color:var(--primary)}
+.liq-step-num{width:28px;height:28px;min-width:28px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--accent),var(--primary));color:#fff;border-radius:50%;font-size:.75rem;font-weight:700}
+.liq-step div strong{color:var(--text);font-size:.85rem;display:block;margin-bottom:2px}
+.liq-step div p{color:var(--muted);font-size:.78rem;margin:0}
+.result-item-action{justify-content:center;border-bottom:none;padding-top:12px}
+.add-liq-btn{display:inline-block;padding:10px 20px;background:linear-gradient(135deg,#3b82f6,var(--primary));color:#fff;text-decoration:none;border-radius:50px;font-size:.82rem;font-weight:700;transition:all .3s}
+.add-liq-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(59,130,246,.3)}
+
+/* Copy CA Button */
+.copy-ca-btn{background:var(--primary);color:#fff;border:none;padding:4px 10px;border-radius:6px;font-size:.7rem;font-weight:600;cursor:pointer;transition:all .3s;margin-left:8px;white-space:nowrap}
+.copy-ca-btn:hover{background:var(--accent)}

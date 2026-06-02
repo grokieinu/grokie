@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grokie Inu - AI Token Audit & Trust Score</title>
+<link rel="icon" type="image/png" href="assets/images/grokie-inu.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/token-audit.css">
+</head>
+<body>
+
+<header class="header"><div class="header-inner">
+<a href="index.html" class="logo"><img src="assets/images/grokie-inu.png" alt="Grokie"> Grokie Inu</a>
+<div class="header-right">
+<span class="beta-tag">FREE</span>
+<a href="index.html" class="back-btn">← Back</a>
+</div>
+</div></header>
+
+<section class="hero">
+<h1>🛡️ AI Token Audit</h1>
+<p>Scan any Solana token contract. Get an instant trust score and safety analysis powered by AI.</p>
+</section>
+
+<div class="container">
+<div class="card">
+
+<!-- Search -->
+<div class="search-section">
+<label class="search-label">Enter Token Contract Address (Solana)</label>
+<div class="search-row">
+<input type="text" id="tokenCA" placeholder="Paste contract address... (e.g. A1zgiEn7j53...)" maxlength="50">
+<button class="scan-btn" id="scanBtn" onclick="scanToken()">🔍 Scan</button>
+</div>
+<p class="search-hint">Paste any SPL token mint address to analyze its safety</p>
+</div>
+
+<!-- Loading -->
+<div class="scan-loading" id="scanLoading">
+<div class="scan-spinner"></div>
+<p>Analyzing token contract...</p>
+<ul class="scan-steps">
+<li id="scanStep1">🔍 Fetching on-chain data...</li>
+<li id="scanStep2">📊 Analyzing token supply & holders...</li>
+<li id="scanStep3">🔐 Checking authority settings...</li>
+<li id="scanStep4">⚠️ Detecting risk patterns...</li>
+<li id="scanStep5">📋 Generating trust report...</li>
+</ul>
+</div>
+
+<!-- Result -->
+<div class="audit-result" id="auditResult">
+
+<!-- Trust Score Circle -->
+<div class="score-header">
+<div class="score-circle" id="scoreCircle">
+<svg viewBox="0 0 120 120">
+<circle class="score-bg" cx="60" cy="60" r="52"></circle>
+<circle class="score-fill" id="scoreFill" cx="60" cy="60" r="52"></circle>
+</svg>
+<div class="score-num" id="scoreNum">--</div>
+</div>
+<div class="score-meta">
+<h3 id="scoreLabel">Analyzing...</h3>
+<p id="scoreSummary"></p>
+</div>
+</div>
+
+<!-- Token Info -->
+<div class="audit-section">
+<h4>📋 Token Information</h4>
+<div class="info-grid" id="tokenInfo"></div>
+</div>
+
+<!-- Safety Checks -->
+<div class="audit-section">
+<h4>🔐 Safety Checks</h4>
+<div class="checks-list" id="safetyChecks"></div>
+</div>
+
+<!-- Risk Flags -->
+<div class="audit-section" id="riskSection" style="display:none">
+<h4>⚠️ Risk Flags</h4>
+<div class="risk-list" id="riskFlags"></div>
+</div>
+
+<!-- Holder Analysis -->
+<div class="audit-section">
+<h4>👥 Holder Analysis</h4>
+<div class="holder-info" id="holderInfo"></div>
+</div>
+
+<!-- Disclaimer -->
+<div class="audit-disclaimer">
+<p><strong>Disclaimer:</strong> This is an automated analysis based on on-chain data. It is NOT financial advice. Always DYOR. A high score does not guarantee safety — it only indicates observable on-chain factors look favorable.</p>
+</div>
+
+<!-- Actions -->
+<div class="audit-actions">
+<button class="action-btn" onclick="copyReport()">📋 Copy Report</button>
+<button class="action-btn secondary" onclick="resetAudit()">🔄 Scan Another</button>
+</div>
+
+</div>
+
+<!-- Error -->
+<div class="audit-error" id="auditError">
+<div class="error-icon">❌</div>
+<h3 id="errorTitle">Token Not Found</h3>
+<p id="errorMsg">Please check the contract address and try again.</p>
+<button class="action-btn secondary" onclick="resetAudit()">Try Again</button>
+</div>
+
+</div>
+</div>
+
+<script src="assets/js/token-audit.js"></script>
+</body>
+</html>
