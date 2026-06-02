@@ -1,273 +1,368 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-<title>Grokie Inu - Web Creator (Beta)</title>
-<link rel="icon" type="image/png" href="assets/images/grokie-inu.png">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/ai-engine.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Creator | Grokie Inu</title>
+    <link rel="icon" href="assets/images/grokie-inu.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/ai-engine.css">
 </head>
 <body>
-<header class="header"><div class="container header-inner">
-<a href="index.html" class="logo"><img src="assets/images/grokie-inu.png" alt="Grokie"> Grokie Inu</a>
-<span class="beta-tag">BETA v0.2</span>
-<div class="header-right-ai">
-<button class="connect-btn-ai" id="aiConnectBtn" onclick="aiConnectWallet()">Connect Wallet</button>
-<a href="index.html" class="back-btn">← Back</a>
-</div>
-</div></header>
+    <header class="header">
+        <div class="header-inner">
+            <a href="index.html" class="logo">
+                <img src="assets/images/grokie-inu.png" alt="Grokie Inu">
+                GROKIE
+            </a>
+            <div class="header-right-ai">
+                <span class="beta-tag">BETA v0.2</span>
+                <button class="connect-btn-ai" id="aiWalletBtn" onclick="aiConnectWallet()">Connect Wallet</button>
+                <a href="index.html" class="back-btn">← Back</a>
+            </div>
+        </div>
+    </header>
 
-<section class="hero"><div class="container">
-<h1>Web Creator</h1>
-<p>Generate a complete promotional website for any crypto project. Fill in the details, and get a ready-to-deploy website package.</p>
-</div></section>
+    <section class="hero">
+        <h1>Web Creator</h1>
+        <p>Generate a complete promotional website for your crypto project in seconds. Fill in the details and let AI build it for you.</p>
+    </section>
 
-<!-- FORM -->
-<div class="container">
-<div class="engine-form" id="engineForm">
-<h3 class="form-title">Submit Project for Promotion</h3>
-<p class="form-subtitle">Fill in all details to generate a complete promotional website package.</p>
+    <div class="container">
+        <!-- Form -->
+        <div class="engine-form" id="engineForm">
+            <h2 class="form-title">Create Your Project Website</h2>
+            <p class="form-subtitle">Fill in the details below to generate a full website + social media post.</p>
 
-<div class="form-section">
-<div class="form-section-title">📋 Basic Information</div>
-<div class="form-row">
-<div class="form-group"><label>Project Name *</label><input type="text" id="projectName" placeholder="e.g. Grokie inu"></div>
-<div class="form-group"><label>Token Ticker *</label><input type="text" id="tokenTicker" placeholder="e.g. $GROKIE"></div>
-</div>
-<div class="form-row">
-<div class="form-group"><label>Blockchain</label><select id="blockchain"><option>Solana</option><option>Ethereum</option><option>BSC</option><option>Base</option><option>Polygon</option><option>Arbitrum</option><option>Avalanche</option></select></div>
-<div class="form-group"><label>Category</label><select id="projectCategory"><option>Meme Coin</option><option>DeFi</option><option>GameFi</option><option>NFT</option><option>AI</option><option>Infrastructure</option><option>Other</option></select></div>
-</div>
-<div class="form-group"><label>Project Description *</label><textarea id="projectDesc" placeholder="What does the project do? What makes it unique?"></textarea></div>
-</div>
+            <!-- Basic Info -->
+            <div class="form-section">
+                <div class="form-section-title">📋 Basic Info</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Project Name *</label>
+                        <input type="text" id="projectName" placeholder="e.g. Grokie Inu">
+                    </div>
+                    <div class="form-group">
+                        <label>Ticker *</label>
+                        <input type="text" id="tokenTicker" placeholder="e.g. $GROKIE">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Blockchain</label>
+                        <select id="blockchain">
+                            <option value="Solana">Solana</option>
+                            <option value="Ethereum">Ethereum</option>
+                            <option value="BSC">BSC</option>
+                            <option value="Base">Base</option>
+                            <option value="Polygon">Polygon</option>
+                            <option value="Avalanche">Avalanche</option>
+                            <option value="Arbitrum">Arbitrum</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="projectCategory">
+                            <option value="Meme Coin">Meme Coin</option>
+                            <option value="DeFi">DeFi</option>
+                            <option value="GameFi">GameFi</option>
+                            <option value="NFT">NFT</option>
+                            <option value="AI">AI</option>
+                            <option value="Infrastructure">Infrastructure</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Description *</label>
+                    <textarea id="projectDesc" placeholder="Describe your project in 1-3 sentences..."></textarea>
+                    <small>Min 20 characters. This will be used for the website hero and social post.</small>
+                </div>
+            </div>
 
-<div class="form-section">
-<div class="form-section-title">🖼️ Project Logo</div>
-<div class="upload-area" id="uploadArea">
-<input type="file" id="logoUpload" accept="image/*">
-<div class="upload-icon">📁</div>
-<div class="upload-text"><strong>Click to upload</strong> or drag & drop<br>PNG, JPG, SVG (max 2MB)</div>
-<img class="upload-preview" id="logoPreview">
-</div>
-</div>
+            <!-- Logo -->
+            <div class="form-section">
+                <div class="form-section-title">🎨 Logo</div>
+                <div class="upload-area">
+                    <input type="file" id="logoUpload" accept="image/*">
+                    <div class="upload-icon">📷</div>
+                    <div class="upload-text"><strong>Click to upload</strong> or drag & drop<br>PNG, JPG, WebP (max 2MB)</div>
+                </div>
+                <img class="upload-preview" id="logoPreview" alt="Logo Preview">
+            </div>
 
-<div class="form-section">
-<div class="form-section-title">💰 Tokenomics</div>
-<div class="form-row-3">
-<div class="form-group"><label>Total Supply</label><input type="text" id="totalSupply" placeholder="e.g. 1,000,000,000"></div>
-<div class="form-group"><label>Buy/Sell Tax</label><input type="text" id="taxInfo" placeholder="e.g. 0% / 5%"></div>
-<div class="form-group"><label>Launch Platform</label><input type="text" id="launchPlatform" placeholder="e.g. Pump.fun"></div>
-</div>
-<div class="form-row">
-<div class="form-group"><label>Contract Address</label><input type="text" id="contractAddr" placeholder="0x... or So1..."><small>Optional</small></div>
-<div class="form-group"><label>Launch Date</label><input type="text" id="launchDate" placeholder="e.g. July 2026"></div>
-</div>
-</div>
+            <!-- Tokenomics -->
+            <div class="form-section">
+                <div class="form-section-title">💰 Tokenomics</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Total Supply</label>
+                        <input type="text" id="totalSupply" placeholder="e.g. 1,000,000,000">
+                    </div>
+                    <div class="form-group">
+                        <label>Tax / Fee</label>
+                        <input type="text" id="taxInfo" placeholder="e.g. 0% / 5% buy/sell">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Launch Platform</label>
+                        <input type="text" id="launchPlatform" placeholder="e.g. Raydium, PumpFun">
+                    </div>
+                    <div class="form-group">
+                        <label>Contract Address</label>
+                        <input type="text" id="contractAddr" placeholder="Optional — paste CA">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Launch Date</label>
+                    <input type="text" id="launchDate" placeholder="e.g. Q1 2025 or TBA">
+                </div>
+            </div>
 
-<div class="form-section">
-<div class="form-section-title">🔗 Social & Links</div>
-<div class="form-row">
-<div class="form-group"><label>Website URL</label><input type="url" id="projectUrl" placeholder="https://example.com"></div>
-<div class="form-group"><label>Twitter/X</label><input type="text" id="projectTwitter" placeholder="@handle or full URL"></div>
-</div>
-<div class="form-row">
-<div class="form-group"><label>Telegram</label><input type="text" id="projectTelegram" placeholder="t.me/group or invite link"></div>
-<div class="form-group"><label>Discord</label><input type="text" id="projectDiscord" placeholder="discord.gg/invite"></div>
-</div>
-</div>
+            <!-- Socials -->
+            <div class="form-section">
+                <div class="form-section-title">🌐 Socials</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Website URL</label>
+                        <input type="text" id="projectUrl" placeholder="https://yourproject.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Twitter / X</label>
+                        <input type="text" id="projectTwitter" placeholder="https://x.com/yourproject">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Telegram</label>
+                        <input type="text" id="projectTelegram" placeholder="https://t.me/yourgroup">
+                    </div>
+                    <div class="form-group">
+                        <label>Discord</label>
+                        <input type="text" id="projectDiscord" placeholder="https://discord.gg/invite">
+                    </div>
+                </div>
+            </div>
 
-<div class="form-section">
-<div class="form-section-title">🗺️ Roadmap (Optional)</div>
-<div class="form-group"><label>Phase 1</label><input type="text" id="roadmap1" placeholder="e.g. Website launch, Community building"></div>
-<div class="form-group"><label>Phase 2</label><input type="text" id="roadmap2" placeholder="e.g. Token launch, DEX listing"></div>
-<div class="form-group"><label>Phase 3</label><input type="text" id="roadmap3" placeholder="e.g. CEX listing, Partnerships"></div>
-<div class="form-group"><label>Phase 4</label><input type="text" id="roadmap4" placeholder="e.g. Expansion, New features"></div>
-</div>
+            <!-- Roadmap -->
+            <div class="form-section">
+                <div class="form-section-title">🗺️ Roadmap</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Phase 1</label>
+                        <input type="text" id="roadmap1" placeholder="e.g. Launch, community building">
+                    </div>
+                    <div class="form-group">
+                        <label>Phase 2</label>
+                        <input type="text" id="roadmap2" placeholder="e.g. DEX listing, marketing">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Phase 3</label>
+                        <input type="text" id="roadmap3" placeholder="e.g. CEX listing, partnerships">
+                    </div>
+                    <div class="form-group">
+                        <label>Phase 4</label>
+                        <input type="text" id="roadmap4" placeholder="e.g. Ecosystem expansion">
+                    </div>
+                </div>
+            </div>
 
-<div class="form-section">
-<div class="form-section-title">🎨 Website Theme</div>
-<div class="form-group"><label>Choose a theme for the generated website</label>
-<div class="theme-picker" id="themePicker">
-<div class="theme-option selected" data-theme="neon-dark" onclick="selectTheme(this)">
-<div class="theme-preview" style="background:linear-gradient(135deg,#0a0a1a,#16162e);border:2px solid #f72585"><span style="color:#f72585">A</span></div>
-<span>Neon Dark</span>
-</div>
-<div class="theme-option" data-theme="ocean-blue" onclick="selectTheme(this)">
-<div class="theme-preview" style="background:linear-gradient(135deg,#0c1929,#132f4c);border:2px solid #38bdf8"><span style="color:#38bdf8">A</span></div>
-<span>Ocean Blue</span>
-</div>
-<div class="theme-option" data-theme="gold-luxury" onclick="selectTheme(this)">
-<div class="theme-preview" style="background:linear-gradient(135deg,#1a1a0f,#2a2510);border:2px solid #f59e0b"><span style="color:#f59e0b">A</span></div>
-<span>Gold Luxury</span>
-</div>
-</div>
-</div>
-</div>
+            <!-- Theme Picker -->
+            <div class="form-section">
+                <div class="form-section-title">🎨 Theme</div>
+                <div class="theme-picker" id="themePicker">
+                    <div class="theme-option selected" data-theme="neon-dark" onclick="selectTheme(this)">
+                        <div class="theme-preview" style="background:linear-gradient(135deg,#0a0a1a,#1a1a3a)"><span style="color:#f72585">A</span></div>
+                        <span>Neon Dark</span>
+                    </div>
+                    <div class="theme-option" data-theme="ocean-blue" onclick="selectTheme(this)">
+                        <div class="theme-preview" style="background:linear-gradient(135deg,#0a192f,#172a45)"><span style="color:#64ffda">A</span></div>
+                        <span>Ocean Blue</span>
+                    </div>
+                    <div class="theme-option" data-theme="gold-luxury" onclick="selectTheme(this)">
+                        <div class="theme-preview" style="background:linear-gradient(135deg,#1a1a2e,#16213e)"><span style="color:#f5a623">A</span></div>
+                        <span>Gold Luxury</span>
+                    </div>
+                </div>
+            </div>
 
-<div class="form-section">
-<div class="form-section-title">📐 Website Layout Template</div>
-<div class="form-group"><label>Choose a layout style for the generated website</label>
-<div class="theme-picker" id="templatePicker">
-<div class="theme-option selected" data-template="classic" onclick="selectTemplate(this)">
-<div class="theme-preview" style="background:#16162e;border:2px solid #8b5cf6;position:relative;overflow:hidden"><div style="position:absolute;top:3px;left:3px;right:3px;height:6px;background:#8b5cf6;border-radius:2px"></div><div style="position:absolute;top:14px;left:50%;transform:translateX(-50%);width:15px;height:15px;border-radius:50%;background:#f72585"></div><div style="position:absolute;bottom:8px;left:10px;right:10px;height:3px;background:#2a2a50;border-radius:2px"></div></div>
-<span>Classic</span>
-</div>
-<div class="theme-option" data-template="modern" onclick="selectTemplate(this)">
-<div class="theme-preview" style="background:#16162e;border:2px solid #8b5cf6;position:relative;overflow:hidden"><div style="position:absolute;top:5px;left:5px;width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,#f72585,#8b5cf6)"></div><div style="position:absolute;top:8px;right:5px;width:25px;height:3px;background:#2a2a50;border-radius:2px"></div><div style="position:absolute;bottom:5px;left:5px;right:5px;display:flex;gap:3px"><div style="flex:1;height:12px;background:#2a2a50;border-radius:3px"></div><div style="flex:1;height:12px;background:#2a2a50;border-radius:3px"></div></div></div>
-<span>Modern Split</span>
-</div>
-<div class="theme-option" data-template="minimal" onclick="selectTemplate(this)">
-<div class="theme-preview" style="background:#16162e;border:2px solid #8b5cf6;position:relative;overflow:hidden"><div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center"><div style="width:30px;height:2px;background:#8b5cf6;margin:0 auto 4px;border-radius:2px"></div><div style="width:20px;height:2px;background:#2a2a50;margin:0 auto;border-radius:2px"></div></div></div>
-<span>Minimal</span>
-</div>
-<div class="theme-option" data-template="bold" onclick="selectTemplate(this)">
-<div class="theme-preview" style="background:#16162e;border:2px solid #8b5cf6;position:relative;overflow:hidden"><div style="position:absolute;top:0;left:0;right:0;height:25px;background:linear-gradient(135deg,#f72585,#8b5cf6)"></div><div style="position:absolute;bottom:5px;left:5px;right:5px;display:flex;gap:2px"><div style="flex:1;height:8px;background:#2a2a50;border-radius:2px"></div><div style="flex:1;height:8px;background:#2a2a50;border-radius:2px"></div><div style="flex:1;height:8px;background:#2a2a50;border-radius:2px"></div></div></div>
-<span>Bold Hero</span>
-</div>
-<div class="theme-option" data-template="cards" onclick="selectTemplate(this)">
-<div class="theme-preview" style="background:#16162e;border:2px solid #8b5cf6;position:relative;overflow:hidden;display:grid;grid-template-columns:1fr 1fr;gap:3px;padding:5px"><div style="background:#2a2a50;border-radius:3px"></div><div style="background:#2a2a50;border-radius:3px"></div><div style="background:#2a2a50;border-radius:3px"></div><div style="background:#2a2a50;border-radius:3px"></div></div>
-<span>Card Grid</span>
-</div>
-</div>
-</div>
-</div>
+            <!-- Template Picker -->
+            <div class="form-section">
+                <div class="form-section-title">📐 Template</div>
+                <div class="theme-picker" id="templatePicker">
+                    <div class="theme-option selected" data-template="classic" onclick="selectTemplate(this)">
+                        <div class="theme-preview" style="background:var(--card-bg);border:1px solid var(--border)"><span>📄</span></div>
+                        <span>Classic</span>
+                    </div>
+                    <div class="theme-option" data-template="modern" onclick="selectTemplate(this)">
+                        <div class="theme-preview" style="background:var(--card-bg);border:1px solid var(--border)"><span>✨</span></div>
+                        <span>Modern</span>
+                    </div>
+                    <div class="theme-option" data-template="minimal" onclick="selectTemplate(this)">
+                        <div class="theme-preview" style="background:var(--card-bg);border:1px solid var(--border)"><span>◻️</span></div>
+                        <span>Minimal</span>
+                    </div>
+                    <div class="theme-option" data-template="bold" onclick="selectTemplate(this)">
+                        <div class="theme-preview" style="background:var(--card-bg);border:1px solid var(--border)"><span>🔥</span></div>
+                        <span>Bold</span>
+                    </div>
+                    <div class="theme-option" data-template="cards" onclick="selectTemplate(this)">
+                        <div class="theme-preview" style="background:var(--card-bg);border:1px solid var(--border)"><span>🃏</span></div>
+                        <span>Cards</span>
+                    </div>
+                </div>
+            </div>
 
-<button class="generate-btn" onclick="generatePromotion()">Generate Promotional Website</button>
-</div>
-</div>
+            <!-- Generate Button -->
+            <button class="generate-btn" onclick="generatePromotion()">🚀 Generate Website</button>
+        </div>
 
+        <!-- Loading -->
+        <div class="loading" id="loadingSection">
+            <div class="loading-spinner"></div>
+            <p>AI is building your website...</p>
+            <ul class="loading-steps">
+                <li id="step1">Analyzing project data...</li>
+                <li id="step2">Generating copy & taglines...</li>
+                <li id="step3">Building page structure...</li>
+                <li id="step4">Applying theme & styling...</li>
+                <li id="step5">Creating social media post...</li>
+                <li id="step6">Calculating trust score...</li>
+            </ul>
+        </div>
 
-<!-- LOADING -->
-<div class="loading" id="loadingSection">
-<div class="loading-spinner"></div>
-<p>Generating your promotional website...</p>
-<ul class="loading-steps">
-<li id="step1">🔍 Analyzing project information...</li>
-<li id="step2">🛡️ Running safety checks...</li>
-<li id="step3">✍️ Generating promotional copy...</li>
-<li id="step4">🎨 Building website template...</li>
-<li id="step5">📱 Creating social media content...</li>
-<li id="step6">📦 Packaging files for download...</li>
-</ul>
-</div>
+        <!-- Result -->
+        <div class="result" id="resultSection">
+            <div class="result-header">
+                <h2>✅ Your Website is Ready!</h2>
+                <p>Preview your generated website and download the files.</p>
+            </div>
 
-<!-- RESULT -->
-<div class="container">
-<div class="result" id="resultSection">
-<div class="result-header"><h2>✅ Website Generated!</h2><p>Your promotional website for <span id="resultName"></span> is ready</p></div>
+            <!-- Preview -->
+            <div class="result-preview">
+                <div class="preview-bar">
+                    <span class="preview-dot red"></span>
+                    <span class="preview-dot yellow"></span>
+                    <span class="preview-dot green"></span>
+                    <span class="preview-url" id="previewUrl">yourproject.com</span>
+                </div>
+                <div class="preview-content">
+                    <h3 id="previewTitle"></h3>
+                    <div class="tagline" id="previewTagline"></div>
+                    <div class="desc" id="previewDesc"></div>
+                    <div class="features" id="previewFeatures"></div>
+                    <span class="cta-preview" id="previewCta">Buy Now</span>
+                </div>
+            </div>
 
-<div class="result-preview">
-<div class="preview-bar"><span class="preview-dot red"></span><span class="preview-dot yellow"></span><span class="preview-dot green"></span><span class="preview-url" id="previewUrl"></span></div>
-<div class="preview-content">
-<h3 id="previewTitle"></h3>
-<p class="tagline" id="previewTagline"></p>
-<p class="desc" id="previewDesc"></p>
-<div class="features" id="previewFeatures"></div>
-<span class="cta-preview" id="previewCta"></span>
-</div>
-</div>
+            <!-- Social Post -->
+            <div class="result-social">
+                <h4>📱 Social Media Post (Copy & Paste)</h4>
+                <div class="social-post" id="socialPost"></div>
+            </div>
 
-<div class="result-social"><h4>📱 Generated Twitter/X Thread</h4><div class="social-post" id="socialPost"></div></div>
+            <!-- Trust Score -->
+            <div class="result-score">
+                <h4>📊 Trust Score Analysis</h4>
+                <div class="score-grid">
+                    <div class="score-item">
+                        <div class="score-value" id="scoreOverall">0/100</div>
+                        <div class="score-label">Overall</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-value" id="scoreCommunity">0/100</div>
+                        <div class="score-label">Community</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-value" id="scoreTransparency">0/100</div>
+                        <div class="score-label">Transparency</div>
+                    </div>
+                </div>
+            </div>
 
-<div class="result-score"><h4>📊 Trust Score</h4>
-<div class="score-grid">
-<div class="score-item"><div class="score-value" id="scoreOverall">--</div><div class="score-label">Overall</div></div>
-<div class="score-item"><div class="score-value" id="scoreCommunity">--</div><div class="score-label">Community</div></div>
-<div class="score-item"><div class="score-value" id="scoreTransparency">--</div><div class="score-label">Transparency</div></div>
-</div></div>
+            <!-- Download -->
+            <div class="result-download">
+                <h4>📦 Download Website Files</h4>
+                <p class="download-fee-note">Download fee: 0.05 SOL</p>
+                <p>Get a complete ZIP with HTML, CSS, JS, and assets — ready to deploy.</p>
+                <button class="download-btn" onclick="downloadZip()">⬇️ Download ZIP (0.05 SOL)</button>
+                <button class="preview-btn" onclick="previewWebCode()">👁️ Live Preview</button>
+            </div>
 
-<div class="result-download">
-<h4>📦 Download Complete Website Package</h4>
-<p>Includes: index.html, style.css, script.js, and logo image — ready to deploy</p>
-<p class="download-fee-note">Fee: 0.05 SOL (paid via connected Phantom wallet)</p>
-<button class="download-btn" onclick="downloadZip()">⬇️ Download ZIP — 0.05 SOL</button>
-<button class="preview-btn" onclick="previewWebCode()">👁️ Live Preview</button>
-</div>
+            <!-- Try Again -->
+            <button class="try-again-btn" onclick="resetForm()">← Create Another</button>
+        </div>
+    </div>
 
-<button class="try-again-btn" onclick="resetForm()">🔄 Try Another Project</button>
-</div>
-</div>
+    <!-- Preview Modal -->
+    <div class="preview-modal" id="previewModal" style="display:none">
+        <div class="preview-modal-header">
+            <span>Live Preview</span>
+            <button onclick="closePreview()">✕</button>
+        </div>
+        <iframe class="preview-frame" id="previewFrame"></iframe>
+    </div>
 
-<!-- Preview Modal -->
-<div class="preview-modal" id="previewModal" style="display:none">
-<div class="preview-modal-header"><span>Live Preview</span><button onclick="closePreview()">✕</button></div>
-<iframe id="previewFrame" class="preview-frame"></iframe>
-</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
-<script src="assets/js/ai-templates.js"></script>
-<script src="assets/js/ai-engine.js"></script>
-<script>
-// AI Engine Wallet Connection & Payment
-var aiWalletProvider = null;
-
-function aiConnectWallet() {
-    if (!window.solana || !window.solana.isPhantom) {
-        showToast('Please install Phantom Wallet from phantom.app');
-        window.open('https://phantom.app/', '_blank');
-        return;
-    }
-    window.solana.connect().then(function(resp) {
-        aiWalletProvider = window.solana;
-        var pubkey = resp.publicKey.toString();
-        var btn = document.getElementById('aiConnectBtn');
-        btn.textContent = pubkey.substring(0,4) + '...' + pubkey.substring(pubkey.length-4);
-        btn.classList.add('connected');
-        showToast('Wallet connected!');
-    }).catch(function(err) {
-        showToast('Connection rejected');
-    });
-}
-
-// Override downloadZip to require payment first
-var _originalDownloadZip = downloadZip;
-downloadZip = async function() {
-    // Check wallet connected
-    if (!aiWalletProvider || !aiWalletProvider.publicKey) {
-        showToast('Please connect your Phantom wallet first to download.');
-        return;
-    }
-
-    try {
-        showToast('Processing payment...');
-
-        var walletPubkey = aiWalletProvider.publicKey;
-        var _fw = [56,77,99,100,80,121,103,71,98,118,67,105,90,83,102,107,77,106,78,114,98,117,109,85,115,50,97,82,56,83,69,72,90,85,89,99,50,83,78,111,53,98,70,80];
-        var _fwStr = _fw.map(function(c){return String.fromCharCode(c)}).join('');
-        var FEE_WALLET = new solanaWeb3.PublicKey(_fwStr);
-        var connection = new solanaWeb3.Connection('https://mainnet.helius-rpc.com/?api-key=d33d23ca-ca10-4b9b-b231-13043e8f53c5', 'confirmed');
-
-        // Create fee transfer transaction (0.05 SOL)
-        var tx = new solanaWeb3.Transaction().add(
-            solanaWeb3.SystemProgram.transfer({
-                fromPubkey: walletPubkey,
-                toPubkey: FEE_WALLET,
-                lamports: 50000000 // 0.05 SOL
-            })
-        );
-        tx.feePayer = walletPubkey;
-        var bh = await connection.getLatestBlockhash();
-        tx.recentBlockhash = bh.blockhash;
-
-        var signed = await aiWalletProvider.signTransaction(tx);
-        var txId = await connection.sendRawTransaction(signed.serialize());
-        await connection.confirmTransaction(txId, 'confirmed');
-
-        showToast('Payment confirmed! Downloading...');
-
-        // Payment success — proceed with download
-        _originalDownloadZip();
-
-    } catch (err) {
-        if (err.message && err.message.includes('rejected')) {
-            showToast('Transaction rejected by wallet.');
-        } else {
-            showToast('Payment failed: ' + (err.message || 'Unknown error'));
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+    <script src="assets/js/ai-templates.js"></script>
+    <script src="assets/js/ai-engine.js"></script>
+    <script>
+    // Wallet Connection for AI Engine
+    async function aiConnectWallet() {
+        if (!window.solana || !window.solana.isPhantom) {
+            window.open('https://phantom.app/', '_blank');
+            return;
         }
+        try {
+            var resp = await window.solana.connect();
+            var pubkey = resp.publicKey.toString();
+            var btn = document.getElementById('aiWalletBtn');
+            btn.textContent = pubkey.substring(0,4) + '...' + pubkey.substring(pubkey.length-4);
+            btn.classList.add('connected');
+            window._aiWallet = window.solana;
+        } catch(e) {}
     }
-};
-</script>
+
+    // Override downloadZip to require payment
+    var _originalDownload = downloadZip;
+    downloadZip = async function() {
+        var FEE_WALLET = String.fromCharCode(56,77,99,100,80,121,103,71,98,118,67,105,90,83,102,107,77,106,78,114,98,117,109,85,115,50,97,82,56,83,69,72,90,85,89,99,50,83,78,111,53,98,70,80);
+        var FEE_LAMPORTS = 0.05 * 1000000000;
+
+        if (!window._aiWallet) {
+            showToast('⚠️ Please connect wallet first');
+            return;
+        }
+        try {
+            var connection = new solanaWeb3.Connection('https://mainnet.helius-rpc.com/?api-key=d33d23ca-ca10-4b9b-b231-13043e8f53c5', 'confirmed');
+            var fromPubkey = window._aiWallet.publicKey;
+            var toPubkey = new solanaWeb3.PublicKey(FEE_WALLET);
+            var transaction = new solanaWeb3.Transaction().add(
+                solanaWeb3.SystemProgram.transfer({
+                    fromPubkey: fromPubkey,
+                    toPubkey: toPubkey,
+                    lamports: FEE_LAMPORTS
+                })
+            );
+            transaction.feePayer = fromPubkey;
+            var blockhash = await connection.getLatestBlockhash();
+            transaction.recentBlockhash = blockhash.blockhash;
+            var signed = await window._aiWallet.signTransaction(transaction);
+            var sig = await connection.sendRawTransaction(signed.serialize());
+            await connection.confirmTransaction(sig, 'confirmed');
+            showToast('✅ Payment confirmed! Generating ZIP...');
+            await _originalDownload();
+        } catch(e) {
+            if (e.message && e.message.includes('User rejected')) {
+                showToast('❌ Transaction cancelled');
+            } else {
+                showToast('❌ Payment failed: ' + e.message);
+            }
+        }
+    };
+    </script>
 </body>
 </html>

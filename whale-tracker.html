@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whale Tracker | Grokie Inu</title>
+    <link rel="icon" href="assets/images/grokie-inu.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/whale-tracker.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-inner">
+            <a href="index.html" class="logo">
+                <img src="assets/images/grokie-inu.png" alt="Grokie Inu">
+                GROKIE
+            </a>
+            <div class="header-right">
+                <span class="live-pulse"></span>
+                <span class="live-label">TRACKING</span>
+                <a href="index.html" class="back-btn">← Back</a>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <h1>🐋 Whale Tracker</h1>
+        <p>Track top holders and whale activity for any Solana token in real-time.</p>
+    </section>
+
+    <div class="container">
+        <!-- Search -->
+        <div class="search-box">
+            <input type="text" id="tokenInput" placeholder="Enter Solana token address..." spellcheck="false">
+            <button class="scan-btn" onclick="trackToken()">🔍 Track</button>
+        </div>
+
+        <!-- Loading -->
+        <div class="loading" id="loadingState">
+            <div class="spinner"></div>
+            <p>Scanning blockchain for whale data...</p>
+        </div>
+
+        <!-- Error -->
+        <div class="error-state" id="errorState">
+            <p id="errorMsg"></p>
+            <button onclick="resetTracker()">Try Again</button>
+        </div>
+
+        <!-- Results -->
+        <div class="results" id="results">
+            <!-- Token Header -->
+            <div class="token-header" id="tokenHeader"></div>
+
+            <!-- Whale List -->
+            <div class="section-label">🐋 Top 10 Holders</div>
+            <div class="whale-list" id="whaleList"></div>
+
+            <!-- Activity Feed -->
+            <div class="section-label">📊 Recent Whale Activity (24h)</div>
+            <div class="activity-feed" id="activityFeed"></div>
+        </div>
+    </div>
+
+    <script src="assets/js/whale-tracker.js"></script>
+</body>
+</html>

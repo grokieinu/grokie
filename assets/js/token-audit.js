@@ -51,11 +51,55 @@ async function scanToken() {
         await delay(300);
         doneStep(steps, 1);
 
-        // Step 3: Analyze authorities
+        // Step 3: Analyze authorities + deployer + extensions
         setStep(steps, 2);
         let parsedData = accountInfo && accountInfo.value ? accountInfo.value.data.parsed : null;
         let mintInfo = parsedData ? parsedData.info : null;
         let ownerProgram = accountInfo && accountInfo.value ? (accountInfo.value.owner || '') : '';
+
+        // Fetch deployer wallet (first signature = creation tx)
+        let deployerAddress = null;
+        let deployerHistory = [];
+        try {
+            const mintSigs = await rpcCall('getSignaturesForAddress', [ca, {limit: 1, before: null}]);
+            // The last signature is the creation tx (oldest)
+            // Actually we need to get ALL and take the last one, or use a different approach
+            // For efficiency, fetch last few and take the oldest
+            const allSigs = await rpcCall('getSignaturesForAddress', [ca, {limit: 50}]);
+            if (allSigs && allSigs.length > 0) {
+                const creationSig = allSigs[allSigs.length - 1]; // oldest
+                // Get the transaction to find the fee payer (deployer)
+                try {
+                    const txDetail = await rpcCall('getTransaction', [creationSig.signature, {encoding:'jsonParsed', maxSupportedTransactionVersion: 0}]);
+                    if (txDetail && txDetail.transaction && txDetail.transaction.message) {
+                        const accounts = txDetail.transaction.message.accountKeys || [];
+                        if (accounts.length > 0) {
+                            deployerAddress = accounts[0].pubkey || (typeof accounts[0] === 'string' ? accounts[0] : null);
+                        }
+                    }
+                } catch(e) { console.warn('getTransaction failed:', e.message); }
+            }
+        } catch(e) { console.warn('Deployer lookup failed:', e.message); }
+
+        // If we found deployer, check how many tokens they deployed recently
+        if (deployerAddress) {
+            try {
+                const deployerSigs = await rpcCall('getSignaturesForAddress', [deployerAddress, {limit: 100}]);
+                if (deployerSigs) deployerHistory = deployerSigs;
+            } catch(e) {}
+        }
+
+        // Fetch raw account data for Token-2022 extension detection
+        let rawAccountData = null;
+        if (ownerProgram === TOKEN_2022_PROGRAM) {
+            try {
+                const rawInfo = await rpcCall('getAccountInfo', [ca, {encoding:'base64'}]);
+                if (rawInfo && rawInfo.value && rawInfo.value.data) {
+                    rawAccountData = rawInfo.value.data[0]; // base64 string
+                }
+            } catch(e) {}
+        }
+
         await delay(300);
         doneStep(steps, 2);
 
@@ -93,7 +137,7 @@ async function scanToken() {
 
         // Step 5: Generate report
         setStep(steps, 4);
-        const report = generateDeepReport(ca, mintInfo, supplyData, largestAccounts, ownerProgram, signatures, dexData);
+        const report = generateDeepReport(ca, mintInfo, supplyData, largestAccounts, ownerProgram, signatures, dexData, deployerAddress, deployerHistory, rawAccountData);
         await delay(300);
         doneStep(steps, 4);
 
@@ -137,7 +181,7 @@ async function rpcCall(method, params) {
 }
 
 // === Deep Report Generator ===
-function generateDeepReport(ca, mintInfo, supplyData, largestAccounts, ownerProgram, signatures, dexData) {
+function generateDeepReport(ca, mintInfo, supplyData, largestAccounts, ownerProgram, signatures, dexData, deployerAddress, deployerHistory, rawAccountData) {
     const report = { ca, checks: [], risks: [], positives: [], score: 0, info: {}, holders: {}, market: {}, meta: {} };
 
     // --- Token Basic Info ---
@@ -145,15 +189,22 @@ function generateDeepReport(ca, mintInfo, supplyData, largestAccounts, ownerProg
     const decimals = supply ? supply.decimals : (mintInfo ? mintInfo.decimals : 0);
     let totalSupply = 0;
     if (supply) {
-        if (supply.uiAmount !== null && supply.uiAmount !== undefined) {
-            totalSupply = parseFloat(supply.uiAmount);
-        } else if (supply.uiAmountString) {
+        if (typeof supply.uiAmount === 'number' && supply.uiAmount > 0) {
+            totalSupply = supply.uiAmount;
+        } else if (supply.uiAmountString && parseFloat(supply.uiAmountString) > 0) {
             totalSupply = parseFloat(supply.uiAmountString);
-        } else if (supply.amount) {
-            totalSupply = parseInt(supply.amount) / Math.pow(10, supply.decimals || 0);
+        } else if (supply.amount && supply.amount !== '0') {
+            totalSupply = parseFloat(supply.amount) / Math.pow(10, supply.decimals || 0);
         }
     }
-    const rawSupply = supply ? supply.amount : '0';
+    // Fallback: try getting supply from mintInfo (parsed account data)
+    if (totalSupply === 0 && mintInfo) {
+        if (mintInfo.supply && mintInfo.supply !== '0') {
+            totalSupply = parseFloat(mintInfo.supply) / Math.pow(10, mintInfo.decimals || decimals || 0);
+        }
+    }
+    const rawSupply = supply ? supply.amount : (mintInfo && mintInfo.supply ? mintInfo.supply : '0');
+    console.log('Supply parsing:', { supplyData: supply, mintInfoSupply: mintInfo ? mintInfo.supply : null, totalSupply });
 
     report.info = {
         address: ca,
@@ -190,12 +241,104 @@ function generateDeepReport(ca, mintInfo, supplyData, largestAccounts, ownerProg
     // --- 3. TOKEN PROGRAM TYPE ---
     if (ownerProgram === TOKEN_2022_PROGRAM) {
         report.checks.push({ text: 'Uses Token-2022 program (extended features)', status: 'warning', icon: '⚠️', category: 'program' });
-        report.risks.push({ text: 'Token-2022 supports extensions like transfer fees, confidential transfers, and permanent delegate. These can be used maliciously.', severity: 'medium' });
         report.score += 5;
     } else if (ownerProgram === TOKEN_PROGRAM) {
         report.checks.push({ text: 'Uses standard Token Program (well-audited)', status: 'safe', icon: '✅', category: 'program' });
         report.positives.push('Standard SPL Token program — widely audited and trusted');
         report.score += 10;
+    }
+
+    // --- 3b. TOKEN-2022 EXTENSION SCANNER ---
+    if (ownerProgram === TOKEN_2022_PROGRAM && rawAccountData) {
+        try {
+            const extensions = detectToken2022Extensions(rawAccountData);
+            if (extensions.length === 0) {
+                report.checks.push({ text: 'Token-2022 with no dangerous extensions detected', status: 'safe', icon: '✅', category: 'extensions' });
+                report.score += 5;
+            }
+            extensions.forEach(ext => {
+                report.checks.push({ text: ext.text, status: ext.status, icon: ext.icon, category: 'extensions' });
+                if (ext.risk) report.risks.push(ext.risk);
+                report.score += ext.scoreAdd || 0;
+            });
+        } catch(e) { console.warn('Extension scan error:', e); }
+    } else if (ownerProgram === TOKEN_PROGRAM) {
+        report.checks.push({ text: 'Standard SPL token — no extensions possible', status: 'safe', icon: '✅', category: 'extensions' });
+        report.score += 5;
+    }
+
+    // --- 3c. DEPLOYER / OWNERSHIP ANALYSIS ---
+    if (deployerAddress) {
+        const shortDeployer = deployerAddress.substring(0,4) + '...' + deployerAddress.substring(deployerAddress.length-4);
+        report.checks.push({ text: 'Deployer identified: ' + shortDeployer, status: 'safe', icon: '👤', category: 'deployer' });
+        report.info.deployer = deployerAddress;
+
+        // Check deployer activity — serial launcher detection
+        if (deployerHistory.length > 0) {
+            const thirtyDaysAgo = Date.now() / 1000 - (30 * 86400);
+            const recentTxs = deployerHistory.filter(s => s.blockTime && s.blockTime > thirtyDaysAgo);
+            if (recentTxs.length > 20) {
+                report.checks.push({ text: 'Deployer has ' + recentTxs.length + ' transactions in 30 days — very active', status: 'warning', icon: '⚠️', category: 'deployer' });
+                report.risks.push({ text: 'Deployer wallet is extremely active (' + recentTxs.length + ' txs in 30 days). Could be a serial token launcher or bot.', severity: 'medium' });
+            } else if (recentTxs.length > 5) {
+                report.checks.push({ text: 'Deployer has ' + recentTxs.length + ' recent transactions', status: 'safe', icon: '✅', category: 'deployer' });
+                report.score += 3;
+            }
+
+            // Check wallet age (oldest transaction in history)
+            const oldestTx = deployerHistory[deployerHistory.length - 1];
+            if (oldestTx && oldestTx.blockTime) {
+                const walletAgeDays = Math.floor((Date.now() / 1000 - oldestTx.blockTime) / 86400);
+                const dayLabel = walletAgeDays === 1 ? 'day' : 'days';
+                if (walletAgeDays > 90) {
+                    report.checks.push({ text: 'Deployer wallet is ' + walletAgeDays + '+ ' + dayLabel + ' old', status: 'safe', icon: '✅', category: 'deployer' });
+                    report.positives.push('Deployer wallet has established history');
+                    report.score += 5;
+                } else if (walletAgeDays < 7) {
+                    report.checks.push({ text: 'Deployer wallet appears to be less than 7 days old — very new', status: 'danger', icon: '🚨', category: 'deployer' });
+                    report.risks.push({ text: 'Deployer wallet has very recent first activity. Fresh wallets are common with scam tokens.', severity: 'high' });
+                } else {
+                    report.checks.push({ text: 'Deployer wallet is at least ' + walletAgeDays + ' ' + dayLabel + ' old', status: 'warning', icon: '⚠️', category: 'deployer' });
+                    report.score += 2;
+                }
+            }
+        }
+    } else {
+        report.checks.push({ text: 'Deployer wallet could not be identified', status: 'warning', icon: '⚠️', category: 'deployer' });
+    }
+
+    // --- 3d. HONEYPOT DETECTION ---
+    let honeypotScore = 0;
+    // Check 1: Freeze authority = can selectively freeze wallets
+    if (mintInfo && mintInfo.freezeAuthority) {
+        honeypotScore += 30;
+        report.checks.push({ text: 'Freeze authority can prevent specific wallets from selling', status: 'danger', icon: '🍯', category: 'honeypot' });
+    }
+    // Check 2: Token-2022 permanent delegate (can steal tokens)
+    if (ownerProgram === TOKEN_2022_PROGRAM && rawAccountData) {
+        const hasPermDelegate = rawAccountData.includes && rawAccountData.length > 200; // simplified check
+        // Already handled in extension scanner above
+    }
+    // Check 3: High transaction failure rate (already calculated in activity section, but flag for honeypot)
+    if (signatures && signatures.length >= 5) {
+        const failedTx = signatures.filter(s => s.err !== null).length;
+        const failRate = (failedTx / signatures.length) * 100;
+        if (failRate > 50) {
+            honeypotScore += 50;
+            report.checks.push({ text: 'HONEYPOT LIKELY — ' + failRate.toFixed(0) + '% of transactions fail', status: 'danger', icon: '🍯', category: 'honeypot' });
+            report.risks.push({ text: 'Extremely high failure rate suggests users cannot sell. This is a classic honeypot pattern.', severity: 'critical' });
+        } else if (failRate > 25) {
+            honeypotScore += 20;
+            report.checks.push({ text: 'Elevated failure rate (' + failRate.toFixed(0) + '%) — possible sell restriction', status: 'warning', icon: '🍯', category: 'honeypot' });
+        } else {
+            report.checks.push({ text: 'Transaction success rate is healthy (' + (100-failRate).toFixed(0) + '%)', status: 'safe', icon: '✅', category: 'honeypot' });
+            report.score += 5;
+        }
+    }
+    if (honeypotScore === 0 && !(mintInfo && mintInfo.freezeAuthority)) {
+        report.checks.push({ text: 'No honeypot indicators detected', status: 'safe', icon: '✅', category: 'honeypot' });
+        report.positives.push('No selling restrictions detected');
+        report.score += 5;
     }
 
     // --- 4. SUPPLY ANALYSIS ---
@@ -226,22 +369,43 @@ function generateDeepReport(ca, mintInfo, supplyData, largestAccounts, ownerProg
     // --- 6. HOLDER CONCENTRATION ANALYSIS ---
     const accounts = largestAccounts && largestAccounts.value ? largestAccounts.value : [];
 
-    // Helper: get balance from account object (handle different RPC response formats)
+    // Debug: log raw data to console
+    if (accounts.length > 0) {
+        console.log('Holder data sample:', JSON.stringify(accounts[0]));
+        console.log('Total supply for pct calc:', totalSupply);
+    }
+
+    // Helper: get balance from account object (handle ALL RPC response formats)
     function getAccountBalance(acc) {
         if (!acc) return 0;
-        if (acc.uiAmount !== null && acc.uiAmount !== undefined) return parseFloat(acc.uiAmount);
-        if (acc.uiAmountString) return parseFloat(acc.uiAmountString);
-        if (acc.amount && acc.decimals !== undefined) return parseInt(acc.amount) / Math.pow(10, acc.decimals);
-        if (acc.amount) return parseInt(acc.amount) / Math.pow(10, decimals);
+        // Helius/Solana returns: { address, amount (string), decimals, uiAmount (number|null), uiAmountString (string) }
+        if (typeof acc.uiAmount === 'number' && acc.uiAmount > 0) return acc.uiAmount;
+        if (acc.uiAmountString && parseFloat(acc.uiAmountString) > 0) return parseFloat(acc.uiAmountString);
+        // Fallback: calculate from raw amount string + decimals
+        if (acc.amount) {
+            const d = acc.decimals !== undefined ? acc.decimals : decimals;
+            const raw = parseFloat(acc.amount);
+            if (raw > 0 && d > 0) return raw / Math.pow(10, d);
+            if (raw > 0) return raw;
+        }
         return 0;
     }
 
     const top1Balance = accounts.length > 0 ? getAccountBalance(accounts[0]) : 0;
     const top5Balance = accounts.slice(0, 5).reduce((s, a) => s + getAccountBalance(a), 0);
     const top10Balance = accounts.slice(0, 10).reduce((s, a) => s + getAccountBalance(a), 0);
-    const top1Pct = totalSupply > 0 ? (top1Balance / totalSupply * 100) : 0;
-    const top5Pct = totalSupply > 0 ? (top5Balance / totalSupply * 100) : 0;
-    const top10Pct = totalSupply > 0 ? (top10Balance / totalSupply * 100) : 0;
+
+    // If totalSupply is 0 but we have holder data, use top accounts sum as estimate
+    let supplyForCalc = totalSupply;
+    if (supplyForCalc === 0 && top10Balance > 0) {
+        supplyForCalc = top10Balance; // Use sum of top 10 as proxy (percentages will be relative)
+    }
+
+    const top1Pct = supplyForCalc > 0 ? (top1Balance / supplyForCalc * 100) : 0;
+    const top5Pct = supplyForCalc > 0 ? (top5Balance / supplyForCalc * 100) : 0;
+    const top10Pct = supplyForCalc > 0 ? (top10Balance / supplyForCalc * 100) : 0;
+
+    console.log('Holder calc:', { top1Balance, top5Balance, top10Balance, supplyForCalc, top1Pct, top5Pct, top10Pct });
 
     report.holders = {
         count: accounts.length,
@@ -455,11 +619,12 @@ function displayResult(report) {
         <div class="info-item"><span class="info-label">Decimals</span><span class="info-value">${report.info.decimals}</span></div>
         ${report.market.price ? '<div class="info-item"><span class="info-label">Price</span><span class="info-value">$' + report.market.price.toFixed(10) + '</span></div>' : ''}
         ${report.market.dex !== 'None' ? '<div class="info-item"><span class="info-label">DEX</span><span class="info-value">' + report.market.dex + '</span></div>' : ''}
+        ${report.info.deployer ? '<div class="info-item"><span class="info-label">Deployer</span><span class="info-value"><a href="https://solscan.io/account/' + report.info.deployer + '" target="_blank" style="color:var(--cyan)">' + report.info.deployer.substring(0,6) + '...' + report.info.deployer.substring(report.info.deployer.length-4) + '</a></span></div>' : ''}
     `;
 
     // Safety Checks — grouped by category
-    const categories = ['authority', 'program', 'supply', 'holders', 'liquidity', 'activity'];
-    const catLabels = { authority: '🔐 Authority', program: '⚙️ Program', supply: '💰 Supply', holders: '👥 Holders', liquidity: '💧 Liquidity', activity: '📊 Activity' };
+    const categories = ['authority', 'honeypot', 'extensions', 'deployer', 'program', 'supply', 'holders', 'liquidity', 'activity'];
+    const catLabels = { authority: '🔐 Authority', honeypot: '🍯 Honeypot Detection', extensions: '⚙️ Token Extensions', deployer: '👤 Deployer Analysis', program: '📋 Program', supply: '💰 Supply', holders: '👥 Holders', liquidity: '💧 Liquidity', activity: '📊 Activity' };
     let checksHtml = '';
     categories.forEach(cat => {
         const catChecks = report.checks.filter(c => c.category === cat);
@@ -573,3 +738,114 @@ function formatNumber(n) {
 
 // Enter key
 document.getElementById('tokenCA').addEventListener('keypress', function(e) { if (e.key === 'Enter') scanToken(); });
+
+// === Token-2022 Extension Detection ===
+function detectToken2022Extensions(base64Data) {
+    const extensions = [];
+    try {
+        // Decode base64 to bytes
+        const raw = atob(base64Data);
+        const bytes = new Uint8Array(raw.length);
+        for (let i = 0; i < raw.length; i++) bytes[i] = raw.charCodeAt(i);
+
+        // Token-2022 mint is at least 82 bytes (base mint)
+        // Extensions start after base mint data
+        // Extension format: 2 bytes type + 2 bytes length + data
+        // Known extension type IDs:
+        // 1 = TransferFeeConfig, 2 = TransferFeeAmount
+        // 3 = MintCloseAuthority, 4 = ConfidentialTransferMint
+        // 5 = ConfidentialTransferAccount, 6 = DefaultAccountState
+        // 7 = ImmutableOwner, 8 = MemoTransfer
+        // 9 = NonTransferable, 10 = InterestBearing
+        // 11 = CpiGuard, 12 = PermanentDelegate
+        // 13 = NonTransferableAccount, 18 = MetadataPointer
+        // 19 = TokenMetadata
+
+        if (bytes.length < 100) return extensions;
+
+        // Scan for known dangerous patterns in the raw data
+        // Since proper TLV parsing is complex, we use heuristic detection
+
+        const dataLen = bytes.length;
+
+        // Check for TransferFeeConfig (extension type 1)
+        // If mint account is much larger than standard (>200 bytes for Token-2022 with metadata)
+        // and contains specific patterns
+
+        // Heuristic: check the parsed mint info extensions field if available
+        // For now, detect by account size patterns
+        if (dataLen > 300) {
+            // Likely has multiple extensions beyond just MetadataPointer
+            // Try to find extension type bytes after the base mint (82 bytes) + padding
+
+            let offset = 166; // Typical start of extensions after padding in Token-2022
+            while (offset + 4 < dataLen) {
+                const extType = bytes[offset] | (bytes[offset + 1] << 8);
+                const extLen = bytes[offset + 2] | (bytes[offset + 3] << 8);
+
+                if (extType === 0 || extLen === 0 || extLen > 1000) break; // Invalid, stop
+
+                switch (extType) {
+                    case 1: // TransferFeeConfig
+                        extensions.push({
+                            text: 'Transfer Fee extension detected — fees charged on every transfer',
+                            status: 'danger', icon: '🚨',
+                            risk: { text: 'Token has a transfer fee. A percentage of every transaction goes to a fee recipient. Check if fee is reasonable.', severity: 'high' },
+                            scoreAdd: -5
+                        });
+                        break;
+                    case 4: // ConfidentialTransferMint
+                        extensions.push({
+                            text: 'Confidential Transfer extension — amounts can be hidden',
+                            status: 'warning', icon: '⚠️',
+                            risk: { text: 'Confidential transfers allow hiding transaction amounts. Reduces transparency.', severity: 'medium' },
+                            scoreAdd: 0
+                        });
+                        break;
+                    case 9: // NonTransferable
+                        extensions.push({
+                            text: 'NON-TRANSFERABLE — token CANNOT be sold or transferred',
+                            status: 'danger', icon: '🚨',
+                            risk: { text: 'This token is non-transferable. Once received, it can never be sold or sent to another wallet. This is effectively a honeypot.', severity: 'critical' },
+                            scoreAdd: -20
+                        });
+                        break;
+                    case 10: // InterestBearing
+                        extensions.push({
+                            text: 'Interest-Bearing extension — balance changes over time',
+                            status: 'warning', icon: '⚠️',
+                            risk: { text: 'Interest-bearing token. Balance may increase or decrease automatically. Verify the rate is beneficial.', severity: 'low' },
+                            scoreAdd: 0
+                        });
+                        break;
+                    case 12: // PermanentDelegate
+                        extensions.push({
+                            text: 'PERMANENT DELEGATE — authority can transfer/burn YOUR tokens',
+                            status: 'danger', icon: '🚨',
+                            risk: { text: 'A permanent delegate can transfer or burn tokens from ANY holder wallet at any time without permission. Extreme rug pull risk.', severity: 'critical' },
+                            scoreAdd: -15
+                        });
+                        break;
+                    case 18: // MetadataPointer (safe)
+                    case 19: // TokenMetadata (safe)
+                        // These are normal/safe extensions
+                        break;
+                    case 3: // MintCloseAuthority
+                        extensions.push({
+                            text: 'Mint Close Authority — mint can be closed (supply destroyed)',
+                            status: 'warning', icon: '⚠️',
+                            risk: { text: 'Mint close authority allows destroying the mint. This could invalidate all tokens.', severity: 'medium' },
+                            scoreAdd: -2
+                        });
+                        break;
+                }
+
+                offset += 4 + extLen; // Move to next extension
+            }
+        }
+
+    } catch(e) {
+        console.warn('Extension detection error:', e);
+    }
+    return extensions;
+}

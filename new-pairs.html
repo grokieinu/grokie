@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Pair Alert | Grokie Inu</title>
+    <link rel="icon" href="assets/images/grokie-inu.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/new-pairs.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-inner">
+            <a href="index.html" class="logo">
+                <img src="assets/images/grokie-inu.png" alt="Grokie Inu">
+                GROKIE
+            </a>
+            <div class="header-right">
+                <span class="live-pulse"></span>
+                <span class="live-label">LIVE FEED</span>
+                <a href="index.html" class="back-btn">← Back</a>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <h1>⚡ New Pair Alert</h1>
+        <p>Real-time feed of new Solana token launches. Auto-refreshes every 10 seconds.</p>
+    </section>
+
+    <div class="container">
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+            <div class="stat-item">
+                <span class="stat-num" id="statTotal">0</span>
+                <span class="stat-lbl">Total Pairs</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-num" id="statLast">--:--:--</span>
+                <span class="stat-lbl">Last Update</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-num" id="statLiq">$0</span>
+                <span class="stat-lbl">Avg Liquidity</span>
+            </div>
+        </div>
+
+        <!-- Filter -->
+        <div class="filter-row">
+            <span class="filter-label">Min Liquidity:</span>
+            <select id="minLiqFilter" onchange="renderPairs()">
+                <option value="500" selected>$500+</option>
+                <option value="0">All</option>
+                <option value="1000">$1,000+</option>
+                <option value="5000">$5,000+</option>
+                <option value="10000">$10,000+</option>
+            </select>
+        </div>
+
+        <!-- Feed -->
+        <div class="feed" id="pairFeed"></div>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState" style="display:none">
+            <p>🔍 No new pairs found matching your filter. Try lowering the minimum liquidity.</p>
+        </div>
+
+        <!-- Loading -->
+        <div class="loading-state" id="loadingState">
+            <div class="spinner"></div>
+            <p>Scanning for new pairs...</p>
+        </div>
+    </div>
+
+    <script src="assets/js/new-pairs.js"></script>
+</body>
+</html>

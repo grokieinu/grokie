@@ -1,57 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Grokie Inu - Trending Coins on Solana</title>
-<link rel="icon" type="image/png" href="assets/images/grokie-inu.png">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/trending.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trending Coins | Grokie Inu</title>
+    <link rel="icon" href="assets/images/grokie-inu.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/trending.css">
 </head>
 <body>
+    <header class="header">
+        <div class="header-inner">
+            <a href="index.html" class="logo">
+                <img src="assets/images/grokie-inu.png" alt="Grokie Inu">
+                GROKIE
+            </a>
+            <div class="header-right">
+                <span class="live-dot"></span>
+                <span class="live-text">LIVE</span>
+                <a href="index.html" class="back-btn">← Back</a>
+            </div>
+        </div>
+    </header>
 
-<header class="header"><div class="header-inner">
-<a href="index.html" class="logo"><img src="assets/images/grokie-inu.png" alt="Grokie"> Grokie Inu</a>
-<div class="header-right">
-<span class="live-dot"></span>
-<span class="live-text">LIVE</span>
-<a href="index.html" class="back-btn">← Back</a>
-</div>
-</div></header>
+    <section class="hero">
+        <h1>🔥 Trending Coins</h1>
+        <p>Real-time trending Solana tokens, top gainers, and newest listings.</p>
+    </section>
 
-<section class="hero">
-<h1>🔥 Trending Coins</h1>
-<p>Top trending tokens on Solana right now — ranked by 24h volume and price action.</p>
-</section>
+    <div class="container">
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+            <button class="filter-btn active" id="filterTrending" onclick="setFilter('trending')">🔥 Trending</button>
+            <button class="filter-btn" id="filterGainers" onclick="setFilter('gainers')">📈 Top Gainers</button>
+            <button class="filter-btn" id="filterNewest" onclick="setFilter('newest')">🆕 New Listings</button>
+        </div>
 
-<div class="container">
+        <!-- Loading -->
+        <div class="loading" id="loadingState">
+            <div class="spinner"></div>
+            <p>Fetching latest data...</p>
+        </div>
 
-<!-- Filter -->
-<div class="filter-bar">
-<button class="filter-btn active" onclick="setFilter('trending')" id="filterTrending">🔥 Trending</button>
-<button class="filter-btn" onclick="setFilter('gainers')" id="filterGainers">🚀 Top Gainers</button>
-<button class="filter-btn" onclick="setFilter('newest')" id="filterNewest">🆕 New Listings</button>
-</div>
+        <!-- Coin List -->
+        <div class="coin-list" id="coinList"></div>
 
-<!-- Loading -->
-<div class="loading" id="loadingState">
-<div class="spinner"></div>
-<p>Fetching trending data...</p>
-</div>
-<!--  -->
-<!-- Coin List -->
-<div class="coin-list" id="coinList"></div>
+        <!-- Error -->
+        <div class="error-state" id="errorState">
+            <p>⚠️ Could not load data. <button onclick="loadCurrentTab()">Retry</button></p>
+        </div>
 
-<!-- Error -->
-<div class="error-state" id="errorState">
-<p>⚠️ Could not load trending data. <button onclick="loadData()">Retry</button></p>
-</div>
+        <!-- Data Source -->
+        <p class="data-source">Data sourced from DexScreener API • Auto-refreshes every 10s</p>
+    </div>
 
-<!-- Footer note -->
-<p class="data-source">Data from DexScreener API • Auto-refreshes every 60s • Solana tokens only</p>
-
-</div>
-
-<script src="assets/js/trending.js"></script>
+    <script src="assets/js/trending.js"></script>
 </body>
 </html>

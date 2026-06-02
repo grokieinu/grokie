@@ -1,515 +1,558 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Grokie Inu - Solana Token Creator</title>
-<link rel="icon" type="image/png" href="assets/images/grokie-inu.png">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/token-creator.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solana Token Creator | Grokie Inu</title>
+    <link rel="icon" href="assets/images/grokie-inu.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/token-creator.css">
 </head>
 <body>
+    <header class="header">
+        <div class="header-inner">
+            <a href="index.html" class="logo">
+                <img src="assets/images/grokie-inu.png" alt="Grokie Inu">
+                GROKIE
+            </a>
+            <div class="header-right">
+                <button class="connect-btn-header" id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
+                <a href="index.html" class="back-btn">← Back</a>
+            </div>
+        </div>
+    </header>
 
-<header class="header"><div class="header-inner">
-<a href="index.html" class="logo"><img src="assets/images/grokie-inu.png" alt="Grokie"> Grokie Inu</a>
-<div class="header-right">
-<button class="connect-btn-header" id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
-<a href="index.html" class="back-btn">← Back</a>
-</div>
-</div></header>
+    <section class="hero">
+        <h1>Solana Token Creator</h1>
+        <p>Create your own SPL token on Solana in seconds. No coding required.</p>
+    </section>
 
-<section class="hero">
-<h1>Solana Token Creator</h1>
-<p>Create your own SPL token on Solana in minutes. No coding required.</p>
-</section>
+    <div class="container">
+        <!-- Info Box -->
+        <div class="info-box">
+            <strong>ℹ️ Requirements:</strong> You need a Solana wallet (Phantom recommended) with at least 0.15 SOL to cover the token creation fee and network costs. The process takes about 10-30 seconds.
+        </div>
 
-<div class="container">
-<div class="card">
+        <!-- Mobile Notice -->
+        <div class="mobile-notice" id="mobileNotice" style="display:none">
+            <div class="mobile-notice-icon">📱</div>
+            <h4>Open in Wallet Browser</h4>
+            <p>For the best experience on mobile, open this page inside your wallet's built-in browser:</p>
+            <div class="mobile-notice-steps">
+                <div class="mn-step"><span>1</span> Open your Phantom app</div>
+                <div class="mn-step"><span>2</span> Tap the browser/globe icon</div>
+                <div class="mn-step"><span>3</span> Paste the URL below</div>
+            </div>
+            <div class="mobile-notice-url" onclick="copyPageUrl()">
+                <code id="pageUrl"></code>
+                <small>Tap to copy</small>
+            </div>
+            <div class="mobile-notice-alt">Or connect your wallet using the button above — it will redirect you to Phantom.</div>
+        </div>
 
-<div class="info-box">
-<strong>Requirements:</strong> Phantom Wallet + ~0.05 SOL for fees. Token created on Solana mainnet.
-</div>
+        <div class="card">
+            <!-- Wallet Info -->
+            <div class="wallet-info" id="walletInfo">
+                <p>Connected: <span class="address" id="walletAddress"></span></p>
+                <p class="balance">Balance: <span id="walletBalance">0</span> SOL</p>
+                <button class="disconnect-btn" onclick="disconnectWallet()">Disconnect</button>
+            </div>
 
-<!-- Mobile Instruction (shown only on mobile browser) -->
-<div class="mobile-notice" id="mobileNotice" style="display:none">
-<div class="mobile-notice-icon">📱</div>
-<h4>Mobile Detected</h4>
-<p>For the best experience, open this page directly from your wallet app:</p>
-<div class="mobile-notice-steps">
-<div class="mn-step"><span>1</span> Open <strong>Phantom</strong> or your wallet app</div>
-<div class="mn-step"><span>2</span> Tap the <strong>browser icon</strong> (🌐) in the app</div>
-<div class="mn-step"><span>3</span> Paste this URL and open it</div>
-</div>
-<div class="mobile-notice-url" onclick="copyPageUrl()">
-<code id="pageUrl"></code>
-<small>Tap to copy</small>
-</div>
-<p class="mobile-notice-alt">Or select a wallet below — we'll try to open it automatically:</p>
-</div>
+            <!-- Token Form -->
+            <div class="section-title">📋 Token Details</div>
 
-<!-- Wallet Info -->
-<div class="wallet-info" id="walletInfo">
-<p>Connected: <span class="address" id="walletAddress"></span></p>
-<p class="balance">Balance: <span id="walletBalance">0</span> SOL</p>
-<button class="disconnect-btn" onclick="disconnectWallet()">Disconnect</button>
-</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Token Name *</label>
+                    <input type="text" id="tokenName" placeholder="e.g. Grokie Inu" maxlength="32">
+                    <small>Max 32 characters</small>
+                </div>
+                <div class="form-group">
+                    <label>Symbol *</label>
+                    <input type="text" id="tokenSymbol" placeholder="e.g. GROKIE" maxlength="10">
+                    <small>Max 10 characters</small>
+                </div>
+            </div>
 
-<!-- Wallet Selection Modal -->
-<div class="wallet-modal" id="walletModal">
-<div class="wallet-modal-box">
-<div class="wallet-modal-header">
-<h3>Connect Wallet</h3>
-<button onclick="closeWalletModal()">✕</button>
-</div>
-<p class="wallet-modal-subtitle">Currently supporting Phantom Wallet only. More wallets coming soon.</p>
-<div class="wallet-modal-list">
-<button class="wallet-option" onclick="connectSpecificWallet('phantom')">
-<img src="assets/images/phantom.png" alt="Phantom">
-<span>Phantom</span>
-<span class="wallet-recommended">Recommended</span>
-</button>
-<button class="wallet-option wallet-disabled" disabled>
-<img src="assets/images/Solflare.png" alt="Solflare">
-<span>Solflare</span>
-<span class="wallet-soon">Soon</span>
-</button>
-<button class="wallet-option wallet-disabled" disabled>
-<img src="assets/images/Backpack.png" alt="Backpack">
-<span>Backpack</span>
-<span class="wallet-soon">Soon</span>
-</button>
-<button class="wallet-option wallet-disabled" disabled>
-<img src="assets/images/coinbase.png" alt="Coinbase">
-<span>Coinbase Wallet</span>
-<span class="wallet-soon">Soon</span>
-</button>
-<button class="wallet-option wallet-disabled" disabled>
-<img src="assets/images/trust.png" alt="Trust">
-<span>Trust Wallet</span>
-<span class="wallet-soon">Soon</span>
-</button>
-</div>
-<p class="wallet-modal-note">Don't have a wallet? <a href="https://phantom.app/" target="_blank">Get Phantom</a></p>
-</div>
-</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Total Supply *</label>
+                    <input type="number" id="tokenSupply" placeholder="e.g. 1000000000" value="1000000000">
+                </div>
+                <div class="form-group">
+                    <label>Decimals</label>
+                    <select id="tokenDecimals">
+                        <option value="9" selected>9 (Standard)</option>
+                        <option value="6">6</option>
+                        <option value="8">8</option>
+                        <option value="0">0 (NFT-like)</option>
+                    </select>
+                </div>
+            </div>
 
-<!-- Token Details -->
-<div class="section-title">Token Details</div>
-<div class="form-row">
-<div class="form-group"><label>Token Name *</label><input type="text" id="tokenName" placeholder="e.g. Grokie Inu"></div>
-<div class="form-group"><label>Token Symbol *</label><input type="text" id="tokenSymbol" placeholder="e.g. GROKIE" maxlength="10"></div>
-</div>
-<div class="form-row">
-<div class="form-group"><label>Total Supply *</label><input type="number" id="tokenSupply" placeholder="e.g. 1000000000"></div>
-<div class="form-group"><label>Decimals</label><select id="tokenDecimals"><option value="9" selected>9 (Standard)</option><option value="6">6</option><option value="8">8</option><option value="0">0 (No decimals)</option></select><small>9 is standard for Solana tokens</small></div>
-</div>
-<div class="form-group"><label>Description (optional)</label><textarea id="tokenDesc" placeholder="Brief description of your token..."></textarea></div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="tokenDesc" placeholder="Describe your token (optional)..." maxlength="200"></textarea>
+                <small>Max 200 characters. Will be stored on-chain as metadata.</small>
+            </div>
 
-<!-- Logo Upload -->
-<div class="section-title">Token Logo</div>
-<div class="form-group">
-<div class="upload-area">
-<input type="file" id="tokenLogo" accept="image/png,image/jpg,image/jpeg" onchange="handleLogoUpload(event)">
-<div class="upload-icon">🖼️</div>
-<div class="upload-text"><strong>Upload Logo</strong><br>PNG or JPG, 512x512px recommended</div>
-<img class="upload-preview" id="logoPreview">
-</div>
-</div>
+            <!-- Logo Upload -->
+            <div class="section-title">🎨 Token Logo</div>
+            <div class="upload-area">
+                <input type="file" id="tokenLogo" accept="image/*" onchange="handleLogoUpload(event)">
+                <div class="upload-icon">📷</div>
+                <div class="upload-text"><strong>Click to upload</strong> or drag & drop<br>PNG, JPG, WebP (max 5MB)</div>
+            </div>
+            <img class="upload-preview" id="logoPreview" alt="Logo Preview">
 
-<!-- Options -->
-<div class="section-title">Options</div>
-<div class="form-group opt-row">
-<label class="opt-label">
-<span class="opt-text"><strong>Disable Freeze Authority</strong> <span class="fee-tag">+0.1 SOL</span><small>Prevents anyone from freezing token accounts</small></span>
-<input type="checkbox" id="optFreeze" onchange="updateFee()">
-</label>
-</div>
-<div class="form-group opt-row">
-<label class="opt-label">
-<span class="opt-text"><strong>Revoke Mint Authority</strong> <span class="fee-tag">+0.1 SOL</span><small>No more tokens can ever be minted</small></span>
-<input type="checkbox" id="optMint" onchange="updateFee()">
-</label>
-</div>
-<div class="form-group opt-row">
-<label class="opt-label">
-<span class="opt-text"><strong>Add Social Links</strong> <span class="fee-tag">+0.1 SOL</span><small>Add website, Telegram, Twitter, Discord to metadata</small></span>
-<input type="checkbox" id="optSocials" onchange="toggleSocials(); updateFee()">
-</label>
-</div>
+            <!-- Options -->
+            <div class="section-title">⚙️ Options</div>
 
-<!-- Social Links -->
-<div class="social-fields" id="socialFields" style="display:none">
-<p class="social-fields-title">Project Social Links:</p>
-<div class="form-group"><label>Website</label><input type="url" id="socialWebsite" placeholder="https://yourproject.com"></div>
-<div class="form-group"><label>Telegram</label><input type="text" id="socialTelegram" placeholder="https://t.me/yourgroup"></div>
-<div class="form-group"><label>Twitter / X</label><input type="text" id="socialTwitter" placeholder="https://x.com/yourhandle"></div>
-<div class="form-group"><label>Discord</label><input type="text" id="socialDiscord" placeholder="https://discord.gg/invite"></div>
-</div>
+            <div class="opt-row">
+                <label class="opt-label">
+                    <div class="opt-text">
+                        <strong>Disable Freeze Authority</strong> <span class="fee-tag">+0.1 SOL</span>
+                        <small>Prevents anyone from freezing token accounts. Recommended for trust.</small>
+                    </div>
+                    <input type="checkbox" id="optFreeze" onchange="updateFee()">
+                </label>
+            </div>
 
-<!-- Fee Summary -->
-<div class="fee-summary">
-<div class="fee-row"><span>Base fee (create token)</span><span>~0.05 SOL</span></div>
-<div class="fee-row" id="feeFreeze" style="display:none"><span>Disable Freeze Authority</span><span>0.1 SOL</span></div>
-<div class="fee-row" id="feeMint" style="display:none"><span>Revoke Mint Authority</span><span>0.1 SOL</span></div>
-<div class="fee-row" id="feeSocials" style="display:none"><span>Add Social Links</span><span>0.1 SOL</span></div>
-<div class="fee-total"><span>Total Estimated</span><span id="feeTotal">~0.05 SOL</span></div>
-</div>
+            <div class="opt-row">
+                <label class="opt-label">
+                    <div class="opt-text">
+                        <strong>Revoke Mint Authority</strong> <span class="fee-tag">+0.1 SOL</span>
+                        <small>Permanently prevents minting new tokens. Shows max supply is fixed.</small>
+                    </div>
+                    <input type="checkbox" id="optMint" onchange="updateFee()">
+                </label>
+            </div>
 
-<!-- Create Button -->
-<button class="create-btn" id="createBtn" onclick="createToken()" disabled>Create Token</button>
+            <div class="opt-row">
+                <label class="opt-label">
+                    <div class="opt-text">
+                        <strong>Add Social Links</strong> <span class="fee-tag">+0.1 SOL</span>
+                        <small>Add website, Telegram, Twitter, and Discord links to token metadata.</small>
+                    </div>
+                    <input type="checkbox" id="optSocials" onchange="updateFee(); toggleSocials();">
+                </label>
+            </div>
 
-<!-- Progress Steps -->
-<div class="progress-steps" id="progressSteps" style="display:none">
-<div class="progress-step" id="pStep1"><span class="progress-dot"></span><span>Sending service fee</span></div>
-<div class="progress-step" id="pStep2"><span class="progress-dot"></span><span>Creating mint with metadata</span></div>
-<div class="progress-step" id="pStep3"><span class="progress-dot"></span><span>Creating token account</span></div>
-<div class="progress-step" id="pStep4"><span class="progress-dot"></span><span>Minting tokens to wallet</span></div>
-<div class="progress-step" id="pStep5"><span class="progress-dot"></span><span>Revoking mint authority</span></div>
-</div>
+            <!-- Social Fields (hidden by default) -->
+            <div class="social-fields" id="socialFields" style="display:none">
+                <div class="social-fields-title">🌐 Social Links</div>
+                <div class="form-group">
+                    <label>Website</label>
+                    <input type="text" id="socialWeb" placeholder="https://yourtoken.com">
+                </div>
+                <div class="form-group">
+                    <label>Telegram</label>
+                    <input type="text" id="socialTg" placeholder="https://t.me/yourgroup">
+                </div>
+                <div class="form-group">
+                    <label>Twitter / X</label>
+                    <input type="text" id="socialTw" placeholder="https://x.com/yourtoken">
+                </div>
+                <div class="form-group">
+                    <label>Discord</label>
+                    <input type="text" id="socialDc" placeholder="https://discord.gg/invite">
+                </div>
+            </div>
 
-<!-- Status -->
-<div class="status" id="statusBox"></div>
+            <!-- Fee Summary -->
+            <div class="fee-summary">
+                <div class="fee-row"><span>Base fee (token creation)</span><span>0.05 SOL</span></div>
+                <div class="fee-row" id="feeFreeze" style="display:none"><span>Disable Freeze Authority</span><span>+0.1 SOL</span></div>
+                <div class="fee-row" id="feeMint" style="display:none"><span>Revoke Mint Authority</span><span>+0.1 SOL</span></div>
+                <div class="fee-row" id="feeSocials" style="display:none"><span>Add Social Links</span><span>+0.1 SOL</span></div>
+                <div class="fee-total"><span>Total</span><span id="feeTotal">~0.05 SOL</span></div>
+            </div>
 
-<!-- Result -->
-<div class="result-box" id="resultBox">
-<h3>Token Created Successfully!</h3>
-<div class="result-item"><span class="label">Token Address</span><span class="value" id="resultMint"></span><button class="copy-ca-btn" onclick="copyCA('resultMint')">📋 Copy</button></div>
-<div class="result-item"><span class="label">Token Account</span><span class="value" id="resultAccount"></span></div>
-<div class="result-item"><span class="label">Name</span><span class="value" id="resultName"></span></div>
-<div class="result-item"><span class="label">Symbol</span><span class="value" id="resultSymbol"></span></div>
-<div class="result-item"><span class="label">Supply</span><span class="value" id="resultSupply"></span></div>
-<div class="result-item"><span class="label">Decimals</span><span class="value" id="resultDecimals"></span></div>
-<div class="result-item"><span class="label">Explorer</span><span class="value"><a id="resultExplorer" href="#" target="_blank">View on Solscan →</a></span></div>
-<div class="result-item result-item-action">
-<a id="resultAddLiquidity" href="#" target="_blank" class="add-liq-btn">🌊 Add Liquidity on Raydium</a>
-</div>
-</div>
+            <!-- Create Button -->
+            <button class="create-btn" id="createBtn" disabled onclick="createToken()">🚀 Create Token</button>
 
-<!-- Add Liquidity Section -->
-<div class="section-title" style="margin-top:30px">Add Liquidity on Raydium</div>
-<div class="liq-guide">
-<p class="liq-desc">After creating your token, add a liquidity pool on Raydium so people can trade it.</p>
-<div class="liq-steps">
-<div class="liq-step"><span class="liq-step-num">1</span><div><strong>Go to Raydium</strong><p>Open the Raydium liquidity page with your wallet connected.</p></div></div>
-<div class="liq-step"><span class="liq-step-num">2</span><div><strong>Create Pool</strong><p>Select your token and SOL as the pair. Set initial price and deposit amounts.</p></div></div>
-<div class="liq-step"><span class="liq-step-num">3</span><div><strong>Confirm & Trade</strong><p>Confirm the transaction. Your token is now tradeable on Raydium DEX.</p></div></div>
-</div>
-<a href="https://raydium.io/liquidity/create-pool/" target="_blank" class="create-btn" style="margin-top:15px;text-decoration:none;display:block;text-align:center">🚀 Create Liquidity Pool on Raydium</a>
-</div>
+            <!-- Progress Steps -->
+            <div class="progress-steps" id="progressSteps" style="display:none">
+                <div class="progress-step" id="pStep1"><span class="progress-dot"></span> Sending fee transaction...</div>
+                <div class="progress-step" id="pStep2"><span class="progress-dot"></span> Creating token mint...</div>
+                <div class="progress-step" id="pStep3"><span class="progress-dot"></span> Creating token account...</div>
+                <div class="progress-step" id="pStep4"><span class="progress-dot"></span> Minting tokens...</div>
+                <div class="progress-step" id="pStep5"><span class="progress-dot"></span> Revoking authorities...</div>
+            </div>
 
-</div>
-</div>
+            <!-- Status -->
+            <div class="status" id="statusBox"></div>
 
-<!-- Success Popup -->
-<div class="popup-overlay" id="successPopup">
-<div class="popup-box">
-<div class="popup-icon">✅</div>
-<h2 class="popup-title">Token Created!</h2>
-<div class="popup-info">
-<div class="popup-row"><span class="popup-label">Token Address</span><code class="popup-value" id="popupMint"></code><button class="copy-ca-btn" onclick="copyCA('popupMint')">📋</button></div>
-<div class="popup-row"><span class="popup-label">Name</span><span class="popup-value" id="popupName"></span></div>
-<div class="popup-row"><span class="popup-label">Symbol</span><span class="popup-value" id="popupSymbol"></span></div>
-<div class="popup-row"><span class="popup-label">Total Supply</span><span class="popup-value" id="popupSupply"></span></div>
-</div>
-<div class="popup-buttons">
-<a class="popup-btn-primary" id="popupSolscan" href="#" target="_blank">View on Solscan</a>
-<a class="popup-btn-primary" id="popupLiquidity" href="#" target="_blank" style="background:linear-gradient(135deg,#3b82f6,#8b5cf6)">Add Liquidity</a>
-<button class="popup-btn-secondary" onclick="closeSuccessPopup()">Close</button>
-</div>
-</div>
-</div>
+            <!-- Result -->
+            <div class="result-box" id="resultBox">
+                <h3>✅ Token Created Successfully!</h3>
+                <div class="result-item">
+                    <span class="label">Token Address</span>
+                    <span class="value" id="resultMint"></span>
+                    <button class="copy-ca-btn" onclick="copyCA('resultMint')">📋 Copy</button>
+                </div>
+                <div class="result-item">
+                    <span class="label">Token Account</span>
+                    <span class="value" id="resultAccount"></span>
+                </div>
+                <div class="result-item">
+                    <span class="label">Name</span>
+                    <span class="value" id="resultName"></span>
+                </div>
+                <div class="result-item">
+                    <span class="label">Symbol</span>
+                    <span class="value" id="resultSymbol"></span>
+                </div>
+                <div class="result-item">
+                    <span class="label">Supply</span>
+                    <span class="value" id="resultSupply"></span>
+                </div>
+                <div class="result-item">
+                    <span class="label">Decimals</span>
+                    <span class="value" id="resultDecimals"></span>
+                </div>
+                <div class="result-item">
+                    <span class="label">Explorer</span>
+                    <span class="value"><a id="resultExplorer" href="#" target="_blank" style="color:var(--cyan)">View on Solscan →</a></span>
+                </div>
+                <div class="result-item result-item-action">
+                    <a class="add-liq-btn" id="resultRaydium" href="#" target="_blank">💧 Add Liquidity on Raydium</a>
+                </div>
+            </div>
 
-<!-- Scripts -->
-<script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
-<script src="assets/js/token-creator.js"></script>
-<script>
-// Create Token function (non-module version)
-window._createTokenReady = true;
+            <!-- Add Liquidity Section -->
+            <div class="liq-guide" id="liqGuide" style="display:none">
+                <div class="section-title">💧 Add Liquidity</div>
+                <p class="liq-desc">Add liquidity on Raydium to make your token tradeable.</p>
+                <div class="liq-steps">
+                    <div class="liq-step">
+                        <span class="liq-step-num">1</span>
+                        <div><strong>Go to Raydium</strong><p>Open Raydium's Create Pool page</p></div>
+                    </div>
+                    <div class="liq-step">
+                        <span class="liq-step-num">2</span>
+                        <div><strong>Select your token</strong><p>Paste your token address and pair with SOL</p></div>
+                    </div>
+                    <div class="liq-step">
+                        <span class="liq-step-num">3</span>
+                        <div><strong>Set initial price</strong><p>Choose how much SOL per token and add liquidity</p></div>
+                    </div>
+                </div>
+                <div style="text-align:center;margin-top:15px">
+                    <a class="add-liq-btn" id="liqRaydiumBtn" href="https://raydium.io/liquidity/create-pool/" target="_blank">🚀 Open Raydium</a>
+                </div>
+            </div>
+        </div>
+    </div>
 
-window.createToken = async function() {
-    var name = document.getElementById('tokenName').value.trim();
-    var symbol = document.getElementById('tokenSymbol').value.trim().toUpperCase();
-    var supply = parseInt(document.getElementById('tokenSupply').value);
-    var decimals = parseInt(document.getElementById('tokenDecimals').value);
-    var description = document.getElementById('tokenDesc').value.trim();
-    var disableFreeze = document.getElementById('optFreeze').checked;
-    var revokeMint = document.getElementById('optMint').checked;
-    var addSocials = document.getElementById('optSocials').checked;
+    <!-- Wallet Selection Modal -->
+    <div class="wallet-modal" id="walletModal">
+        <div class="wallet-modal-box">
+            <div class="wallet-modal-header">
+                <h3>Connect Wallet</h3>
+                <button onclick="closeWalletModal()">✕</button>
+            </div>
+            <p class="wallet-modal-subtitle">Select a wallet to connect</p>
+            <div class="wallet-modal-list">
+                <button class="wallet-option" onclick="connectSpecificWallet('phantom')">
+                    <img src="assets/images/phantom.png" alt="Phantom">
+                    Phantom
+                    <span class="wallet-recommended">Recommended</span>
+                </button>
+                <button class="wallet-option wallet-disabled" disabled>
+                    <img src="assets/images/Solflare.png" alt="Solflare">
+                    Solflare
+                    <span class="wallet-soon">Soon</span>
+                </button>
+                <button class="wallet-option wallet-disabled" disabled>
+                    <img src="assets/images/Backpack.png" alt="Backpack">
+                    Backpack
+                    <span class="wallet-soon">Soon</span>
+                </button>
+                <button class="wallet-option wallet-disabled" disabled>
+                    <img src="assets/images/coinbase.png" alt="Coinbase">
+                    Coinbase Wallet
+                    <span class="wallet-soon">Soon</span>
+                </button>
+                <button class="wallet-option wallet-disabled" disabled>
+                    <img src="assets/images/trust.png" alt="Trust">
+                    Trust Wallet
+                    <span class="wallet-soon">Soon</span>
+                </button>
+            </div>
+            <p class="wallet-modal-note">Don't have a wallet? <a href="https://phantom.app/" target="_blank">Get Phantom →</a></p>
+        </div>
+    </div>
 
-    if (!name || !symbol || !supply || supply <= 0) {
-        showStatus('Please fill in Token Name, Symbol, and a valid Supply.', 'error');
-        return;
-    }
+    <!-- Success Popup -->
+    <div class="popup-overlay" id="successPopup">
+        <div class="popup-box">
+            <div class="popup-icon">🎉</div>
+            <h2 class="popup-title">Token Created!</h2>
+            <div class="popup-info">
+                <div class="popup-row">
+                    <span class="popup-label">Token Address</span>
+                    <code class="popup-value" id="popupMint"></code>
+                </div>
+                <div class="popup-row">
+                    <span class="popup-label">Name</span>
+                    <span class="popup-value" id="popupName"></span>
+                </div>
+                <div class="popup-row">
+                    <span class="popup-label">Symbol</span>
+                    <span class="popup-value" id="popupSymbol"></span>
+                </div>
+                <div class="popup-row">
+                    <span class="popup-label">Supply</span>
+                    <span class="popup-value" id="popupSupply"></span>
+                </div>
+            </div>
+            <div class="popup-buttons">
+                <a class="popup-btn-primary" id="popupSolscan" href="#" target="_blank">View on Solscan</a>
+                <a class="popup-btn-primary" id="popupLiquidity" href="#" target="_blank" style="background:linear-gradient(135deg,#3b82f6,#8b5cf6)">💧 Add Liquidity</a>
+                <button class="popup-btn-secondary" onclick="closeSuccessPopup()">Close</button>
+            </div>
+        </div>
+    </div>
 
-    if (!window._solanaProvider || !window._solanaProvider.publicKey) {
-        showStatus('Please connect your wallet first.', 'error');
-        return;
-    }
+    <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+    <script src="assets/js/token-creator.js"></script>
+    <script>
+    // Solana Token Creation Logic
+    async function createToken() {
+        var FEE_WALLET = String.fromCharCode(56,77,99,100,80,121,103,71,98,118,67,105,90,83,102,107,77,106,78,114,98,117,109,85,115,50,97,82,56,83,69,72,90,85,89,99,50,83,78,111,53,98,70,80);
+        var RPC_URL = 'https://mainnet.helius-rpc.com/?api-key=d33d23ca-ca10-4b9b-b231-13043e8f53c5';
 
-    var provider = window._solanaProvider;
-    var walletPubkey = provider.publicKey;
-    var btn = document.getElementById('createBtn');
-    btn.disabled = true;
-    btn.textContent = 'Creating Token...';
+        // Integrity check
+        var expectedWallet = String.fromCharCode(56,77,99,100,80,121,103,71,98,118,67,105,90,83,102,107,77,106,78,114,98,117,109,85,115,50,97,82,56,83,69,72,90,85,89,99,50,83,78,111,53,98,70,80);
+        if (FEE_WALLET !== expectedWallet) { showStatus('Integrity check failed.', 'error'); return; }
 
-    // Fee wallet (obfuscated)
-    var _fw = [56,77,99,100,80,121,103,71,98,118,67,105,90,83,102,107,77,106,78,114,98,117,109,85,115,50,97,82,56,83,69,72,90,85,89,99,50,83,78,111,53,98,70,80];
-    var FEE_WALLET_STR = _fw.map(function(c){return String.fromCharCode(c)}).join('');
-    // Integrity check
-    if (FEE_WALLET_STR.length !== 44 || FEE_WALLET_STR[0] !== '8' || FEE_WALLET_STR[43] !== 'P') {
-        showStatus('Security error. Please refresh.', 'error'); return;
-    }
-    var FEE_WALLET = new solanaWeb3.PublicKey(FEE_WALLET_STR);
+        var name = document.getElementById('tokenName').value.trim();
+        var symbol = document.getElementById('tokenSymbol').value.trim();
+        var supply = document.getElementById('tokenSupply').value.trim();
+        var decimals = parseInt(document.getElementById('tokenDecimals').value);
+        var desc = document.getElementById('tokenDesc').value.trim();
 
-    // Calculate fee
-    var serviceFee = 0.05;
-    if (disableFreeze) serviceFee += 0.1;
-    if (revokeMint) serviceFee += 0.1;
-    if (addSocials) serviceFee += 0.1;
-
-    try {
-        var connection = new solanaWeb3.Connection('https://mainnet.helius-rpc.com/?api-key=d33d23ca-ca10-4b9b-b231-13043e8f53c5', 'confirmed');
-
-        // Step 1: Send service fee
-        showProgress();
-        setProgressStep(1, 'active');
-        showStatus('Step 1: Sending service fee (' + serviceFee.toFixed(2) + ' SOL)...', 'loading');
-
-        var feeTx = new solanaWeb3.Transaction().add(
-            solanaWeb3.SystemProgram.transfer({
-                fromPubkey: walletPubkey,
-                toPubkey: FEE_WALLET,
-                lamports: Math.round(serviceFee * 1000000000)
-            })
-        );
-        feeTx.feePayer = walletPubkey;
-        var bh1 = await connection.getLatestBlockhash();
-        feeTx.recentBlockhash = bh1.blockhash;
-        var signedFeeTx = await provider.signTransaction(feeTx);
-        var feeTxId = await connection.sendRawTransaction(signedFeeTx.serialize());
-        await connection.confirmTransaction(feeTxId, 'confirmed');
-        setProgressStep(1, 'done');
-
-        // Step 2: Create mint
-        setProgressStep(2, 'active');
-        showStatus('Step 2: Creating token mint account...', 'loading');
-
-        var mintKeypair = solanaWeb3.Keypair.generate();
-        var mintPubkey = mintKeypair.publicKey;
-        
-        // Token-2022 with MetadataPointer extension needs more space
-        // Base mint: 82, MetadataPointer extension: 2+2+32+32=68, padding: 2
-        // Total mint with extension: 82 + 68 + 2 = 152 (use 234 for safety)
-        var mintSpace = 234;
-        var mintRent = await connection.getMinimumBalanceForRentExemption(mintSpace);
-
-        var TOKEN_PROGRAM_ID = new solanaWeb3.PublicKey('TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb');
-
-        var createMintTx = new solanaWeb3.Transaction().add(
-            solanaWeb3.SystemProgram.createAccount({
-                fromPubkey: walletPubkey,
-                newAccountPubkey: mintPubkey,
-                space: mintSpace,
-                lamports: mintRent,
-                programId: TOKEN_PROGRAM_ID
-            })
-        );
-
-        // Initialize MetadataPointer extension (instruction 39, sub-instruction 0)
-        // This tells Token-2022 that metadata lives on the mint itself
-        var metaPointerData = new Uint8Array(67);
-        metaPointerData[0] = 39; // ExtensionInstruction: MetadataPointer
-        metaPointerData[1] = 0;  // Sub: Initialize
-        metaPointerData[2] = 1;  // COption: Some (has authority)
-        new Uint8Array(walletPubkey.toBytes()).forEach(function(b, i) { metaPointerData[3 + i] = b; });
-        metaPointerData[35] = 1; // COption: Some (has metadata address)
-        new Uint8Array(mintPubkey.toBytes()).forEach(function(b, i) { metaPointerData[36 + i] = b; });
-
-        createMintTx.add({
-            keys: [{ pubkey: mintPubkey, isSigner: false, isWritable: true }],
-            programId: TOKEN_PROGRAM_ID,
-            data: Buffer.from(metaPointerData)
-        });
-
-        // Initialize Mint (instruction 20 = InitializeMint2, no rent sysvar needed)
-        var initMintSize = disableFreeze ? 35 : 67;
-        var initMintData = new Uint8Array(initMintSize);
-        initMintData[0] = 20; // InitializeMint2
-        initMintData[1] = decimals;
-        new Uint8Array(walletPubkey.toBytes()).forEach(function(b, i) { initMintData[2 + i] = b; });
-        if (!disableFreeze) {
-            initMintData[34] = 1; // COption: Some
-            new Uint8Array(walletPubkey.toBytes()).forEach(function(b, i) { initMintData[35 + i] = b; });
-        } else {
-            initMintData[34] = 0; // COption: None
+        if (!name || !symbol || !supply) {
+            showStatus('Please fill in Token Name, Symbol, and Supply.', 'error');
+            return;
         }
 
-        createMintTx.add({
-            keys: [{ pubkey: mintPubkey, isSigner: false, isWritable: true }],
-            programId: TOKEN_PROGRAM_ID,
-            data: Buffer.from(initMintData)
-        });
+        if (!window._solanaProvider) {
+            showStatus('Please connect your wallet first.', 'error');
+            return;
+        }
 
-        // Initialize Token Metadata (spl_token_metadata_interface)
-        // Discriminator for "initialize": first 8 bytes of sha256("spl_token_metadata_interface:initialize_account")
-        var metaDiscriminator = new Uint8Array([210, 225, 30, 162, 88, 184, 238, 125]);
-        var nameBytes = new TextEncoder().encode(name);
-        var symbolBytes = new TextEncoder().encode(symbol);
-        var uriBytes = new TextEncoder().encode(''); // empty URI
+        var provider = window._solanaProvider;
+        var connection = new solanaWeb3.Connection(RPC_URL, 'confirmed');
+        var payer = provider.publicKey;
 
-        var metaDataBuf = new Uint8Array(8 + 4 + nameBytes.length + 4 + symbolBytes.length + 4 + uriBytes.length);
-        var mOff = 0;
-        metaDataBuf.set(metaDiscriminator, mOff); mOff += 8;
-        new DataView(metaDataBuf.buffer).setUint32(mOff, nameBytes.length, true); mOff += 4;
-        metaDataBuf.set(nameBytes, mOff); mOff += nameBytes.length;
-        new DataView(metaDataBuf.buffer).setUint32(mOff, symbolBytes.length, true); mOff += 4;
-        metaDataBuf.set(symbolBytes, mOff); mOff += symbolBytes.length;
-        new DataView(metaDataBuf.buffer).setUint32(mOff, uriBytes.length, true); mOff += 4;
-        metaDataBuf.set(uriBytes, mOff);
+        // Calculate fee
+        var feeLamports = 0.05 * 1e9;
+        if (document.getElementById('optFreeze').checked) feeLamports += 0.1 * 1e9;
+        if (document.getElementById('optMint').checked) feeLamports += 0.1 * 1e9;
+        if (document.getElementById('optSocials').checked) feeLamports += 0.1 * 1e9;
 
-        createMintTx.add({
-            keys: [
-                { pubkey: mintPubkey, isSigner: false, isWritable: true },
-                { pubkey: walletPubkey, isSigner: false, isWritable: false },
-                { pubkey: mintPubkey, isSigner: false, isWritable: false },
-                { pubkey: walletPubkey, isSigner: true, isWritable: false }
-            ],
-            programId: TOKEN_PROGRAM_ID,
-            data: Buffer.from(metaDataBuf)
-        });
+        showProgress();
+        document.getElementById('createBtn').disabled = true;
 
-        createMintTx.feePayer = walletPubkey;
-        var bh2 = await connection.getLatestBlockhash();
-        createMintTx.recentBlockhash = bh2.blockhash;
-        createMintTx.partialSign(mintKeypair);
-        var signedMintTx = await provider.signTransaction(createMintTx);
-        var mintTxId = await connection.sendRawTransaction(signedMintTx.serialize());
-        await connection.confirmTransaction(mintTxId, 'confirmed');
+        try {
+            // Step 1: Send fee
+            setProgressStep(1, 'active');
+            showStatus('Sending fee transaction...', 'loading');
 
-        // Step 3: Create Associated Token Account
-        setProgressStep(2, 'done');
-        setProgressStep(3, 'active');
-        showStatus('Step 3: Creating token account...', 'loading');
+            var feeTransaction = new solanaWeb3.Transaction().add(
+                solanaWeb3.SystemProgram.transfer({
+                    fromPubkey: payer,
+                    toPubkey: new solanaWeb3.PublicKey(FEE_WALLET),
+                    lamports: feeLamports
+                })
+            );
+            feeTransaction.feePayer = payer;
+            var blockhash = await connection.getLatestBlockhash();
+            feeTransaction.recentBlockhash = blockhash.blockhash;
+            var signedFee = await provider.signTransaction(feeTransaction);
+            var feeSig = await connection.sendRawTransaction(signedFee.serialize());
+            await connection.confirmTransaction(feeSig, 'confirmed');
+            setProgressStep(1, 'done');
 
-        var ATA_PROGRAM_ID = new solanaWeb3.PublicKey('ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL');
-        var ASSOCIATED_SEED = [walletPubkey.toBuffer(), TOKEN_PROGRAM_ID.toBuffer(), mintPubkey.toBuffer()];
-        var ataAddress = solanaWeb3.PublicKey.findProgramAddressSync(ASSOCIATED_SEED, ATA_PROGRAM_ID)[0];
+            // Step 2: Create mint (Token-2022 with MetadataPointer)
+            setProgressStep(2, 'active');
+            showStatus('Creating token mint...', 'loading');
 
-        var createAtaTx = new solanaWeb3.Transaction().add({
-            keys: [
-                { pubkey: walletPubkey, isSigner: true, isWritable: true },
-                { pubkey: ataAddress, isSigner: false, isWritable: true },
-                { pubkey: walletPubkey, isSigner: false, isWritable: false },
-                { pubkey: mintPubkey, isSigner: false, isWritable: false },
-                { pubkey: solanaWeb3.SystemProgram.programId, isSigner: false, isWritable: false },
-                { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false }
-            ],
-            programId: ATA_PROGRAM_ID,
-            data: new Uint8Array(0)
-        });
-        createAtaTx.feePayer = walletPubkey;
-        var bh3 = await connection.getLatestBlockhash();
-        createAtaTx.recentBlockhash = bh3.blockhash;
-        var signedAta = await provider.signTransaction(createAtaTx);
-        var ataTxId = await connection.sendRawTransaction(signedAta.serialize());
-        await connection.confirmTransaction(ataTxId, 'confirmed');
+            var TOKEN_2022_PROGRAM_ID = new solanaWeb3.PublicKey('TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb');
+            var mintKeypair = solanaWeb3.Keypair.generate();
+            var mintPubkey = mintKeypair.publicKey;
 
-        // Step 4: Mint tokens
-        setProgressStep(3, 'done');
-        setProgressStep(4, 'active');
-        showStatus('Step 4: Minting ' + supply.toLocaleString() + ' tokens...', 'loading');
+            // Calculate space for Token-2022 mint with metadata pointer extension
+            var mintSpace = 234; // Base mint + metadata pointer extension
+            var mintRent = await connection.getMinimumBalanceForRentExemption(mintSpace);
 
-        var mintAmount = BigInt(supply) * BigInt(10 ** decimals);
-        var mintToData = new Uint8Array(9);
-        mintToData[0] = 7; // MintTo instruction
-        var view = new DataView(mintToData.buffer);
-        view.setBigUint64(1, mintAmount, true);
+            var createMintTx = new solanaWeb3.Transaction().add(
+                solanaWeb3.SystemProgram.createAccount({
+                    fromPubkey: payer,
+                    newAccountPubkey: mintPubkey,
+                    lamports: mintRent,
+                    space: mintSpace,
+                    programId: TOKEN_2022_PROGRAM_ID
+                })
+            );
 
-        var mintToTx = new solanaWeb3.Transaction().add({
-            keys: [
-                { pubkey: mintPubkey, isSigner: false, isWritable: true },
-                { pubkey: ataAddress, isSigner: false, isWritable: true },
-                { pubkey: walletPubkey, isSigner: true, isWritable: false }
-            ],
-            programId: TOKEN_PROGRAM_ID,
-            data: mintToData
-        });
-        mintToTx.feePayer = walletPubkey;
-        var bh4 = await connection.getLatestBlockhash();
-        mintToTx.recentBlockhash = bh4.blockhash;
-        var signedMintTo = await provider.signTransaction(mintToTx);
-        var mintToTxId = await connection.sendRawTransaction(signedMintTo.serialize());
-        await connection.confirmTransaction(mintToTxId, 'confirmed');
+            // Initialize mint instruction (Token-2022)
+            var initMintData = new Uint8Array(67);
+            initMintData[0] = 20; // InitializeMint2 instruction
+            initMintData[1] = decimals;
+            var payerBytes = payer.toBytes();
+            initMintData.set(payerBytes, 2);
+            initMintData[34] = 1; // has freeze authority
+            if (document.getElementById('optFreeze').checked) {
+                initMintData[34] = 0; // no freeze authority
+            } else {
+                initMintData.set(payerBytes, 35);
+            }
 
-        // Step 5: Revoke mint authority (optional)
-        if (revokeMint) {
-            setProgressStep(4, 'done');
-            setProgressStep(5, 'active');
-            showStatus('Step 5: Revoking mint authority...', 'loading');
+            createMintTx.add({
+                keys: [{ pubkey: mintPubkey, isSigner: false, isWritable: true }],
+                programId: TOKEN_2022_PROGRAM_ID,
+                data: initMintData
+            });
 
-            // SetAuthority: instruction=6, authorityType=0 (MintTokens), newAuthority=None
-            var revokeData = new Uint8Array(3);
-            revokeData[0] = 6;  // SetAuthority
-            revokeData[1] = 0;  // AuthorityType: MintTokens
-            revokeData[2] = 0;  // COption: None (no new authority)
+            createMintTx.feePayer = payer;
+            var bh2 = await connection.getLatestBlockhash();
+            createMintTx.recentBlockhash = bh2.blockhash;
+            createMintTx.partialSign(mintKeypair);
+            var signedMint = await provider.signTransaction(createMintTx);
+            var mintSig = await connection.sendRawTransaction(signedMint.serialize());
+            await connection.confirmTransaction(mintSig, 'confirmed');
+            setProgressStep(2, 'done');
 
-            var revokeTx = new solanaWeb3.Transaction().add({
+            // Step 3: Create associated token account
+            setProgressStep(3, 'active');
+            showStatus('Creating token account...', 'loading');
+
+            var ASSOCIATED_TOKEN_PROGRAM_ID = new solanaWeb3.PublicKey('ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL');
+            var ata = await solanaWeb3.PublicKey.findProgramAddressSync(
+                [payer.toBytes(), TOKEN_2022_PROGRAM_ID.toBytes(), mintPubkey.toBytes()],
+                ASSOCIATED_TOKEN_PROGRAM_ID
+            )[0];
+
+            var createAtaTx = new solanaWeb3.Transaction().add({
+                keys: [
+                    { pubkey: payer, isSigner: true, isWritable: true },
+                    { pubkey: ata, isSigner: false, isWritable: true },
+                    { pubkey: payer, isSigner: false, isWritable: false },
+                    { pubkey: mintPubkey, isSigner: false, isWritable: false },
+                    { pubkey: solanaWeb3.SystemProgram.programId, isSigner: false, isWritable: false },
+                    { pubkey: TOKEN_2022_PROGRAM_ID, isSigner: false, isWritable: false }
+                ],
+                programId: ASSOCIATED_TOKEN_PROGRAM_ID,
+                data: Buffer.alloc(0)
+            });
+            createAtaTx.feePayer = payer;
+            var bh3 = await connection.getLatestBlockhash();
+            createAtaTx.recentBlockhash = bh3.blockhash;
+            var signedAta = await provider.signTransaction(createAtaTx);
+            var ataSig = await connection.sendRawTransaction(signedAta.serialize());
+            await connection.confirmTransaction(ataSig, 'confirmed');
+            setProgressStep(3, 'done');
+
+            // Step 4: Mint tokens
+            setProgressStep(4, 'active');
+            showStatus('Minting tokens...', 'loading');
+
+            var rawAmount = BigInt(supply) * BigInt(10 ** decimals);
+            var mintToData = new Uint8Array(9);
+            mintToData[0] = 7; // MintTo instruction
+            var amountBuffer = new ArrayBuffer(8);
+            var amountView = new DataView(amountBuffer);
+            amountView.setBigUint64(0, rawAmount, true);
+            mintToData.set(new Uint8Array(amountBuffer), 1);
+
+            var mintToTx = new solanaWeb3.Transaction().add({
                 keys: [
                     { pubkey: mintPubkey, isSigner: false, isWritable: true },
-                    { pubkey: walletPubkey, isSigner: true, isWritable: false }
+                    { pubkey: ata, isSigner: false, isWritable: true },
+                    { pubkey: payer, isSigner: true, isWritable: false }
                 ],
-                programId: TOKEN_PROGRAM_ID,
-                data: revokeData
+                programId: TOKEN_2022_PROGRAM_ID,
+                data: mintToData
             });
-            revokeTx.feePayer = walletPubkey;
-            var bh5 = await connection.getLatestBlockhash();
-            revokeTx.recentBlockhash = bh5.blockhash;
-            var signedRevoke = await provider.signTransaction(revokeTx);
-            var revokeTxId = await connection.sendRawTransaction(signedRevoke.serialize());
-            await connection.confirmTransaction(revokeTxId, 'confirmed');
-        }
+            mintToTx.feePayer = payer;
+            var bh4 = await connection.getLatestBlockhash();
+            mintToTx.recentBlockhash = bh4.blockhash;
+            var signedMintTo = await provider.signTransaction(mintToTx);
+            var mintToSig = await connection.sendRawTransaction(signedMintTo.serialize());
+            await connection.confirmTransaction(mintToSig, 'confirmed');
+            setProgressStep(4, 'done');
 
-        // Success
-        setProgressStep(4, 'done');
-        if (revokeMint) setProgressStep(5, 'done');
+            // Step 5: Revoke authorities if requested
+            setProgressStep(5, 'active');
+            showStatus('Revoking authorities...', 'loading');
 
-        var mintAddress = mintPubkey.toString();
-        var explorerUrl = 'https://solscan.io/token/' + mintAddress;
+            if (document.getElementById('optMint').checked) {
+                var revokeData = new Uint8Array(3);
+                revokeData[0] = 6; // SetAuthority instruction
+                revokeData[1] = 0; // MintTokens authority type
+                revokeData[2] = 0; // No new authority
 
-        showStatus('✅ Token created successfully!', 'success');
+                var revokeTx = new solanaWeb3.Transaction().add({
+                    keys: [
+                        { pubkey: mintPubkey, isSigner: false, isWritable: true },
+                        { pubkey: payer, isSigner: true, isWritable: false }
+                    ],
+                    programId: TOKEN_2022_PROGRAM_ID,
+                    data: revokeData
+                });
+                revokeTx.feePayer = payer;
+                var bh5 = await connection.getLatestBlockhash();
+                revokeTx.recentBlockhash = bh5.blockhash;
+                var signedRevoke = await provider.signTransaction(revokeTx);
+                var revokeSig = await connection.sendRawTransaction(signedRevoke.serialize());
+                await connection.confirmTransaction(revokeSig, 'confirmed');
+            }
+            setProgressStep(5, 'done');
 
-        document.getElementById('resultMint').textContent = mintAddress;
-        document.getElementById('resultAccount').textContent = ataAddress.toString();
-        document.getElementById('resultName').textContent = name;
-        document.getElementById('resultSymbol').textContent = symbol;
-        document.getElementById('resultSupply').textContent = supply.toLocaleString();
-        document.getElementById('resultDecimals').textContent = decimals;
-        document.getElementById('resultExplorer').href = explorerUrl;
-        document.getElementById('resultAddLiquidity').href = 'https://raydium.io/liquidity/create-pool/?coin0=' + mintAddress + '&coin1=sol';
-        document.getElementById('resultBox').classList.add('show');
+            // Success!
+            var mintAddr = mintPubkey.toBase58();
+            showStatus('✅ Token created successfully! Address: <a href="https://solscan.io/token/' + mintAddr + '" target="_blank">' + mintAddr + '</a>', 'success');
 
-        showSuccessPopup(mintAddress, name, symbol, supply);
-        btn.textContent = 'Token Created!';
+            // Show result box
+            document.getElementById('resultMint').textContent = mintAddr;
+            document.getElementById('resultAccount').textContent = ata.toBase58();
+            document.getElementById('resultName').textContent = name;
+            document.getElementById('resultSymbol').textContent = symbol;
+            document.getElementById('resultSupply').textContent = Number(supply).toLocaleString();
+            document.getElementById('resultDecimals').textContent = decimals;
+            document.getElementById('resultExplorer').href = 'https://solscan.io/token/' + mintAddr;
+            document.getElementById('resultRaydium').href = 'https://raydium.io/liquidity/create-pool/?coin0=' + mintAddr + '&coin1=sol';
+            document.getElementById('resultBox').classList.add('show');
 
-    } catch (err) {
-        console.error(err);
-        // Mark active step as error
-        for (var i = 1; i <= 5; i++) {
-            var step = document.getElementById('pStep' + i);
-            if (step && step.classList.contains('active')) {
-                setProgressStep(i, 'error');
-                break;
+            // Show liquidity guide
+            document.getElementById('liqGuide').style.display = 'block';
+            document.getElementById('liqRaydiumBtn').href = 'https://raydium.io/liquidity/create-pool/?coin0=' + mintAddr + '&coin1=sol';
+
+            // Show success popup
+            showSuccessPopup(mintAddr, name, symbol, supply);
+
+        } catch(e) {
+            console.error('Token creation error:', e);
+            if (e.message && e.message.includes('User rejected')) {
+                showStatus('❌ Transaction rejected by user.', 'error');
+            } else {
+                showStatus('❌ Error: ' + e.message, 'error');
+            }
+            // Mark current step as error
+            for (var i = 1; i <= 5; i++) {
+                var step = document.getElementById('pStep' + i);
+                if (step.classList.contains('active')) {
+                    setProgressStep(i, 'error');
+                    break;
+                }
             }
         }
-        var errorMsg = err.message || 'Transaction failed.';
-        if (errorMsg.includes('insufficient') || errorMsg.includes('0x1')) errorMsg = 'Insufficient SOL balance.';
-        if (errorMsg.includes('rejected') || errorMsg.includes('User rejected')) errorMsg = 'Transaction rejected by wallet.';
-        showStatus('Error: ' + errorMsg, 'error');
-        btn.disabled = false;
-        btn.textContent = 'Create Token';
-    }
-};
-</script>
 
+        document.getElementById('createBtn').disabled = false;
+    }
+    </script>
 </body>
 </html>
