@@ -4,7 +4,7 @@
 body{font-family:'Inter',sans-serif;background:var(--dark);color:var(--text);line-height:1.6;min-height:100vh}
 .container{max-width:900px;margin:0 auto;padding:0 20px}
 .header{background:rgba(10,10,26,.98);border-bottom:1px solid var(--border);padding:15px 0;position:sticky;top:0;z-index:100;backdrop-filter:blur(10px)}
-.header-inner{display:flex;align-items:center;justify-content:space-between}
+.header-inner{display:flex;align-items:center;justify-content:space-between;max-width:900px;margin:0 auto;padding:0 20px}
 .logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--accent);font-weight:900;font-size:1.3rem}
 .logo img{width:32px;height:32px;border-radius:50%;border:2px solid var(--accent)}
 .back-btn{color:var(--text-muted);text-decoration:none;font-size:.9rem;transition:color .3s}
@@ -102,7 +102,7 @@ body{font-family:'Inter',sans-serif;background:var(--dark);color:var(--text);lin
 
 /* Header Wallet */
 .header-right-ai{display:flex;align-items:center;gap:12px}
-.connect-btn-ai{padding:8px 18px;background:linear-gradient(135deg,#ab47bc,var(--primary));color:#fff;border:none;border-radius:50px;font-size:.8rem;font-weight:700;cursor:pointer;transition:all .3s;white-space:nowrap}
+.connect-btn-ai{padding:10px 22px;background:linear-gradient(135deg,#ab47bc,var(--primary));color:#fff;border:none;border-radius:50px;font-size:.85rem;font-weight:700;cursor:pointer;transition:all .3s;white-space:nowrap}
 .connect-btn-ai:hover{transform:translateY(-1px);box-shadow:0 5px 15px rgba(139,92,246,.3)}
 .connect-btn-ai.connected{background:linear-gradient(135deg,var(--secondary),#059669);font-size:.75rem}
 .download-fee-note{color:var(--accent);font-size:.75rem;font-weight:600;margin-bottom:10px}
