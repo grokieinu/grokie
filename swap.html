@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Grokie Swap — Swap any Solana token instantly. Best rates across all DEXes.">
+    <title>Grokie Swap | Grokie Inu</title>
+    <link rel="icon" href="assets/images/grokie-inu.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/swap.css">
+    <script src="https://plugin.jup.ag/plugin-v1.js" data-preload defer></script>
+</head>
+<body>
+    <header class="header">
+        <div class="header-inner">
+            <a href="index.html" class="logo">
+                <img src="assets/images/grokie-inu.png" alt="Grokie Inu">
+                GROKIE
+            </a>
+            <nav class="tool-nav">
+                <a href="swap.html" class="active">Swap</a>
+                <a href="trending.html">Trending</a>
+                <a href="new-pairs.html">New Pairs</a>
+                <a href="token-audit.html">Audit</a>
+                <a href="portfolio.html">Portfolio</a>
+                <a href="whale-tracker.html">Whale</a>
+            </nav>
+            <a href="index.html" class="back-btn">← Back</a>
+        </div>
+    </header>
+
+    <div class="swap-page">
+        <!-- Wallet Not Detected Notification -->
+        <div class="wallet-notif" id="walletNotif" style="display:none">
+            <div class="wallet-notif-content">
+                <div class="wallet-notif-icon">🔌</div>
+                <h3>Wallet Not Detected</h3>
+                <p class="wallet-notif-desc">To perform a swap, you need a Solana wallet connected to your browser.</p>
+                <div class="wallet-steps">
+                    <div class="wallet-step">
+                        <span class="step-number">1</span>
+                        <div class="step-info">
+                            <strong>Install Wallet Extension</strong>
+                            <p>Download and install one of the following wallets:</p>
+                            <div class="wallet-links">
+                                <a href="https://phantom.app/download" target="_blank" class="wallet-link">
+                                    <img src="assets/images/phantom.png" alt="Phantom" width="20" height="20"> Phantom
+                                </a>
+                                <a href="https://solflare.com/download" target="_blank" class="wallet-link">
+                                    <img src="assets/images/Solflare.png" alt="Solflare" width="20" height="20"> Solflare
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wallet-step">
+                        <span class="step-number">2</span>
+                        <div class="step-info">
+                            <strong>Create or Import Wallet</strong>
+                            <p>Create a new wallet or import an existing one using your seed phrase.</p>
+                        </div>
+                    </div>
+                    <div class="wallet-step">
+                        <span class="step-number">3</span>
+                        <div class="step-info">
+                            <strong>Refresh This Page</strong>
+                            <p>After the wallet is installed, refresh this page to start swapping.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="wallet-notif-actions">
+                    <button onclick="location.reload()" class="wallet-btn-refresh">↻ Refresh Page</button>
+                    <button onclick="dismissWalletNotif()" class="wallet-btn-dismiss">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="swap-widget-wrapper">
+            <div id="jupiter-plugin"></div>
+            <div class="swap-loading" id="swapLoading">
+                <div class="loading-spinner"></div>
+                <p>Loading Swap...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast" style="display:none">
+        <span id="toastMsg"></span>
+    </div>
+
+    <script src="assets/js/keys.js"></script>
+    <script src="assets/js/swap.js"></script>
+</body>
+</html>

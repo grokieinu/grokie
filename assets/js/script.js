@@ -1,46 +1,37 @@
-// Mobile Menu Toggle
+// ===== Mobile Menu =====
 const mobileMenuBtn = document.getElementById('mobileMenuBtn');
 const navLinks = document.querySelector('.nav-links');
 
-mobileMenuBtn.addEventListener('click', () => {
-    navLinks.classList.toggle('active');
-});
-
-// Close mobile menu when clicking a link (but NOT dropdown toggles)
-document.querySelectorAll('.nav-links a').forEach(link => {
-    link.addEventListener('click', () => {
-        // Don't close menu for dropdown toggle (disabled via CSS pointer-events on mobile)
-        if (link.classList.contains('nav-dropdown-toggle')) return;
-        navLinks.classList.remove('active');
-    });
-});
-
-// Copy Contract Address
-function copyAddress() {
-    const address = document.getElementById('contractAddress').textContent;
-    navigator.clipboard.writeText(address).then(() => {
-        const btn = document.querySelector('.copy-btn');
-        btn.textContent = '✅ Copied!';
-        setTimeout(() => {
-            btn.textContent = '📋 Copy';
-        }, 2000);
-    }).catch(() => {
-        // Fallback for older browsers
-        const textArea = document.createElement('textarea');
-        textArea.value = address;
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textArea);
-        const btn = document.querySelector('.copy-btn');
-        btn.textContent = '✅ Copied!';
-        setTimeout(() => {
-            btn.textContent = '📋 Copy';
-        }, 2000);
+if (mobileMenuBtn) {
+    mobileMenuBtn.addEventListener('click', () => {
+        navLinks.classList.toggle('active');
     });
 }
 
-// Navbar scroll effect
+// Mobile dropdown toggle (touch devices)
+document.querySelectorAll('.nav-dropdown-toggle').forEach(toggle => {
+    toggle.addEventListener('click', (e) => {
+        if (window.innerWidth <= 768) {
+            e.preventDefault();
+            const dropdown = toggle.closest('.nav-dropdown');
+            // Close other dropdowns
+            document.querySelectorAll('.nav-dropdown').forEach(d => {
+                if (d !== dropdown) d.classList.remove('open');
+            });
+            dropdown.classList.toggle('open');
+        }
+    });
+});
+
+document.querySelectorAll('.nav-links a').forEach(link => {
+    link.addEventListener('click', () => {
+        if (link.classList.contains('nav-dropdown-toggle')) return;
+        navLinks.classList.remove('active');
+        document.querySelectorAll('.nav-dropdown').forEach(d => d.classList.remove('open'));
+    });
+});
+
+// ===== Navbar Scroll Effect =====
 window.addEventListener('scroll', () => {
     const navbar = document.querySelector('.navbar');
     if (window.scrollY > 50) {
@@ -52,12 +43,140 @@ window.addEventListener('scroll', () => {
     }
 });
 
-// Animate elements on scroll
-const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -50px 0px'
-};
+// ===== News Carousel (Continuous Slow Scroll via CSS) =====
+(function() {
+    var carousel = document.getElementById('newsCarousel');
+    if (!carousel) return;
 
+    // Hide dots
+    var dotsContainer = document.getElementById('carouselDots');
+    if (dotsContainer) dotsContainer.style.display = 'none';
+
+    // Clone all cards for seamless infinite loop
+    var cards = carousel.querySelectorAll('.news-card');
+    for (var i = 0; i < cards.length; i++) {
+        var clone = cards[i].cloneNode(true);
+        carousel.appendChild(clone);
+    }
+
+    // Calculate total width of original cards
+    var totalWidth = 0;
+    for (var i = 0; i < cards.length; i++) {
+        totalWidth += cards[i].offsetWidth + 16; // card width + gap
+    }
+
+    // Apply CSS animation
+    carousel.style.animation = 'newsScroll ' + (totalWidth / 30) + 's linear infinite';
+
+    // Inject keyframe
+    var style = document.createElement('style');
+    style.textContent = '@keyframes newsScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-' + totalWidth + 'px); } }';
+    document.head.appendChild(style);
+
+    // Pause on hover
+    carousel.addEventListener('mouseenter', function() {
+        carousel.style.animationPlayState = 'paused';
+    });
+    carousel.addEventListener('mouseleave', function() {
+        carousel.style.animationPlayState = 'running';
+    });
+})();
+
+// ===== Live Price Data =====
+const GROKIE_MINT = window.__gk ? window.__gk.ca() : '';
+
+async function fetchLiveData() {
+    try {
+        // Fetch price from Jupiter
+        const priceResp = await fetch(`https://api.jup.ag/price/v2?ids=${GROKIE_MINT}`);
+        if (priceResp.ok) {
+            const priceData = await priceResp.json();
+            const tokenData = priceData.data?.[GROKIE_MINT];
+            if (tokenData) {
+                const price = parseFloat(tokenData.price);
+                document.getElementById('livePrice').textContent = price < 0.01
+                    ? '$' + price.toFixed(8)
+                    : '$' + price.toFixed(4);
+            }
+        }
+    } catch (e) {
+        console.warn('Price fetch failed:', e);
+    }
+
+    // Try fetching market data from DexScreener
+    try {
+        const dexResp = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${GROKIE_MINT}`);
+        if (dexResp.ok) {
+            const dexData = await dexResp.json();
+            const pairs = dexData.pairs || [];
+
+            // Find the pair with the most volume/liquidity
+            let bestPair = pairs[0];
+            for (const p of pairs) {
+                if ((p.volume?.h24 || 0) > (bestPair?.volume?.h24 || 0)) {
+                    bestPair = p;
+                }
+            }
+
+            if (bestPair) {
+                const mcap = bestPair.marketCap || bestPair.fdv || 0;
+                const volume = bestPair.volume?.h24 || 0;
+                const change = bestPair.priceChange?.h24 || 0;
+
+                // Market Cap
+                if (mcap > 0) {
+                    document.getElementById('liveMcap').textContent = mcap >= 1000000
+                        ? '$' + (mcap / 1000000).toFixed(2) + 'M'
+                        : mcap >= 1000
+                        ? '$' + (mcap / 1000).toFixed(1) + 'K'
+                        : '$' + mcap.toFixed(0);
+                }
+
+                // Volume - show even if small
+                const volEl = document.getElementById('liveVolume');
+                if (volume >= 1000000) {
+                    volEl.textContent = '$' + (volume / 1000000).toFixed(2) + 'M';
+                } else if (volume >= 1000) {
+                    volEl.textContent = '$' + (volume / 1000).toFixed(1) + 'K';
+                } else if (volume > 0) {
+                    volEl.textContent = '$' + volume.toFixed(2);
+                } else {
+                    // Sum volume from all pairs
+                    const totalVol = pairs.reduce((sum, p) => sum + (p.volume?.h24 || 0), 0);
+                    if (totalVol > 0) {
+                        volEl.textContent = totalVol >= 1000
+                            ? '$' + (totalVol / 1000).toFixed(1) + 'K'
+                            : '$' + totalVol.toFixed(2);
+                    } else {
+                        volEl.textContent = '<$1';
+                    }
+                }
+
+                // 24h Change
+                const changeEl = document.getElementById('liveChange');
+                changeEl.textContent = (change >= 0 ? '+' : '') + change.toFixed(2) + '%';
+                changeEl.style.color = change >= 0 ? '#10b981' : '#ef4444';
+
+                // Update price from dexscreener if available
+                if (bestPair.priceUsd) {
+                    const p = parseFloat(bestPair.priceUsd);
+                    document.getElementById('livePrice').textContent = p < 0.01
+                        ? '$' + p.toFixed(8)
+                        : '$' + p.toFixed(6);
+                }
+            }
+        }
+    } catch (e) {
+        console.warn('DexScreener fetch failed:', e);
+    }
+}
+
+// Fetch on load and every 30s
+fetchLiveData();
+setInterval(fetchLiveData, 30000);
+
+// ===== Scroll Animations =====
+const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
 const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -67,339 +186,153 @@ const observer = new IntersectionObserver((entries) => {
     });
 }, observerOptions);
 
-// Apply animation to cards
-document.addEventListener('DOMContentLoaded', () => {
-    const animatedElements = document.querySelectorAll(
-        '.about-card, .step-card, .community-card, .roadmap-item, .token-item, .ai-step'
-    );
-
-    animatedElements.forEach((el, index) => {
-        el.style.opacity = '0';
-        el.style.transform = 'translateY(30px)';
-        el.style.transition = `all 0.6s ease ${index * 0.08}s`;
-        observer.observe(el);
-    });
+document.querySelectorAll('section').forEach(section => {
+    section.style.opacity = '0';
+    section.style.transform = 'translateY(30px)';
+    section.style.transition = 'all 0.6s ease';
+    observer.observe(section);
 });
 
-// Smooth scroll for anchor links
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        // Skip dropdown toggles
-        if (this.classList.contains('nav-dropdown-toggle')) return;
-        const href = this.getAttribute('href');
-        if (!href || href === '#') return;
-        e.preventDefault();
-        const target = document.querySelector(href);
-        if (target) {
-            target.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
-        }
+// Don't animate hero (already visible)
+const hero = document.querySelector('.hero');
+if (hero) { hero.style.opacity = '1'; hero.style.transform = 'none'; }
+
+// ===== ANIMATED BACKGROUND (Particles + Constellation) =====
+(function() {
+    const canvas = document.getElementById('bgCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let w, h, particles = [], mouse = { x: null, y: null };
+
+    function resize() {
+        w = canvas.width = window.innerWidth;
+        h = canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    // Track mouse for interactive effect
+    window.addEventListener('mousemove', (e) => {
+        mouse.x = e.clientX;
+        mouse.y = e.clientY;
     });
-});
+    window.addEventListener('mouseleave', () => {
+        mouse.x = null;
+        mouse.y = null;
+    });
 
-// Add particle effect to hero (lightweight)
-function createParticle() {
-    const hero = document.querySelector('.hero');
-    if (!hero) return;
-    
-    const particle = document.createElement('div');
-    particle.style.cssText = `
-        position: absolute;
-        width: ${Math.random() * 4 + 2}px;
-        height: ${Math.random() * 4 + 2}px;
-        background: ${['#f72585', '#8b5cf6', '#00f5ff', '#06d6a0'][Math.floor(Math.random() * 4)]};
-        border-radius: 50%;
-        left: ${Math.random() * 100}%;
-        top: ${Math.random() * 100}%;
-        opacity: 0;
-        pointer-events: none;
-        animation: particleFade 3s ease-in-out forwards;
-    `;
-    hero.appendChild(particle);
-    
-    setTimeout(() => particle.remove(), 3000);
-}
-
-// Add particle animation keyframes
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes particleFade {
-        0% { opacity: 0; transform: translateY(0) scale(0); }
-        50% { opacity: 0.8; transform: translateY(-20px) scale(1); }
-        100% { opacity: 0; transform: translateY(-40px) scale(0.5); }
-    }
-`;
-document.head.appendChild(style);
-
-// Spawn particles periodically
-setInterval(createParticle, 500);
-
-// ===== Tech Background Animation (Network Nodes + Circuit + Data Particles) =====
-const canvas = document.getElementById('techCanvas');
-const ctx = canvas.getContext('2d');
-
-let width, height, nodes, dataParticles;
-const isMobile = window.innerWidth < 768;
-const NODE_COUNT = isMobile ? 40 : 80;
-const PARTICLE_COUNT = isMobile ? 15 : 30;
-const CONNECTION_DISTANCE = isMobile ? 120 : 180;
-
-function resizeCanvas() {
-    width = canvas.width = window.innerWidth;
-    height = canvas.height = window.innerHeight;
-}
-
-class Node {
-    constructor() {
-        this.x = Math.random() * width;
-        this.y = Math.random() * height;
-        this.vx = (Math.random() - 0.5) * 0.4;
-        this.vy = (Math.random() - 0.5) * 0.4;
-        this.radius = Math.random() * 2 + 1;
-        this.color = ['#8b5cf6', '#00f5ff', '#f72585', '#06d6a0'][Math.floor(Math.random() * 4)];
-        this.pulsePhase = Math.random() * Math.PI * 2;
-    }
-
-    update() {
-        this.x += this.vx;
-        this.y += this.vy;
-        this.pulsePhase += 0.02;
-
-        if (this.x < 0 || this.x > width) this.vx *= -1;
-        if (this.y < 0 || this.y > height) this.vy *= -1;
-    }
-
-    draw() {
-        const pulse = Math.sin(this.pulsePhase) * 0.5 + 1;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius * pulse, 0, Math.PI * 2);
-        ctx.fillStyle = this.color;
-        ctx.shadowBlur = 8;
-        ctx.shadowColor = this.color;
-        ctx.fill();
-        ctx.shadowBlur = 0;
-    }
-}
-
-class DataParticle {
-    constructor() {
-        this.reset();
-    }
-
-    reset() {
-        this.x = Math.random() * width;
-        this.y = Math.random() * height;
-        this.targetX = Math.random() * width;
-        this.targetY = Math.random() * height;
-        this.speed = Math.random() * 1.5 + 0.5;
-        this.size = Math.random() * 3 + 1;
-        this.color = ['#00f5ff', '#8b5cf6', '#f72585'][Math.floor(Math.random() * 3)];
-        this.trail = [];
-        this.maxTrail = 8;
-    }
-
-    update() {
-        const dx = this.targetX - this.x;
-        const dy = this.targetY - this.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-
-        if (dist < 5) {
+    // Particle class
+    class Particle {
+        constructor() {
             this.reset();
-            return;
         }
+        reset() {
+            this.x = Math.random() * w;
+            this.y = Math.random() * h;
+            this.vx = (Math.random() - 0.5) * 0.4;
+            this.vy = (Math.random() - 0.5) * 0.4;
+            this.radius = Math.random() * 1.8 + 0.5;
+            this.opacity = Math.random() * 0.5 + 0.2;
+            // Random color between pink, purple, and cyan
+            const colors = ['247,37,133', '139,92,246', '0,245,255'];
+            this.color = colors[Math.floor(Math.random() * colors.length)];
+            this.pulseSpeed = Math.random() * 0.02 + 0.01;
+            this.pulseOffset = Math.random() * Math.PI * 2;
+        }
+        update(time) {
+            this.x += this.vx;
+            this.y += this.vy;
 
-        this.trail.push({ x: this.x, y: this.y });
-        if (this.trail.length > this.maxTrail) this.trail.shift();
+            // Wrap around edges
+            if (this.x < 0) this.x = w;
+            if (this.x > w) this.x = 0;
+            if (this.y < 0) this.y = h;
+            if (this.y > h) this.y = 0;
 
-        this.x += (dx / dist) * this.speed;
-        this.y += (dy / dist) * this.speed;
-    }
+            // Mouse repulsion
+            if (mouse.x !== null) {
+                const dx = this.x - mouse.x;
+                const dy = this.y - mouse.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 120) {
+                    const force = (120 - dist) / 120 * 0.8;
+                    this.x += (dx / dist) * force;
+                    this.y += (dy / dist) * force;
+                }
+            }
 
-    draw() {
-        // Draw trail
-        for (let i = 0; i < this.trail.length; i++) {
-            const alpha = i / this.trail.length * 0.4;
+            // Pulsing opacity
+            this.currentOpacity = this.opacity + Math.sin(time * this.pulseSpeed + this.pulseOffset) * 0.15;
+        }
+        draw() {
             ctx.beginPath();
-            ctx.arc(this.trail[i].x, this.trail[i].y, this.size * 0.5, 0, Math.PI * 2);
-            ctx.globalAlpha = alpha;
-            ctx.fillStyle = this.color;
+            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(${this.color},${this.currentOpacity})`;
             ctx.fill();
         }
-        ctx.globalAlpha = 1;
-
-        // Draw particle
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fillStyle = this.color;
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = this.color;
-        ctx.fill();
-        ctx.shadowBlur = 0;
     }
-}
 
-function drawConnections() {
-    for (let i = 0; i < nodes.length; i++) {
-        for (let j = i + 1; j < nodes.length; j++) {
-            const dx = nodes[i].x - nodes[j].x;
-            const dy = nodes[i].y - nodes[j].y;
-            const dist = Math.sqrt(dx * dx + dy * dy);
+    // Create particles
+    const particleCount = Math.min(80, Math.floor((w * h) / 15000));
+    for (let i = 0; i < particleCount; i++) {
+        particles.push(new Particle());
+    }
 
-            if (dist < CONNECTION_DISTANCE) {
-                const alpha = (1 - dist / CONNECTION_DISTANCE) * 0.15;
-                ctx.beginPath();
-                ctx.moveTo(nodes[i].x, nodes[i].y);
-                ctx.lineTo(nodes[j].x, nodes[j].y);
-                ctx.strokeStyle = `rgba(139, 92, 246, ${alpha})`;
-                ctx.lineWidth = 0.5;
-                ctx.stroke();
+    // Draw connections
+    function drawConnections() {
+        for (let i = 0; i < particles.length; i++) {
+            for (let j = i + 1; j < particles.length; j++) {
+                const dx = particles[i].x - particles[j].x;
+                const dy = particles[i].y - particles[j].y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist < 140) {
+                    const opacity = (1 - dist / 140) * 0.12;
+                    ctx.beginPath();
+                    ctx.moveTo(particles[i].x, particles[i].y);
+                    ctx.lineTo(particles[j].x, particles[j].y);
+                    ctx.strokeStyle = `rgba(139,92,246,${opacity})`;
+                    ctx.lineWidth = 0.6;
+                    ctx.stroke();
+                }
+            }
+        }
+
+        // Mouse connections
+        if (mouse.x !== null) {
+            for (let i = 0; i < particles.length; i++) {
+                const dx = particles[i].x - mouse.x;
+                const dy = particles[i].y - mouse.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 180) {
+                    const opacity = (1 - dist / 180) * 0.25;
+                    ctx.beginPath();
+                    ctx.moveTo(particles[i].x, particles[i].y);
+                    ctx.lineTo(mouse.x, mouse.y);
+                    ctx.strokeStyle = `rgba(247,37,133,${opacity})`;
+                    ctx.lineWidth = 0.8;
+                    ctx.stroke();
+                }
             }
         }
     }
-}
 
-function drawCircuitGrid() {
-    ctx.strokeStyle = 'rgba(0, 245, 255, 0.03)';
-    ctx.lineWidth = 1;
+    // Animation loop
+    let time = 0;
+    function animate() {
+        time++;
+        ctx.clearRect(0, 0, w, h);
 
-    for (let y = 0; y < height; y += 80) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(width, y);
-        ctx.stroke();
+        // Update and draw particles
+        particles.forEach(p => {
+            p.update(time);
+            p.draw();
+        });
+
+        // Draw connection lines
+        drawConnections();
+
+        requestAnimationFrame(animate);
     }
-
-    for (let x = 0; x < width; x += 80) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, height);
-        ctx.stroke();
-    }
-}
-
-function initTechBg() {
-    resizeCanvas();
-    nodes = Array.from({ length: NODE_COUNT }, () => new Node());
-    dataParticles = Array.from({ length: PARTICLE_COUNT }, () => new DataParticle());
-}
-
-function animateTechBg() {
-    ctx.clearRect(0, 0, width, height);
-
-    drawCircuitGrid();
-    drawConnections();
-
-    nodes.forEach(node => {
-        node.update();
-        node.draw();
-    });
-
-    dataParticles.forEach(p => {
-        p.update();
-        p.draw();
-    });
-
-    requestAnimationFrame(animateTechBg);
-}
-
-window.addEventListener('resize', resizeCanvas);
-
-initTechBg();
-animateTechBg();
-
-
-// ===== Countdown Timer (disabled - token is live) =====
-// Countdown removed — $GROKIE is already live on Raydium
-
-// ===== FAQ Toggle =====
-function toggleFaq(btn) {
-    const item = btn.parentElement;
-    const isActive = item.classList.contains('active');
-    // Close all
-    document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('active'));
-    // Open clicked (if wasn't active)
-    if (!isActive) {
-        item.classList.add('active');
-    }
-}
-
-
-// ===== Live Price from DexScreener =====
-const GROKIE_CA = 'A1zgiEn7j53myGBLQ1b4ccdeMJsbjiXTaidSrsjoFTRv';
-const DEXSCREENER_API = `https://api.dexscreener.com/latest/dex/tokens/${GROKIE_CA}`;
-
-async function fetchPrice() {
-    try {
-        const response = await fetch(DEXSCREENER_API);
-        if (!response.ok) throw new Error('API error');
-        const data = await response.json();
-
-        if (data.pairs && data.pairs.length > 0) {
-            const pair = data.pairs[0];
-            const price = parseFloat(pair.priceUsd || 0);
-            const mcap = pair.marketCap || pair.fdv || 0;
-            const volume = pair.volume ? pair.volume.h24 : 0;
-            const change = pair.priceChange ? (pair.priceChange.h24 || 0) : 0;
-
-            // Format price
-            let priceStr;
-            if (price < 0.000001) priceStr = '$' + price.toFixed(10);
-            else if (price < 0.01) priceStr = '$' + price.toFixed(8);
-            else priceStr = '$' + price.toFixed(4);
-
-            // Update hero price
-            const priceEl = document.getElementById('livePrice');
-            if (priceEl) priceEl.textContent = priceStr;
-
-            // Update big price display
-            const bigPriceEl = document.getElementById('livePriceBig');
-            if (bigPriceEl) bigPriceEl.textContent = priceStr;
-
-            // Update price change badge
-            const bigChangeEl = document.getElementById('livePriceChange');
-            if (bigChangeEl) {
-                const changeVal = parseFloat(change) || 0;
-                bigChangeEl.textContent = (changeVal >= 0 ? '▲ +' : '▼ ') + changeVal.toFixed(2) + '% (24h)';
-                bigChangeEl.className = 'live-price-change ' + (changeVal >= 0 ? 'up' : 'down');
-            }
-
-            // Update trade section
-            const tradePriceEl = document.getElementById('tradePriceUsd');
-            if (tradePriceEl) tradePriceEl.textContent = priceStr;
-
-            const mcapEl = document.getElementById('tradeMcap');
-            if (mcapEl) {
-                if (mcap > 1000000) mcapEl.textContent = '$' + (mcap/1000000).toFixed(2) + 'M';
-                else if (mcap > 1000) mcapEl.textContent = '$' + (mcap/1000).toFixed(1) + 'K';
-                else mcapEl.textContent = '$' + Math.round(mcap);
-            }
-
-            const volEl = document.getElementById('tradeVolume');
-            if (volEl) {
-                if (volume > 1000000) volEl.textContent = '$' + (volume/1000000).toFixed(2) + 'M';
-                else if (volume > 1000) volEl.textContent = '$' + (volume/1000).toFixed(1) + 'K';
-                else volEl.textContent = '$' + Math.round(volume);
-            }
-
-            const changeEl = document.getElementById('tradeChange');
-            if (changeEl) {
-                const changeVal = parseFloat(change) || 0;
-                changeEl.textContent = (changeVal >= 0 ? '+' : '') + changeVal.toFixed(2) + '%';
-                changeEl.style.color = changeVal >= 0 ? '#06d6a0' : '#f72585';
-            }
-        }
-    } catch (e) {
-        // API failed (likely CORS on local file://) — show note
-        const priceEl = document.getElementById('livePrice');
-        if (priceEl && priceEl.textContent === 'Loading...') {
-            priceEl.textContent = 'Live on DEX';
-            priceEl.style.fontSize = '1.2rem';
-        }
-    }
-}
-
-// Fetch immediately and then every 30 seconds
-fetchPrice();
-setInterval(fetchPrice, 30000);
+    animate();
+})();

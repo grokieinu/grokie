@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI Token Audit — Scan any Solana token for rug pull risks, honeypot traps, and get a trust score. Free security scanner.">
     <title>AI Token Audit | Grokie Inu</title>
     <link rel="icon" href="assets/images/grokie-inu.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -15,12 +16,42 @@
                 <img src="assets/images/grokie-inu.png" alt="Grokie Inu">
                 GROKIE
             </a>
+            <nav class="tool-nav">
+                <a href="swap.html">Swap</a>
+                <a href="trending.html">Trending</a>
+                <a href="new-pairs.html">New Pairs</a>
+                <a href="token-audit.html" class="active">Audit</a>
+                <a href="portfolio.html">Portfolio</a>
+                <a href="whale-tracker.html">Whale</a>
+            </nav>
             <div class="header-right">
                 <span class="beta-tag">FREE</span>
                 <a href="index.html" class="back-btn">← Back</a>
             </div>
         </div>
     </header>
+
+    <!-- Token Gate Overlay -->
+    <div class="token-gate" id="tokenGate">
+        <div class="token-gate-content">
+            <img src="assets/images/grokie-inu.png" alt="Grokie Inu" class="gate-logo">
+            <h2>Grokie Army Only</h2>
+            <p class="gate-desc">Token Audit is exclusive to $GROKIE holders. Connect your wallet to verify access.</p>
+            <div class="gate-security">
+                <div class="security-badge">🔒 Read-Only Access</div>
+                <div class="security-badge">🛡️ No Transaction Required</div>
+                <div class="security-badge">✅ No Approval Needed</div>
+            </div>
+            <button id="gateConnectBtn" class="gate-connect-btn">🔗 Connect Wallet</button>
+            <div class="gate-status" id="gateStatus"></div>
+            <p class="gate-trust-note">We only check your token balance. We cannot access, move, or spend your funds. No transaction signature is required.</p>
+            <div class="gate-info">
+                <p>Don't have $GROKIE yet?</p>
+                <a href="swap.html" class="gate-buy-btn">🚀 Buy $GROKIE on Grokie Swap</a>
+            </div>
+            <p class="gate-note">Minimum: 1 $GROKIE token required</p>
+        </div>
+    </div>
 
     <section class="hero">
         <h1>🛡️ AI Token Audit</h1>
@@ -115,6 +146,8 @@
         </div>
     </div>
 
+    <script src="assets/js/keys.js"></script>
+    <script src="assets/js/token-gate.js"></script>
     <script src="assets/js/token-audit.js"></script>
 </body>
 </html>

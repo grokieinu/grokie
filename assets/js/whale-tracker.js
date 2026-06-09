@@ -4,9 +4,14 @@
  * Uses Helius RPC + DexScreener
  */
 
-const HELIUS_RPC = 'https://mainnet.helius-rpc.com/?api-key=d33d23ca-ca10-4b9b-b231-13043e8f53c5';
+const HELIUS_RPC = window.__gk ? window.__gk.r() : 'https://mainnet.helius-rpc.com/?api-key=';
 
 async function trackToken() {
+    // Verify token gate
+    if (typeof isGateVerified === 'function' && !isGateVerified()) {
+        alert('Please verify your $GROKIE holdings first.');
+        return;
+    }
     const ca = document.getElementById('tokenInput').value.trim();
     if (!ca || ca.length < 32 || ca.length > 50) {
         alert('Please enter a valid Solana token address.');

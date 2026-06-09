@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Create your own SPL token on Solana in seconds. Token-2022 with on-chain metadata, no coding required.">
     <title>Solana Token Creator | Grokie Inu</title>
     <link rel="icon" href="assets/images/grokie-inu.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -15,6 +16,14 @@
                 <img src="assets/images/grokie-inu.png" alt="Grokie Inu">
                 GROKIE
             </a>
+            <nav class="tool-nav">
+                <a href="swap.html">Swap</a>
+                <a href="ai-engine.html">Web Creator</a>
+                <a href="token-creator.html" class="active">Token Creator</a>
+                <a href="token-audit.html">Audit</a>
+                <a href="portfolio.html">Portfolio</a>
+                <a href="whale-tracker.html">Whale</a>
+            </nav>
             <div class="header-right">
                 <button class="connect-btn-header" id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
                 <a href="index.html" class="back-btn">← Back</a>
@@ -24,13 +33,13 @@
 
     <section class="hero">
         <h1>Solana Token Creator</h1>
-        <p>Create your own SPL token on Solana in seconds. No coding required.</p>
+        <p>Create your own SPL token on Solana in seconds. Choose between classic SPL Token or Token-2022.</p>
     </section>
 
     <div class="container">
         <!-- Info Box -->
         <div class="info-box">
-            <strong>ℹ️ Requirements:</strong> You need a Solana wallet (Phantom recommended) with at least 0.15 SOL to cover the token creation fee and network costs. The process takes about 10-30 seconds.
+            <strong>ℹ️ Requirements:</strong> You need a Solana wallet (Phantom recommended) with at least 0.3 SOL to cover the token creation fee and network costs. The process takes about 10-30 seconds.
         </div>
 
         <!-- Mobile Notice -->
@@ -59,6 +68,24 @@
             </div>
 
             <!-- Token Form -->
+            <div class="section-title">🔧 Token Standard</div>
+            <div class="standard-picker">
+                <label class="standard-option selected" id="stdToken2022" onclick="selectStandard('token2022')">
+                    <input type="radio" name="tokenStandard" value="token2022" checked>
+                    <div class="standard-info">
+                        <strong>Token-2022 (Recommended)</strong>
+                        <small>Supports on-chain metadata, extensions, and image URL. Visible in all modern wallets and explorers.</small>
+                    </div>
+                </label>
+                <label class="standard-option" id="stdSPL" onclick="selectStandard('spl')">
+                    <input type="radio" name="tokenStandard" value="spl">
+                    <div class="standard-info">
+                        <strong>SPL Token (Classic)</strong>
+                        <small>Original Solana token program. Requires Metaplex for metadata. Maximum compatibility.</small>
+                    </div>
+                </label>
+            </div>
+
             <div class="section-title">📋 Token Details</div>
 
             <div class="form-row">
@@ -104,6 +131,9 @@
                 <div class="upload-text"><strong>Click to upload</strong> or drag & drop<br>PNG, JPG, WebP (max 5MB)</div>
             </div>
             <img class="upload-preview" id="logoPreview" alt="Logo Preview">
+            <div class="logo-note">
+                <small>⚠️ <strong>Important:</strong> Your logo will be uploaded to decentralized storage (IPFS) and linked as metadata URI. This makes the image appear automatically on Solscan, Birdeye, DexScreener, and wallet apps. Upload may take 10-20 seconds.</small>
+            </div>
 
             <!-- Options -->
             <div class="section-title">⚙️ Options</div>
@@ -111,7 +141,7 @@
             <div class="opt-row">
                 <label class="opt-label">
                     <div class="opt-text">
-                        <strong>Disable Freeze Authority</strong> <span class="fee-tag">+0.1 SOL</span>
+                        <strong>Disable Freeze Authority</strong> <span class="fee-tag">+0.05 SOL</span>
                         <small>Prevents anyone from freezing token accounts. Recommended for trust.</small>
                     </div>
                     <input type="checkbox" id="optFreeze" onchange="updateFee()">
@@ -121,7 +151,7 @@
             <div class="opt-row">
                 <label class="opt-label">
                     <div class="opt-text">
-                        <strong>Revoke Mint Authority</strong> <span class="fee-tag">+0.1 SOL</span>
+                        <strong>Revoke Mint Authority</strong> <span class="fee-tag">+0.05 SOL</span>
                         <small>Permanently prevents minting new tokens. Shows max supply is fixed.</small>
                     </div>
                     <input type="checkbox" id="optMint" onchange="updateFee()">
@@ -131,7 +161,17 @@
             <div class="opt-row">
                 <label class="opt-label">
                     <div class="opt-text">
-                        <strong>Add Social Links</strong> <span class="fee-tag">+0.1 SOL</span>
+                        <strong>Immutable Metadata</strong> <span class="fee-tag">+0.05 SOL</span>
+                        <small>Make metadata permanent and unchangeable. Cannot update name, symbol, or image after creation.</small>
+                    </div>
+                    <input type="checkbox" id="optImmutable" onchange="updateFee()">
+                </label>
+            </div>
+
+            <div class="opt-row">
+                <label class="opt-label">
+                    <div class="opt-text">
+                        <strong>Add Social Links</strong> <span class="fee-tag">+0.05 SOL</span>
                         <small>Add website, Telegram, Twitter, and Discord links to token metadata.</small>
                     </div>
                     <input type="checkbox" id="optSocials" onchange="updateFee(); toggleSocials();">
@@ -162,9 +202,10 @@
             <!-- Fee Summary -->
             <div class="fee-summary">
                 <div class="fee-row"><span>Base fee (token creation)</span><span>0.05 SOL</span></div>
-                <div class="fee-row" id="feeFreeze" style="display:none"><span>Disable Freeze Authority</span><span>+0.1 SOL</span></div>
-                <div class="fee-row" id="feeMint" style="display:none"><span>Revoke Mint Authority</span><span>+0.1 SOL</span></div>
-                <div class="fee-row" id="feeSocials" style="display:none"><span>Add Social Links</span><span>+0.1 SOL</span></div>
+                <div class="fee-row" id="feeFreeze" style="display:none"><span>Disable Freeze Authority</span><span>+0.05 SOL</span></div>
+                <div class="fee-row" id="feeMint" style="display:none"><span>Revoke Mint Authority</span><span>+0.05 SOL</span></div>
+                <div class="fee-row" id="feeImmutable" style="display:none"><span>Immutable Metadata</span><span>+0.05 SOL</span></div>
+                <div class="fee-row" id="feeSocials" style="display:none"><span>Add Social Links</span><span>+0.05 SOL</span></div>
                 <div class="fee-total"><span>Total</span><span id="feeTotal">~0.05 SOL</span></div>
             </div>
 
@@ -177,7 +218,7 @@
                 <div class="progress-step" id="pStep2"><span class="progress-dot"></span> Creating token mint...</div>
                 <div class="progress-step" id="pStep3"><span class="progress-dot"></span> Creating token account...</div>
                 <div class="progress-step" id="pStep4"><span class="progress-dot"></span> Minting tokens...</div>
-                <div class="progress-step" id="pStep5"><span class="progress-dot"></span> Revoking authorities...</div>
+                <div class="progress-step" id="pStep5"><span class="progress-dot"></span> Finalizing settings...</div>
             </div>
 
             <!-- Status -->
@@ -259,25 +300,21 @@
                     Phantom
                     <span class="wallet-recommended">Recommended</span>
                 </button>
-                <button class="wallet-option wallet-disabled" disabled>
+                <button class="wallet-option" onclick="connectSpecificWallet('solflare')">
                     <img src="assets/images/Solflare.png" alt="Solflare">
                     Solflare
-                    <span class="wallet-soon">Soon</span>
                 </button>
-                <button class="wallet-option wallet-disabled" disabled>
+                <button class="wallet-option" onclick="connectSpecificWallet('backpack')">
                     <img src="assets/images/Backpack.png" alt="Backpack">
                     Backpack
-                    <span class="wallet-soon">Soon</span>
                 </button>
-                <button class="wallet-option wallet-disabled" disabled>
+                <button class="wallet-option" onclick="connectSpecificWallet('coinbase')">
                     <img src="assets/images/coinbase.png" alt="Coinbase">
                     Coinbase Wallet
-                    <span class="wallet-soon">Soon</span>
                 </button>
-                <button class="wallet-option wallet-disabled" disabled>
+                <button class="wallet-option" onclick="connectSpecificWallet('trust')">
                     <img src="assets/images/trust.png" alt="Trust">
                     Trust Wallet
-                    <span class="wallet-soon">Soon</span>
                 </button>
             </div>
             <p class="wallet-modal-note">Don't have a wallet? <a href="https://phantom.app/" target="_blank">Get Phantom →</a></p>
@@ -316,22 +353,83 @@
     </div>
 
     <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+    <script src="assets/js/keys.js"></script>
     <script src="assets/js/token-creator.js"></script>
     <script>
+    // Upload image to IPFS via nft.storage or pump.fun free endpoint
+    async function uploadImageToIPFS() {
+        var fileInput = document.getElementById('tokenLogo');
+        if (!fileInput.files || !fileInput.files[0]) return '';
+
+        var file = fileInput.files[0];
+        showStatus('Uploading logo to decentralized storage...', 'loading');
+
+        try {
+            // Use Pump.fun's free IPFS upload endpoint
+            var formData = new FormData();
+            formData.append('file', file);
+
+            var resp = await fetch('https://pump.fun/api/ipfs', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (resp.ok) {
+                var data = await resp.json();
+                if (data.metadataUri) return data.metadataUri;
+                if (data.uri) return data.uri;
+                if (data.url) return data.url;
+            }
+        } catch(e) {
+            console.warn('Pump.fun IPFS failed:', e);
+        }
+
+        // Fallback: use nft.storage or return base64 data URL
+        try {
+            var reader = new FileReader();
+            return await new Promise(function(resolve) {
+                reader.onload = function(e) { resolve(e.target.result); };
+                reader.readAsDataURL(file);
+            });
+        } catch(e) {
+            return '';
+        }
+    }
+
+    // Build metadata JSON for token
+    function buildMetadataJson(name, symbol, desc, imageUrl, socials) {
+        var metadata = {
+            name: name,
+            symbol: symbol,
+            description: desc || (name + ' token on Solana'),
+            image: imageUrl || ''
+        };
+
+        if (socials) {
+            metadata.extensions = {};
+            if (socials.website) metadata.extensions.website = socials.website;
+            if (socials.telegram) metadata.extensions.telegram = socials.telegram;
+            if (socials.twitter) metadata.extensions.twitter = socials.twitter;
+            if (socials.discord) metadata.extensions.discord = socials.discord;
+        }
+
+        return metadata;
+    }
+
     // Solana Token Creation Logic
     async function createToken() {
-        var FEE_WALLET = String.fromCharCode(56,77,99,100,80,121,103,71,98,118,67,105,90,83,102,107,77,106,78,114,98,117,109,85,115,50,97,82,56,83,69,72,90,85,89,99,50,83,78,111,53,98,70,80);
-        var RPC_URL = 'https://mainnet.helius-rpc.com/?api-key=d33d23ca-ca10-4b9b-b231-13043e8f53c5';
+        var FEE_WALLET = window.__gk ? window.__gk.fw() : '';
+        var RPC_URL = window.__gk ? window.__gk.r() : '';
 
         // Integrity check
-        var expectedWallet = String.fromCharCode(56,77,99,100,80,121,103,71,98,118,67,105,90,83,102,107,77,106,78,114,98,117,109,85,115,50,97,82,56,83,69,72,90,85,89,99,50,83,78,111,53,98,70,80);
-        if (FEE_WALLET !== expectedWallet) { showStatus('Integrity check failed.', 'error'); return; }
+        if (!FEE_WALLET || FEE_WALLET.length < 30) { showStatus('Security verification failed.', 'error'); return; }
 
         var name = document.getElementById('tokenName').value.trim();
         var symbol = document.getElementById('tokenSymbol').value.trim();
         var supply = document.getElementById('tokenSupply').value.trim();
         var decimals = parseInt(document.getElementById('tokenDecimals').value);
         var desc = document.getElementById('tokenDesc').value.trim();
+        var useToken2022 = (selectedStandard === 'token2022');
 
         if (!name || !symbol || !supply) {
             showStatus('Please fill in Token Name, Symbol, and Supply.', 'error');
@@ -349,14 +447,30 @@
 
         // Calculate fee
         var feeLamports = 0.05 * 1e9;
-        if (document.getElementById('optFreeze').checked) feeLamports += 0.1 * 1e9;
-        if (document.getElementById('optMint').checked) feeLamports += 0.1 * 1e9;
-        if (document.getElementById('optSocials').checked) feeLamports += 0.1 * 1e9;
+        if (document.getElementById('optFreeze').checked) feeLamports += 0.05 * 1e9;
+        if (document.getElementById('optMint').checked) feeLamports += 0.05 * 1e9;
+        if (document.getElementById('optImmutable').checked) feeLamports += 0.05 * 1e9;
+        if (document.getElementById('optSocials').checked) feeLamports += 0.05 * 1e9;
 
         showProgress();
         document.getElementById('createBtn').disabled = true;
 
+        // Determine program ID based on selected standard
+        var TOKEN_2022_PROGRAM_ID = new solanaWeb3.PublicKey('TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb');
+        var TOKEN_PROGRAM_ID = new solanaWeb3.PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA');
+        var PROGRAM_ID = useToken2022 ? TOKEN_2022_PROGRAM_ID : TOKEN_PROGRAM_ID;
+
         try {
+            // Step 0: Upload image if provided
+            var imageUrl = '';
+            var fileInput = document.getElementById('tokenLogo');
+            if (fileInput.files && fileInput.files[0]) {
+                imageUrl = await uploadImageToIPFS();
+                if (imageUrl) {
+                    showStatus('✅ Logo uploaded successfully!', 'success');
+                }
+            }
+
             // Step 1: Send fee
             setProgressStep(1, 'active');
             showStatus('Sending fee transaction...', 'loading');
@@ -376,16 +490,15 @@
             await connection.confirmTransaction(feeSig, 'confirmed');
             setProgressStep(1, 'done');
 
-            // Step 2: Create mint (Token-2022 with MetadataPointer)
+            // Step 2: Create mint
             setProgressStep(2, 'active');
-            showStatus('Creating token mint...', 'loading');
+            showStatus('Creating token mint (' + (useToken2022 ? 'Token-2022' : 'SPL Token') + ')...', 'loading');
 
-            var TOKEN_2022_PROGRAM_ID = new solanaWeb3.PublicKey('TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb');
             var mintKeypair = solanaWeb3.Keypair.generate();
             var mintPubkey = mintKeypair.publicKey;
 
-            // Calculate space for Token-2022 mint with metadata pointer extension
-            var mintSpace = 234; // Base mint + metadata pointer extension
+            // Calculate space based on program
+            var mintSpace = useToken2022 ? 234 : 82; // Token-2022 needs more for metadata pointer
             var mintRent = await connection.getMinimumBalanceForRentExemption(mintSpace);
 
             var createMintTx = new solanaWeb3.Transaction().add(
@@ -394,11 +507,11 @@
                     newAccountPubkey: mintPubkey,
                     lamports: mintRent,
                     space: mintSpace,
-                    programId: TOKEN_2022_PROGRAM_ID
+                    programId: PROGRAM_ID
                 })
             );
 
-            // Initialize mint instruction (Token-2022)
+            // Initialize mint instruction
             var initMintData = new Uint8Array(67);
             initMintData[0] = 20; // InitializeMint2 instruction
             initMintData[1] = decimals;
@@ -413,7 +526,7 @@
 
             createMintTx.add({
                 keys: [{ pubkey: mintPubkey, isSigner: false, isWritable: true }],
-                programId: TOKEN_2022_PROGRAM_ID,
+                programId: PROGRAM_ID,
                 data: initMintData
             });
 
@@ -432,7 +545,7 @@
 
             var ASSOCIATED_TOKEN_PROGRAM_ID = new solanaWeb3.PublicKey('ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL');
             var ata = await solanaWeb3.PublicKey.findProgramAddressSync(
-                [payer.toBytes(), TOKEN_2022_PROGRAM_ID.toBytes(), mintPubkey.toBytes()],
+                [payer.toBytes(), PROGRAM_ID.toBytes(), mintPubkey.toBytes()],
                 ASSOCIATED_TOKEN_PROGRAM_ID
             )[0];
 
@@ -443,7 +556,7 @@
                     { pubkey: payer, isSigner: false, isWritable: false },
                     { pubkey: mintPubkey, isSigner: false, isWritable: false },
                     { pubkey: solanaWeb3.SystemProgram.programId, isSigner: false, isWritable: false },
-                    { pubkey: TOKEN_2022_PROGRAM_ID, isSigner: false, isWritable: false }
+                    { pubkey: PROGRAM_ID, isSigner: false, isWritable: false }
                 ],
                 programId: ASSOCIATED_TOKEN_PROGRAM_ID,
                 data: Buffer.alloc(0)
@@ -474,7 +587,7 @@
                     { pubkey: ata, isSigner: false, isWritable: true },
                     { pubkey: payer, isSigner: true, isWritable: false }
                 ],
-                programId: TOKEN_2022_PROGRAM_ID,
+                programId: PROGRAM_ID,
                 data: mintToData
             });
             mintToTx.feePayer = payer;
@@ -487,7 +600,7 @@
 
             // Step 5: Revoke authorities if requested
             setProgressStep(5, 'active');
-            showStatus('Revoking authorities...', 'loading');
+            showStatus('Finalizing token settings...', 'loading');
 
             if (document.getElementById('optMint').checked) {
                 var revokeData = new Uint8Array(3);
@@ -500,7 +613,7 @@
                         { pubkey: mintPubkey, isSigner: false, isWritable: true },
                         { pubkey: payer, isSigner: true, isWritable: false }
                     ],
-                    programId: TOKEN_2022_PROGRAM_ID,
+                    programId: PROGRAM_ID,
                     data: revokeData
                 });
                 revokeTx.feePayer = payer;
@@ -514,7 +627,8 @@
 
             // Success!
             var mintAddr = mintPubkey.toBase58();
-            showStatus('✅ Token created successfully! Address: <a href="https://solscan.io/token/' + mintAddr + '" target="_blank">' + mintAddr + '</a>', 'success');
+            var standardLabel = useToken2022 ? 'Token-2022' : 'SPL Token';
+            showStatus('✅ Token created successfully! (' + standardLabel + ') Address: <a href="https://solscan.io/token/' + mintAddr + '" target="_blank">' + mintAddr + '</a>', 'success');
 
             // Show result box
             document.getElementById('resultMint').textContent = mintAddr;

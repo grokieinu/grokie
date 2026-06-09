@@ -8,6 +8,11 @@ body{font-family:'Inter',sans-serif;background:var(--dark);color:var(--text);lin
 .logo img{width:32px;height:32px;border-radius:50%;border:2px solid var(--accent)}
 .back-btn{color:var(--muted);text-decoration:none;font-size:.85rem}
 .back-btn:hover{color:var(--accent)}
+.tool-nav{display:flex;gap:4px;align-items:center}
+.tool-nav a{color:var(--muted);text-decoration:none;font-size:.78rem;font-weight:600;padding:6px 12px;border-radius:6px;transition:all .2s;white-space:nowrap}
+.tool-nav a:hover{color:var(--cyan,#00f5ff);background:rgba(0,245,255,.06)}
+.tool-nav a.active{color:#fff;background:linear-gradient(135deg,var(--accent),var(--primary));box-shadow:0 2px 8px rgba(247,37,133,.3)}
+@media(max-width:768px){.tool-nav{display:none}}
 .header-right{display:flex;align-items:center;gap:12px}
 .connect-btn-header{padding:10px 22px;background:linear-gradient(135deg,#ab47bc,var(--primary));color:#fff;border:none;border-radius:50px;font-size:.85rem;font-weight:700;cursor:pointer;transition:all .3s;white-space:nowrap}
 .connect-btn-header:hover{transform:translateY(-1px);box-shadow:0 5px 15px rgba(139,92,246,.3)}
@@ -56,6 +61,16 @@ body{font-family:'Inter',sans-serif;background:var(--dark);color:var(--text);lin
 .upload-area .upload-text{color:var(--muted);font-size:.82rem}
 .upload-area .upload-text strong{color:var(--text)}
 .upload-preview{width:80px;height:80px;border-radius:12px;object-fit:cover;border:2px solid var(--accent);display:none;margin:12px auto 0}
+.logo-note{background:rgba(247,37,133,.05);border:1px solid rgba(247,37,133,.15);border-radius:8px;padding:10px 14px;margin-top:10px}
+.logo-note small{color:var(--muted);font-size:.72rem;line-height:1.5}
+.logo-note strong{color:var(--accent)}
+.standard-picker{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.standard-option{display:flex;align-items:flex-start;gap:10px;padding:14px 16px;border:2px solid var(--border);border-radius:12px;cursor:pointer;transition:all .3s;flex:1;min-width:200px}
+.standard-option:hover{border-color:var(--primary)}
+.standard-option.selected{border-color:var(--accent);background:rgba(247,37,133,.06)}
+.standard-option input{margin-top:3px;accent-color:var(--accent)}
+.standard-info strong{display:block;color:var(--text);font-size:.85rem;margin-bottom:4px}
+.standard-info small{color:var(--muted);font-size:.72rem;line-height:1.4}
 .fee-tag{background:rgba(247,37,133,.15);color:var(--accent);font-size:.7rem;padding:2px 8px;border-radius:50px;margin-left:8px;font-weight:600}
 .fee-summary{background:var(--dark);border:1px solid var(--border);border-radius:12px;padding:15px;margin:20px 0}
 .fee-row{display:flex;justify-content:space-between;padding:6px 0;font-size:.82rem;color:var(--muted)}

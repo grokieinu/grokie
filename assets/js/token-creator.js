@@ -3,6 +3,16 @@
  * UI Logic: wallet connection, form handling, fee calculation
  */
 
+// Selected token standard
+var selectedStandard = 'token2022';
+
+// Select token standard
+function selectStandard(std) {
+    selectedStandard = std;
+    document.getElementById('stdToken2022').classList.toggle('selected', std === 'token2022');
+    document.getElementById('stdSPL').classList.toggle('selected', std === 'spl');
+}
+
 // Toggle social fields
 function toggleSocials() {
     var show = document.getElementById('optSocials').checked;
@@ -14,15 +24,18 @@ function updateFee() {
     var total = 0.05;
     var freezeChecked = document.getElementById('optFreeze').checked;
     var mintChecked = document.getElementById('optMint').checked;
+    var immutableChecked = document.getElementById('optImmutable').checked;
     var socialsChecked = document.getElementById('optSocials').checked;
 
     document.getElementById('feeFreeze').style.display = freezeChecked ? 'flex' : 'none';
     document.getElementById('feeMint').style.display = mintChecked ? 'flex' : 'none';
+    document.getElementById('feeImmutable').style.display = immutableChecked ? 'flex' : 'none';
     document.getElementById('feeSocials').style.display = socialsChecked ? 'flex' : 'none';
 
-    if (freezeChecked) total += 0.1;
-    if (mintChecked) total += 0.1;
-    if (socialsChecked) total += 0.1;
+    if (freezeChecked) total += 0.05;
+    if (mintChecked) total += 0.05;
+    if (immutableChecked) total += 0.05;
+    if (socialsChecked) total += 0.05;
 
     document.getElementById('feeTotal').textContent = '~' + total.toFixed(2) + ' SOL';
 }
@@ -155,12 +168,12 @@ async function connectSpecificWallet(walletType) {
         // Get balance
         try {
             if (window.solanaWeb3) {
-                var connection = new window.solanaWeb3.Connection('https://mainnet.helius-rpc.com/?api-key=d33d23ca-ca10-4b9b-b231-13043e8f53c5', 'confirmed');
+                var connection = new window.solanaWeb3.Connection(window.__gk ? window.__gk.r() : '', 'confirmed');
                 var balance = await connection.getBalance(new window.solanaWeb3.PublicKey(pubkey));
                 document.getElementById('walletBalance').textContent = (balance / 1000000000).toFixed(4);
             } else {
                 // Fallback: try fetch RPC directly
-                var rpcResp = await fetch('https://mainnet.helius-rpc.com/?api-key=d33d23ca-ca10-4b9b-b231-13043e8f53c5', {
+                var rpcResp = await fetch(window.__gk ? window.__gk.r() : '', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({jsonrpc:'2.0',id:1,method:'getBalance',params:[pubkey]})

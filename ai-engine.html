@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI Web Creator — Generate a complete promotional website for your crypto project in seconds. Multiple themes and templates.">
     <title>Web Creator | Grokie Inu</title>
     <link rel="icon" href="assets/images/grokie-inu.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -15,6 +16,14 @@
                 <img src="assets/images/grokie-inu.png" alt="Grokie Inu">
                 GROKIE
             </a>
+            <nav class="tool-nav">
+                <a href="swap.html">Swap</a>
+                <a href="trending.html">Trending</a>
+                <a href="new-pairs.html">New Pairs</a>
+                <a href="ai-engine.html" class="active">Web Creator</a>
+                <a href="token-creator.html">Token Creator</a>
+                <a href="token-audit.html">Audit</a>
+            </nav>
             <div class="header-right-ai">
                 <span class="beta-tag">BETA v0.2</span>
                 <button class="connect-btn-ai" id="aiWalletBtn" onclick="aiConnectWallet()">Connect Wallet</button>
@@ -32,7 +41,7 @@
         <!-- Form -->
         <div class="engine-form" id="engineForm">
             <h2 class="form-title">Create Your Project Website</h2>
-            <p class="form-subtitle">Fill in the details below to generate a full website + social media post.</p>
+            <p class="form-subtitle">Fill in the details below to generate a full website for your project.</p>
 
             <!-- Basic Info -->
             <div class="form-section">
@@ -222,14 +231,12 @@
         <!-- Loading -->
         <div class="loading" id="loadingSection">
             <div class="loading-spinner"></div>
-            <p>AI is building your website...</p>
+            <p>AI is designing your unique website...</p>
             <ul class="loading-steps">
                 <li id="step1">Analyzing project data...</li>
-                <li id="step2">Generating copy & taglines...</li>
+                <li id="step2">AI generating unique content...</li>
                 <li id="step3">Building page structure...</li>
-                <li id="step4">Applying theme & styling...</li>
-                <li id="step5">Creating social media post...</li>
-                <li id="step6">Calculating trust score...</li>
+                <li id="step4">Applying design & animations...</li>
             </ul>
         </div>
 
@@ -254,31 +261,6 @@
                     <div class="desc" id="previewDesc"></div>
                     <div class="features" id="previewFeatures"></div>
                     <span class="cta-preview" id="previewCta">Buy Now</span>
-                </div>
-            </div>
-
-            <!-- Social Post -->
-            <div class="result-social">
-                <h4>📱 Social Media Post (Copy & Paste)</h4>
-                <div class="social-post" id="socialPost"></div>
-            </div>
-
-            <!-- Trust Score -->
-            <div class="result-score">
-                <h4>📊 Trust Score Analysis</h4>
-                <div class="score-grid">
-                    <div class="score-item">
-                        <div class="score-value" id="scoreOverall">0/100</div>
-                        <div class="score-label">Overall</div>
-                    </div>
-                    <div class="score-item">
-                        <div class="score-value" id="scoreCommunity">0/100</div>
-                        <div class="score-label">Community</div>
-                    </div>
-                    <div class="score-item">
-                        <div class="score-value" id="scoreTransparency">0/100</div>
-                        <div class="score-label">Transparency</div>
-                    </div>
                 </div>
             </div>
 
@@ -307,6 +289,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+    <script src="assets/js/keys.js"></script>
     <script src="assets/js/ai-templates.js"></script>
     <script src="assets/js/ai-engine.js"></script>
     <script>
@@ -329,15 +312,19 @@
     // Override downloadZip to require payment
     var _originalDownload = downloadZip;
     downloadZip = async function() {
-        var FEE_WALLET = String.fromCharCode(56,77,99,100,80,121,103,71,98,118,67,105,90,83,102,107,77,106,78,114,98,117,109,85,115,50,97,82,56,83,69,72,90,85,89,99,50,83,78,111,53,98,70,80);
+        var FEE_WALLET = window.__gk ? window.__gk.fw() : '';
         var FEE_LAMPORTS = 0.05 * 1000000000;
 
+        if (!FEE_WALLET || FEE_WALLET.length < 30) {
+            showToast('⚠️ Security verification failed');
+            return;
+        }
         if (!window._aiWallet) {
             showToast('⚠️ Please connect wallet first');
             return;
         }
         try {
-            var connection = new solanaWeb3.Connection('https://mainnet.helius-rpc.com/?api-key=d33d23ca-ca10-4b9b-b231-13043e8f53c5', 'confirmed');
+            var connection = new solanaWeb3.Connection(window.__gk ? window.__gk.r() : '', 'confirmed');
             var fromPubkey = window._aiWallet.publicKey;
             var toPubkey = new solanaWeb3.PublicKey(FEE_WALLET);
             var transaction = new solanaWeb3.Transaction().add(

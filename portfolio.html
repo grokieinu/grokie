@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Grokie Portfolio Intelligence — AI-powered Solana portfolio analytics. Track wallets, analyze PnL, detect whales, and generate tax reports.">
+    <title>Portfolio Intelligence | Grokie Inu</title>
+    <link rel="icon" href="assets/images/grokie-inu.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/portfolio.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-inner">
+            <a href="index.html" class="logo">
+                <img src="assets/images/grokie-inu.png" alt="Grokie Inu">
+                GROKIE
+            </a>
+            <nav class="tool-nav">
+                <a href="swap.html">Swap</a>
+                <a href="trending.html">Trending</a>
+                <a href="token-audit.html">Audit</a>
+                <a href="portfolio.html" class="active">Portfolio</a>
+                <a href="whale-tracker.html">Whale</a>
+            </nav>
+            <nav class="header-nav">
+                <a href="#dashboard" class="nav-link active" data-tab="dashboard">Dashboard</a>
+                <a href="#holdings" class="nav-link" data-tab="holdings">Holdings</a>
+                <a href="#pnl" class="nav-link" data-tab="pnl">PnL</a>
+                <a href="#whale" class="nav-link" data-tab="whale">Whale Activity</a>
+                <a href="#ai-insights" class="nav-link" data-tab="ai-insights">AI Insights</a>
+                <a href="#tax" class="nav-link" data-tab="tax">Tax Report</a>
+            </nav>
+            <a href="index.html" class="back-btn">← Back</a>
+        </div>
+    </header>
+
+    <!-- Token Gate Overlay -->
+    <div class="token-gate" id="tokenGate">
+        <div class="token-gate-content">
+            <img src="assets/images/grokie-inu.png" alt="Grokie Inu" class="gate-logo">
+            <h2>Grokie Army Only</h2>
+            <p class="gate-desc">Portfolio Intelligence is exclusive to $GROKIE holders. Connect your wallet to verify access.</p>
+            <div class="gate-security">
+                <div class="security-badge">🔒 Read-Only Access</div>
+                <div class="security-badge">🛡️ No Transaction Required</div>
+                <div class="security-badge">✅ No Approval Needed</div>
+            </div>
+            <button id="gateConnectBtn" class="gate-connect-btn">🔗 Connect Wallet</button>
+            <div class="gate-status" id="gateStatus"></div>
+            <p class="gate-trust-note">We only check your token balance. We cannot access, move, or spend your funds. No transaction signature is required.</p>
+            <div class="gate-info">
+                <p>Don't have $GROKIE yet?</p>
+                <a href="swap.html" class="gate-buy-btn">🚀 Buy $GROKIE on Grokie Swap</a>
+            </div>
+            <p class="gate-note">Minimum: 1 $GROKIE token required</p>
+        </div>
+    </div>
+
+    <!-- Mobile Nav -->
+    <div class="mobile-nav" id="mobileNav">
+        <a href="#dashboard" class="mobile-nav-link active" data-tab="dashboard">📊 Dashboard</a>
+        <a href="#holdings" class="mobile-nav-link" data-tab="holdings">💰 Holdings</a>
+        <a href="#pnl" class="mobile-nav-link" data-tab="pnl">📈 PnL</a>
+        <a href="#whale" class="mobile-nav-link" data-tab="whale">🐋 Whale</a>
+        <a href="#ai-insights" class="mobile-nav-link" data-tab="ai-insights">🤖 AI</a>
+        <a href="#tax" class="mobile-nav-link" data-tab="tax">📄 Tax</a>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main">
+        <!-- Wallet Input Section -->
+        <section class="wallet-section">
+            <div class="wallet-input-wrapper">
+                <div class="wallet-input-box">
+                    <span class="wallet-icon">🔍</span>
+                    <input type="text" id="walletInput" placeholder="Enter Solana wallet address..." autocomplete="off">
+                    <button id="trackBtn" class="track-btn">Track</button>
+                </div>
+                <p class="wallet-hint">Your verified $GROKIE wallet is used automatically</p>
+            </div>
+        </section>
+
+        <!-- Dashboard Tab -->
+        <section class="tab-content active" id="tab-dashboard">
+            <!-- Portfolio Overview Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">💎</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Total Value</span>
+                        <span class="stat-value" id="totalValue">$0.00</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📈</div>
+                    <div class="stat-info">
+                        <span class="stat-label">24h Change</span>
+                        <span class="stat-value" id="dailyChange">$0.00</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🪙</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Token Count</span>
+                        <span class="stat-value" id="tokenCount">0</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⚡</div>
+                    <div class="stat-info">
+                        <span class="stat-label">SOL Balance</span>
+                        <span class="stat-value" id="solBalance">0 SOL</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Risk Score & Performance -->
+            <div class="dashboard-grid">
+                <div class="card risk-card">
+                    <h3 class="card-title">Risk Score</h3>
+                    <div class="risk-meter">
+                        <div class="risk-circle" id="riskCircle">
+                            <span class="risk-score" id="riskScore">--</span>
+                            <span class="risk-label" id="riskLabel">N/A</span>
+                        </div>
+                    </div>
+                    <div class="risk-factors" id="riskFactors">
+                        <p class="empty-state">Track a wallet to see risk analysis</p>
+                    </div>
+                </div>
+                <div class="card performance-card">
+                    <h3 class="card-title">Trading Performance</h3>
+                    <div class="performance-stats" id="performanceStats">
+                        <div class="perf-item">
+                            <span class="perf-label">Win Rate</span>
+                            <span class="perf-value" id="winRate">--%</span>
+                        </div>
+                        <div class="perf-item">
+                            <span class="perf-label">Total Trades</span>
+                            <span class="perf-value" id="totalTrades">--</span>
+                        </div>
+                        <div class="perf-item">
+                            <span class="perf-label">Avg Profit</span>
+                            <span class="perf-value" id="avgProfit">--</span>
+                        </div>
+                        <div class="perf-item">
+                            <span class="perf-label">Best Trade</span>
+                            <span class="perf-value" id="bestTrade">--</span>
+                        </div>
+                        <div class="perf-item">
+                            <span class="perf-label">Worst Trade</span>
+                            <span class="perf-value" id="worstTrade">--</span>
+                        </div>
+                        <div class="perf-item">
+                            <span class="perf-label">Avg Hold Time</span>
+                            <span class="perf-value" id="avgHoldTime">--</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Transactions -->
+            <div class="card">
+                <h3 class="card-title">Recent Transactions</h3>
+                <div class="table-wrapper">
+                    <table class="data-table" id="recentTxTable">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Token</th>
+                                <th>Amount</th>
+                                <th>Value</th>
+                                <th>Time</th>
+                                <th>TX</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentTxBody">
+                            <tr><td colspan="6" class="empty-state">Track a wallet to see transactions</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Holdings Tab -->
+        <section class="tab-content" id="tab-holdings">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Token Holdings</h3>
+                    <div class="card-actions">
+                        <select id="holdingsSort" class="select-input">
+                            <option value="value">Sort by Value</option>
+                            <option value="amount">Sort by Amount</option>
+                            <option value="change">Sort by 24h Change</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Token</th>
+                                <th>Balance</th>
+                                <th>Price</th>
+                                <th>Value</th>
+                                <th>24h</th>
+                                <th>Allocation</th>
+                            </tr>
+                        </thead>
+                        <tbody id="holdingsBody">
+                            <tr><td colspan="6" class="empty-state">Track a wallet to see holdings</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Allocation Chart -->
+            <div class="card">
+                <h3 class="card-title">Portfolio Allocation</h3>
+                <div class="allocation-chart" id="allocationChart">
+                    <p class="empty-state">Track a wallet to see allocation breakdown</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- PnL Tab -->
+        <section class="tab-content" id="tab-pnl">
+            <div class="stats-grid">
+                <div class="stat-card stat-green">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Total Realized PnL</span>
+                        <span class="stat-value" id="realizedPnl">$0.00</span>
+                    </div>
+                </div>
+                <div class="stat-card stat-blue">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Unrealized PnL</span>
+                        <span class="stat-value" id="unrealizedPnl">$0.00</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🎯</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Total ROI</span>
+                        <span class="stat-value" id="totalRoi">0%</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📅</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Monthly PnL</span>
+                        <span class="stat-value" id="monthlyPnl">$0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">PnL by Token</h3>
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Token</th>
+                                <th>Buy Avg</th>
+                                <th>Current Price</th>
+                                <th>Realized</th>
+                                <th>Unrealized</th>
+                                <th>Total PnL</th>
+                                <th>ROI</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pnlBody">
+                            <tr><td colspan="7" class="empty-state">Track a wallet to see PnL breakdown</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Whale Activity Tab -->
+        <section class="tab-content" id="tab-whale">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">🐋 Whale Activity Detection</h3>
+                    <span class="badge badge-live">Live</span>
+                </div>
+                <p class="card-desc">Large transactions detected from this wallet or related whale wallets.</p>
+                <div class="whale-list" id="whaleList">
+                    <p class="empty-state">Track a wallet to detect whale activity</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">Whale Wallet Interactions</h3>
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Whale Wallet</th>
+                                <th>Action</th>
+                                <th>Token</th>
+                                <th>Amount</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody id="whaleTableBody">
+                            <tr><td colspan="5" class="empty-state">No whale activity detected yet</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI Insights Tab -->
+        <section class="tab-content" id="tab-ai-insights">
+            <div class="card ai-card">
+                <div class="card-header">
+                    <h3 class="card-title">🤖 AI Portfolio Insights</h3>
+                    <button id="generateInsightsBtn" class="btn-primary" disabled>Generate Insights</button>
+                </div>
+                <div class="ai-insights-content" id="aiInsightsContent">
+                    <div class="ai-empty">
+                        <div class="ai-icon">🧠</div>
+                        <h4>AI-Powered Analysis</h4>
+                        <p>Track a wallet and click "Generate Insights" to receive AI-powered portfolio recommendations, risk analysis, and optimization strategies.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="insights-grid">
+                <div class="card mini-card">
+                    <h4>📌 Recommendations</h4>
+                    <div id="aiRecommendations">
+                        <p class="empty-state-sm">No data yet</p>
+                    </div>
+                </div>
+                <div class="card mini-card">
+                    <h4>⚠️ Risk Alerts</h4>
+                    <div id="aiRiskAlerts">
+                        <p class="empty-state-sm">No data yet</p>
+                    </div>
+                </div>
+                <div class="card mini-card">
+                    <h4>🔄 Rebalancing</h4>
+                    <div id="aiRebalancing">
+                        <p class="empty-state-sm">No data yet</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tax Report Tab -->
+        <section class="tab-content" id="tab-tax">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">📄 Tax Report Generator</h3>
+                    <div class="card-actions">
+                        <select id="taxYear" class="select-input">
+                            <option value="2026">2026</option>
+                            <option value="2025">2025</option>
+                            <option value="2024">2024</option>
+                            <option value="2023">2023</option>
+                        </select>
+                        <button id="generateTaxBtn" class="btn-primary" disabled>Generate Report</button>
+                    </div>
+                </div>
+                <div class="tax-summary" id="taxSummary">
+                    <div class="tax-grid">
+                        <div class="tax-item">
+                            <span class="tax-label">Total Disposals</span>
+                            <span class="tax-value" id="taxDisposals">--</span>
+                        </div>
+                        <div class="tax-item">
+                            <span class="tax-label">Short-term Gains</span>
+                            <span class="tax-value" id="taxShortGains">--</span>
+                        </div>
+                        <div class="tax-item">
+                            <span class="tax-label">Long-term Gains</span>
+                            <span class="tax-value" id="taxLongGains">--</span>
+                        </div>
+                        <div class="tax-item">
+                            <span class="tax-label">Total Losses</span>
+                            <span class="tax-value" id="taxLosses">--</span>
+                        </div>
+                        <div class="tax-item">
+                            <span class="tax-label">Net Capital Gains</span>
+                            <span class="tax-value" id="taxNetGains">--</span>
+                        </div>
+                        <div class="tax-item">
+                            <span class="tax-label">Estimated Tax</span>
+                            <span class="tax-value" id="taxEstimated">--</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">Transaction History (Tax Events)</h3>
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Token</th>
+                                <th>Amount</th>
+                                <th>Cost Basis</th>
+                                <th>Proceeds</th>
+                                <th>Gain/Loss</th>
+                            </tr>
+                        </thead>
+                        <tbody id="taxEventsBody">
+                            <tr><td colspan="7" class="empty-state">Generate a tax report to see events</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tax-actions">
+                    <button id="exportCsvBtn" class="btn-secondary" disabled>📥 Export CSV</button>
+                    <button id="exportPdfBtn" class="btn-secondary" disabled>📥 Export PDF</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Toast -->
+    <div class="toast" id="toast" style="display:none">
+        <span id="toastMsg"></span>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay" style="display:none">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p id="loadingText">Analyzing portfolio...</p>
+        </div>
+    </div>
+
+    <script src="assets/js/keys.js"></script>
+    <script src="assets/js/token-gate.js"></script>
+    <script src="assets/js/portfolio.js"></script>
+</body>
+</html>

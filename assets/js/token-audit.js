@@ -5,7 +5,7 @@
  */
 
 const RPC_ENDPOINTS = [
-    'https://mainnet.helius-rpc.com/?api-key=d33d23ca-ca10-4b9b-b231-13043e8f53c5'
+    window.__gk ? window.__gk.r() : ''
 ];
 
 let currentRpcIndex = 0;
@@ -18,6 +18,11 @@ const TOKEN_2022_PROGRAM = 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb';
 
 // === Main Scan Function ===
 async function scanToken() {
+    // Verify token gate
+    if (typeof isGateVerified === 'function' && !isGateVerified()) {
+        alert('Please verify your $GROKIE holdings first.');
+        return;
+    }
     const ca = document.getElementById('tokenCA').value.trim();
     if (!ca || ca.length < 32 || ca.length > 50) {
         alert('Please enter a valid Solana token address (32-44 characters).');
