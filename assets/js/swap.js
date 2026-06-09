@@ -22,7 +22,6 @@ function checkWalletAvailability() {
     const hasAnyWallet = hasPhantom || hasSolflare || hasBackpack || window.solana;
 
     if (!hasAnyWallet) {
-        // Short delay because some wallets inject slowly
         setTimeout(() => {
             const recheckPhantom = window.solana && window.solana.isPhantom;
             const recheckSolflare = window.solflare && window.solflare.isSolflare;
@@ -60,7 +59,6 @@ function initJupiter() {
         formProps: {
             initialInputMint: SOL_MINT,
             initialOutputMint: GROKIE_MINT,
-            initialAmount: '',
         },
         branding: {
             logoUri: 'assets/images/grokie-inu.png',
@@ -76,10 +74,12 @@ function initJupiter() {
     };
 
     // Enable fee if referral account is set
-    if (REFERRAL_ACCOUNT && REFERRAL_ACCOUNT.length > 30) {
-        config.formProps.referralAccount = REFERRAL_ACCOUNT;
-        config.formProps.referralFee = REFERRAL_FEE_BPS;
-    }
+    // NOTE: Disabled - referral account must be initialized via Jupiter Referral Program first
+    // Visit https://referral.jup.ag/ to set up your referral account
+    // if (REFERRAL_ACCOUNT && REFERRAL_ACCOUNT.length > 30) {
+    //     config.formProps.referralAccount = REFERRAL_ACCOUNT;
+    //     config.formProps.referralFee = REFERRAL_FEE_BPS;
+    // }
 
     try {
         window.Jupiter.init(config);

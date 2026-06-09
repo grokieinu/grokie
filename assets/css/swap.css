@@ -122,13 +122,21 @@ body {
     min-height: 600px;
     border-radius: 20px;
     overflow: visible;
-    transform: scale(1.4);
-    transform-origin: center center;
+    transform: scale(1.35);
+    transform-origin: center top;
+    margin-bottom: 200px;
 }
 
 #jupiter-plugin {
     width: 100%;
     min-height: 600px;
+}
+
+/* Override Jupiter widget internal width to prevent number truncation */
+#jupiter-plugin > div,
+#jupiter-plugin > div > div {
+    max-width: 100% !important;
+    width: 100% !important;
 }
 
 .swap-loading {
@@ -369,8 +377,9 @@ body {
 /* Responsive */
 @media (max-width: 900px) {
     .swap-widget-wrapper { 
-        transform: scale(1.05); 
+        transform: scale(1.1);
         max-width: 100%;
+        margin-bottom: 80px;
     }
 }
 
@@ -384,6 +393,7 @@ body {
         min-height: 100vh;
         transform: none;
         border-radius: 0;
+        margin-bottom: 0;
     }
     #jupiter-plugin { 
         min-height: calc(100vh - 65px);
