@@ -21,7 +21,8 @@ function toggleSocials() {
 
 // Update fee display
 function updateFee() {
-    var total = 0.05;
+    var total = 0.1; // Fixed fee 0.1 SOL for all options
+
     var freezeChecked = document.getElementById('optFreeze').checked;
     var mintChecked = document.getElementById('optMint').checked;
     var immutableChecked = document.getElementById('optImmutable').checked;
@@ -32,12 +33,7 @@ function updateFee() {
     document.getElementById('feeImmutable').style.display = immutableChecked ? 'flex' : 'none';
     document.getElementById('feeSocials').style.display = socialsChecked ? 'flex' : 'none';
 
-    if (freezeChecked) total += 0.05;
-    if (mintChecked) total += 0.05;
-    if (immutableChecked) total += 0.05;
-    if (socialsChecked) total += 0.05;
-
-    document.getElementById('feeTotal').textContent = '~' + total.toFixed(2) + ' SOL';
+    document.getElementById('feeTotal').textContent = '~0.10 SOL';
 }
 
 // Logo upload

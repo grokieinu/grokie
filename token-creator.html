@@ -39,7 +39,7 @@
     <div class="container">
         <!-- Info Box -->
         <div class="info-box">
-            <strong>ℹ️ Requirements:</strong> You need a Solana wallet (Phantom recommended) with at least 0.3 SOL to cover the token creation fee and network costs. The process takes about 10-30 seconds.
+            <strong>ℹ️ Requirements:</strong> You need a Solana wallet (Phantom recommended) with at least 0.2 SOL to cover the token creation fee (0.1 SOL) and network costs. The process takes about 10-30 seconds.
         </div>
 
         <!-- Mobile Notice -->
@@ -141,7 +141,7 @@
             <div class="opt-row">
                 <label class="opt-label">
                     <div class="opt-text">
-                        <strong>Disable Freeze Authority</strong> <span class="fee-tag">+0.05 SOL</span>
+                        <strong>Disable Freeze Authority</strong> <span class="fee-tag">Free</span>
                         <small>Prevents anyone from freezing token accounts. Recommended for trust.</small>
                     </div>
                     <input type="checkbox" id="optFreeze" onchange="updateFee()">
@@ -151,7 +151,7 @@
             <div class="opt-row">
                 <label class="opt-label">
                     <div class="opt-text">
-                        <strong>Revoke Mint Authority</strong> <span class="fee-tag">+0.05 SOL</span>
+                        <strong>Revoke Mint Authority</strong> <span class="fee-tag">Free</span>
                         <small>Permanently prevents minting new tokens. Shows max supply is fixed.</small>
                     </div>
                     <input type="checkbox" id="optMint" onchange="updateFee()">
@@ -161,7 +161,7 @@
             <div class="opt-row">
                 <label class="opt-label">
                     <div class="opt-text">
-                        <strong>Immutable Metadata</strong> <span class="fee-tag">+0.05 SOL</span>
+                        <strong>Immutable Metadata</strong> <span class="fee-tag">Free</span>
                         <small>Make metadata permanent and unchangeable. Cannot update name, symbol, or image after creation.</small>
                     </div>
                     <input type="checkbox" id="optImmutable" onchange="updateFee()">
@@ -171,7 +171,7 @@
             <div class="opt-row">
                 <label class="opt-label">
                     <div class="opt-text">
-                        <strong>Add Social Links</strong> <span class="fee-tag">+0.05 SOL</span>
+                        <strong>Add Social Links</strong> <span class="fee-tag">Free</span>
                         <small>Add website, Telegram, Twitter, and Discord links to token metadata.</small>
                     </div>
                     <input type="checkbox" id="optSocials" onchange="updateFee(); toggleSocials();">
@@ -201,12 +201,12 @@
 
             <!-- Fee Summary -->
             <div class="fee-summary">
-                <div class="fee-row"><span>Base fee (token creation)</span><span>0.05 SOL</span></div>
-                <div class="fee-row" id="feeFreeze" style="display:none"><span>Disable Freeze Authority</span><span>+0.05 SOL</span></div>
-                <div class="fee-row" id="feeMint" style="display:none"><span>Revoke Mint Authority</span><span>+0.05 SOL</span></div>
-                <div class="fee-row" id="feeImmutable" style="display:none"><span>Immutable Metadata</span><span>+0.05 SOL</span></div>
-                <div class="fee-row" id="feeSocials" style="display:none"><span>Add Social Links</span><span>+0.05 SOL</span></div>
-                <div class="fee-total"><span>Total</span><span id="feeTotal">~0.05 SOL</span></div>
+                <div class="fee-row"><span>Token creation fee (all features included)</span><span>0.10 SOL</span></div>
+                <div class="fee-row" id="feeFreeze" style="display:none"><span>Disable Freeze Authority</span><span>Included</span></div>
+                <div class="fee-row" id="feeMint" style="display:none"><span>Revoke Mint Authority</span><span>Included</span></div>
+                <div class="fee-row" id="feeImmutable" style="display:none"><span>Immutable Metadata</span><span>Included</span></div>
+                <div class="fee-row" id="feeSocials" style="display:none"><span>Add Social Links</span><span>Included</span></div>
+                <div class="fee-total"><span>Total</span><span id="feeTotal">~0.10 SOL</span></div>
             </div>
 
             <!-- Create Button -->
@@ -356,7 +356,7 @@
     <script src="assets/js/keys.js"></script>
     <script src="assets/js/token-creator.js"></script>
     <script>
-    // Upload image to IPFS via nft.storage or pump.fun free endpoint
+    // Upload image to IPFS via Pinata public gateway or pump.fun
     async function uploadImageToIPFS() {
         var fileInput = document.getElementById('tokenLogo');
         if (!fileInput.files || !fileInput.files[0]) return '';
@@ -364,8 +364,8 @@
         var file = fileInput.files[0];
         showStatus('Uploading logo to decentralized storage...', 'loading');
 
+        // Try pump.fun IPFS first
         try {
-            // Use Pump.fun's free IPFS upload endpoint
             var formData = new FormData();
             formData.append('file', file);
 
@@ -384,16 +384,75 @@
             console.warn('Pump.fun IPFS failed:', e);
         }
 
-        // Fallback: use nft.storage or return base64 data URL
+        // Fallback: try catbox.moe (anonymous file upload)
         try {
-            var reader = new FileReader();
-            return await new Promise(function(resolve) {
-                reader.onload = function(e) { resolve(e.target.result); };
-                reader.readAsDataURL(file);
+            var formData2 = new FormData();
+            formData2.append('reqtype', 'fileupload');
+            formData2.append('fileToUpload', file);
+
+            var resp2 = await fetch('https://catbox.moe/user/api.php', {
+                method: 'POST',
+                body: formData2
             });
+
+            if (resp2.ok) {
+                var url = await resp2.text();
+                if (url && url.startsWith('http')) return url.trim();
+            }
         } catch(e) {
-            return '';
+            console.warn('Catbox fallback failed:', e);
         }
+
+        showStatus('⚠️ Logo upload failed. Token will be created without logo.', 'error');
+        return '';
+    }
+
+    // Upload metadata JSON and return URI
+    async function uploadMetadataJSON(metadata) {
+        showStatus('Uploading metadata to decentralized storage...', 'loading');
+
+        try {
+            // Convert metadata to blob and upload via pump.fun
+            var blob = new Blob([JSON.stringify(metadata)], { type: 'application/json' });
+            var formData = new FormData();
+            formData.append('file', blob, 'metadata.json');
+
+            var resp = await fetch('https://pump.fun/api/ipfs', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (resp.ok) {
+                var data = await resp.json();
+                if (data.metadataUri) return data.metadataUri;
+                if (data.uri) return data.uri;
+                if (data.url) return data.url;
+            }
+        } catch(e) {
+            console.warn('Metadata upload failed:', e);
+        }
+
+        // Fallback: catbox
+        try {
+            var blob2 = new Blob([JSON.stringify(metadata)], { type: 'application/json' });
+            var formData2 = new FormData();
+            formData2.append('reqtype', 'fileupload');
+            formData2.append('fileToUpload', blob2, 'metadata.json');
+
+            var resp2 = await fetch('https://catbox.moe/user/api.php', {
+                method: 'POST',
+                body: formData2
+            });
+
+            if (resp2.ok) {
+                var url = await resp2.text();
+                if (url && url.startsWith('http')) return url.trim();
+            }
+        } catch(e) {
+            console.warn('Catbox metadata fallback failed:', e);
+        }
+
+        return '';
     }
 
     // Build metadata JSON for token
@@ -414,6 +473,18 @@
         }
 
         return metadata;
+    }
+
+    // Encode string to bytes for Token-2022 metadata
+    function encodeString(str) {
+        var encoder = new TextEncoder();
+        var bytes = encoder.encode(str);
+        var lenBuf = new Uint8Array(4);
+        new DataView(lenBuf.buffer).setUint32(0, bytes.length, true);
+        var result = new Uint8Array(4 + bytes.length);
+        result.set(lenBuf, 0);
+        result.set(bytes, 4);
+        return result;
     }
 
     // Solana Token Creation Logic
@@ -445,12 +516,8 @@
         var connection = new solanaWeb3.Connection(RPC_URL, 'confirmed');
         var payer = provider.publicKey;
 
-        // Calculate fee
-        var feeLamports = 0.05 * 1e9;
-        if (document.getElementById('optFreeze').checked) feeLamports += 0.05 * 1e9;
-        if (document.getElementById('optMint').checked) feeLamports += 0.05 * 1e9;
-        if (document.getElementById('optImmutable').checked) feeLamports += 0.05 * 1e9;
-        if (document.getElementById('optSocials').checked) feeLamports += 0.05 * 1e9;
+        // Calculate fee - fixed 0.1 SOL for all options
+        var feeLamports = 0.1 * 1e9;
 
         showProgress();
         document.getElementById('createBtn').disabled = true;
@@ -470,6 +537,19 @@
                     showStatus('✅ Logo uploaded successfully!', 'success');
                 }
             }
+
+            // Build & upload metadata JSON
+            var socials = null;
+            if (document.getElementById('optSocials').checked) {
+                socials = {
+                    website: document.getElementById('socialWeb').value.trim(),
+                    telegram: document.getElementById('socialTg').value.trim(),
+                    twitter: document.getElementById('socialTw').value.trim(),
+                    discord: document.getElementById('socialDc').value.trim()
+                };
+            }
+            var metadataJson = buildMetadataJson(name, symbol, desc, imageUrl, socials);
+            var metadataUri = await uploadMetadataJSON(metadataJson);
 
             // Step 1: Send fee
             setProgressStep(1, 'active');
@@ -497,46 +577,221 @@
             var mintKeypair = solanaWeb3.Keypair.generate();
             var mintPubkey = mintKeypair.publicKey;
 
-            // Calculate space based on program
-            var mintSpace = useToken2022 ? 234 : 82; // Token-2022 needs more for metadata pointer
-            var mintRent = await connection.getMinimumBalanceForRentExemption(mintSpace);
+            if (useToken2022) {
+                // Token-2022 with metadata extension
+                var nameBytes = new TextEncoder().encode(name);
+                var symbolBytes = new TextEncoder().encode(symbol);
+                var uriBytes = new TextEncoder().encode(metadataUri || '');
 
-            var createMintTx = new solanaWeb3.Transaction().add(
-                solanaWeb3.SystemProgram.createAccount({
-                    fromPubkey: payer,
-                    newAccountPubkey: mintPubkey,
-                    lamports: mintRent,
-                    space: mintSpace,
-                    programId: PROGRAM_ID
-                })
-            );
+                // Calculate space: Mint(82) + AccountType(1) + MetadataPointer TLV(4+64) + TokenMetadata TLV
+                // TokenMetadata TLV: type(2) + length(2) + updateAuthority(32) + mint(32) + name(4+len) + symbol(4+len) + uri(4+len) + additionalMetadata(4)
+                var tokenMetadataLen = 32 + 32 + 4 + nameBytes.length + 4 + symbolBytes.length + 4 + uriBytes.length + 4;
+                var mintSpace = 82 + 1 + (2 + 2 + 64) + (2 + 2 + tokenMetadataLen);
+                // Add padding for safety
+                mintSpace += 128;
+                var mintRent = await connection.getMinimumBalanceForRentExemption(mintSpace);
 
-            // Initialize mint instruction
-            var initMintData = new Uint8Array(67);
-            initMintData[0] = 20; // InitializeMint2 instruction
-            initMintData[1] = decimals;
-            var payerBytes = payer.toBytes();
-            initMintData.set(payerBytes, 2);
-            initMintData[34] = 1; // has freeze authority
-            if (document.getElementById('optFreeze').checked) {
-                initMintData[34] = 0; // no freeze authority
+                var createMintTx = new solanaWeb3.Transaction();
+
+                // 1. Create account
+                createMintTx.add(
+                    solanaWeb3.SystemProgram.createAccount({
+                        fromPubkey: payer,
+                        newAccountPubkey: mintPubkey,
+                        lamports: mintRent,
+                        space: mintSpace,
+                        programId: TOKEN_2022_PROGRAM_ID
+                    })
+                );
+
+                // 2. InitializeMetadataPointer
+                // SPL Token-2022 instruction: index 39 (TokenInstruction::MetadataPointerExtension)
+                // Sub-instruction: 0 (Initialize)
+                // Format: [39][0][1(hasAuthority)][authority(32)][1(hasMetadataAddress)][metadataAddress(32)]
+                var metaPtrBuf = new Uint8Array(1 + 1 + 1 + 32 + 1 + 32);
+                var mpOff = 0;
+                metaPtrBuf[mpOff++] = 39; // MetadataPointerExtension instruction
+                metaPtrBuf[mpOff++] = 0;  // Initialize sub-instruction
+                metaPtrBuf[mpOff++] = 1;  // COption: has authority
+                metaPtrBuf.set(payer.toBytes(), mpOff); mpOff += 32;
+                metaPtrBuf[mpOff++] = 1;  // COption: has metadata address
+                metaPtrBuf.set(mintPubkey.toBytes(), mpOff);
+
+                createMintTx.add({
+                    keys: [{ pubkey: mintPubkey, isSigner: false, isWritable: true }],
+                    programId: TOKEN_2022_PROGRAM_ID,
+                    data: metaPtrBuf
+                });
+
+                // 3. InitializeMint2
+                var initMintData = new Uint8Array(67);
+                initMintData[0] = 20; // InitializeMint2
+                initMintData[1] = decimals;
+                initMintData.set(payer.toBytes(), 2); // mint authority
+                if (document.getElementById('optFreeze').checked) {
+                    initMintData[34] = 0; // COption None - no freeze authority
+                } else {
+                    initMintData[34] = 1; // COption Some
+                    initMintData.set(payer.toBytes(), 35); // freeze authority
+                }
+                createMintTx.add({
+                    keys: [{ pubkey: mintPubkey, isSigner: false, isWritable: true }],
+                    programId: TOKEN_2022_PROGRAM_ID,
+                    data: initMintData
+                });
+
+                // 4. Initialize Token Metadata (spl_token_metadata_interface::Initialize)
+                // Discriminator: first 8 bytes of SHA256("spl_token_metadata_interface:initialize_account")
+                var initMetaDiscriminator = new Uint8Array([210, 225, 30, 162, 88, 184, 77, 141]);
+                var nameEncoded = encodeString(name);
+                var symbolEncoded = encodeString(symbol);
+                var uriEncoded = encodeString(metadataUri || '');
+
+                var metaDataLen = initMetaDiscriminator.length + nameEncoded.length + symbolEncoded.length + uriEncoded.length;
+                var initMetaDataBuf = new Uint8Array(metaDataLen);
+                var offset = 0;
+                initMetaDataBuf.set(initMetaDiscriminator, offset); offset += initMetaDiscriminator.length;
+                initMetaDataBuf.set(nameEncoded, offset); offset += nameEncoded.length;
+                initMetaDataBuf.set(symbolEncoded, offset); offset += symbolEncoded.length;
+                initMetaDataBuf.set(uriEncoded, offset);
+
+                createMintTx.add({
+                    keys: [
+                        { pubkey: mintPubkey, isSigner: false, isWritable: true },  // metadata (mint itself)
+                        { pubkey: payer, isSigner: false, isWritable: false },       // update authority
+                        { pubkey: mintPubkey, isSigner: false, isWritable: false },  // mint
+                        { pubkey: payer, isSigner: true, isWritable: false }          // mint authority (signer)
+                    ],
+                    programId: TOKEN_2022_PROGRAM_ID,
+                    data: initMetaDataBuf
+                });
+
+                createMintTx.feePayer = payer;
+                var bh2 = await connection.getLatestBlockhash();
+                createMintTx.recentBlockhash = bh2.blockhash;
+                createMintTx.partialSign(mintKeypair);
+                var signedMint = await provider.signTransaction(createMintTx);
+                var mintSig = await connection.sendRawTransaction(signedMint.serialize());
+                await connection.confirmTransaction(mintSig, 'confirmed');
+
             } else {
-                initMintData.set(payerBytes, 35);
+                // Classic SPL Token - create mint, then add Metaplex metadata separately
+                var mintSpace = 82;
+                var mintRent = await connection.getMinimumBalanceForRentExemption(mintSpace);
+
+                var createMintTx = new solanaWeb3.Transaction().add(
+                    solanaWeb3.SystemProgram.createAccount({
+                        fromPubkey: payer,
+                        newAccountPubkey: mintPubkey,
+                        lamports: mintRent,
+                        space: mintSpace,
+                        programId: TOKEN_PROGRAM_ID
+                    })
+                );
+
+                // Initialize mint instruction
+                var initMintData = new Uint8Array(67);
+                initMintData[0] = 20; // InitializeMint2
+                initMintData[1] = decimals;
+                initMintData.set(payer.toBytes(), 2);
+                if (document.getElementById('optFreeze').checked) {
+                    initMintData[34] = 0;
+                } else {
+                    initMintData[34] = 1;
+                    initMintData.set(payer.toBytes(), 35);
+                }
+                createMintTx.add({
+                    keys: [{ pubkey: mintPubkey, isSigner: false, isWritable: true }],
+                    programId: TOKEN_PROGRAM_ID,
+                    data: initMintData
+                });
+
+                createMintTx.feePayer = payer;
+                var bh2 = await connection.getLatestBlockhash();
+                createMintTx.recentBlockhash = bh2.blockhash;
+                createMintTx.partialSign(mintKeypair);
+                var signedMint = await provider.signTransaction(createMintTx);
+                var mintSig = await connection.sendRawTransaction(signedMint.serialize());
+                await connection.confirmTransaction(mintSig, 'confirmed');
+
+                // Add Metaplex metadata for SPL Token
+                if (metadataUri || name || symbol) {
+                    try {
+                        showStatus('Adding Metaplex metadata...', 'loading');
+                        var METAPLEX_PROGRAM_ID = new solanaWeb3.PublicKey('metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s');
+                        var metadataPDA = (await solanaWeb3.PublicKey.findProgramAddressSync(
+                            [
+                                new TextEncoder().encode('metadata'),
+                                METAPLEX_PROGRAM_ID.toBytes(),
+                                mintPubkey.toBytes()
+                            ],
+                            METAPLEX_PROGRAM_ID
+                        ))[0];
+
+                        // CreateMetadataAccountV3 instruction
+                        // Serialize: name, symbol, uri, seller_fee_basis_points, creators, collection, uses
+                        var nameBytes2 = new TextEncoder().encode(name);
+                        var symbolBytes2 = new TextEncoder().encode(symbol);
+                        var uriBytes2 = new TextEncoder().encode(metadataUri || '');
+
+                        // Build serialized data for CreateMetadataAccountV3
+                        // Discriminator: 33 (CreateMetadataAccountV3)
+                        var parts = [];
+                        // discriminator
+                        parts.push(new Uint8Array([33]));
+                        // data.name (borsh string: u32 len + bytes)
+                        var nameLenBuf = new Uint8Array(4); new DataView(nameLenBuf.buffer).setUint32(0, nameBytes2.length, true);
+                        parts.push(nameLenBuf); parts.push(nameBytes2);
+                        // data.symbol
+                        var symLenBuf = new Uint8Array(4); new DataView(symLenBuf.buffer).setUint32(0, symbolBytes2.length, true);
+                        parts.push(symLenBuf); parts.push(symbolBytes2);
+                        // data.uri
+                        var uriLenBuf = new Uint8Array(4); new DataView(uriLenBuf.buffer).setUint32(0, uriBytes2.length, true);
+                        parts.push(uriLenBuf); parts.push(uriBytes2);
+                        // seller_fee_basis_points (u16) = 0
+                        parts.push(new Uint8Array([0, 0]));
+                        // creators: Option<Vec<Creator>> = None
+                        parts.push(new Uint8Array([0]));
+                        // collection: Option<Collection> = None
+                        parts.push(new Uint8Array([0]));
+                        // uses: Option<Uses> = None
+                        parts.push(new Uint8Array([0]));
+                        // is_mutable: bool = true (unless immutable checked)
+                        var isMutable = document.getElementById('optImmutable').checked ? 0 : 1;
+                        parts.push(new Uint8Array([isMutable]));
+                        // collection_details: Option = None
+                        parts.push(new Uint8Array([0]));
+
+                        var totalLen = parts.reduce(function(acc, p) { return acc + p.length; }, 0);
+                        var metaplexData = new Uint8Array(totalLen);
+                        var off = 0;
+                        parts.forEach(function(p) { metaplexData.set(p, off); off += p.length; });
+
+                        var metaplexTx = new solanaWeb3.Transaction().add({
+                            keys: [
+                                { pubkey: metadataPDA, isSigner: false, isWritable: true },
+                                { pubkey: mintPubkey, isSigner: false, isWritable: false },
+                                { pubkey: payer, isSigner: true, isWritable: false }, // mint authority
+                                { pubkey: payer, isSigner: true, isWritable: true }, // payer
+                                { pubkey: payer, isSigner: false, isWritable: false }, // update authority
+                                { pubkey: solanaWeb3.SystemProgram.programId, isSigner: false, isWritable: false },
+                                { pubkey: new solanaWeb3.PublicKey('SysvarRent111111111111111111111111111111111'), isSigner: false, isWritable: false },
+                            ],
+                            programId: METAPLEX_PROGRAM_ID,
+                            data: metaplexData
+                        });
+                        metaplexTx.feePayer = payer;
+                        var bhMeta = await connection.getLatestBlockhash();
+                        metaplexTx.recentBlockhash = bhMeta.blockhash;
+                        var signedMpx = await provider.signTransaction(metaplexTx);
+                        var mpxSig = await connection.sendRawTransaction(signedMpx.serialize());
+                        await connection.confirmTransaction(mpxSig, 'confirmed');
+                    } catch(metaErr) {
+                        console.warn('Metaplex metadata failed (non-critical):', metaErr);
+                        showStatus('⚠️ Token created but metadata may not be visible on all explorers.', 'error');
+                    }
+                }
             }
-
-            createMintTx.add({
-                keys: [{ pubkey: mintPubkey, isSigner: false, isWritable: true }],
-                programId: PROGRAM_ID,
-                data: initMintData
-            });
-
-            createMintTx.feePayer = payer;
-            var bh2 = await connection.getLatestBlockhash();
-            createMintTx.recentBlockhash = bh2.blockhash;
-            createMintTx.partialSign(mintKeypair);
-            var signedMint = await provider.signTransaction(createMintTx);
-            var mintSig = await connection.sendRawTransaction(signedMint.serialize());
-            await connection.confirmTransaction(mintSig, 'confirmed');
             setProgressStep(2, 'done');
 
             // Step 3: Create associated token account
@@ -559,7 +814,7 @@
                     { pubkey: PROGRAM_ID, isSigner: false, isWritable: false }
                 ],
                 programId: ASSOCIATED_TOKEN_PROGRAM_ID,
-                data: Buffer.alloc(0)
+                data: new Uint8Array(0)
             });
             createAtaTx.feePayer = payer;
             var bh3 = await connection.getLatestBlockhash();
@@ -603,10 +858,12 @@
             showStatus('Finalizing token settings...', 'loading');
 
             if (document.getElementById('optMint').checked) {
+                // SetAuthority instruction: revoke mint authority
+                // Format: [6 (SetAuthority)][authority_type u8 (0=MintTokens)][COption None (0)]
                 var revokeData = new Uint8Array(3);
-                revokeData[0] = 6; // SetAuthority instruction
-                revokeData[1] = 0; // MintTokens authority type
-                revokeData[2] = 0; // No new authority
+                revokeData[0] = 6; // SetAuthority instruction index
+                revokeData[1] = 0; // AuthorityType::MintTokens
+                revokeData[2] = 0; // COption::None - no new authority
 
                 var revokeTx = new solanaWeb3.Transaction().add({
                     keys: [
