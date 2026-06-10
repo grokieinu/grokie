@@ -65,10 +65,28 @@ async function connectAndVerify() {
     const status = document.getElementById('gateStatus');
     const connectBtn = document.getElementById('gateConnectBtn');
 
+    // Detect mobile
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const currentUrl = encodeURIComponent(window.location.href);
+
     // Check for wallet providers
     const provider = getWalletProvider();
     if (!provider) {
-        status.innerHTML = '<span class="gate-error">❌ No Solana wallet detected. Please install <a href="https://phantom.app" target="_blank">Phantom</a>, <a href="https://solflare.com" target="_blank">Solflare</a>, or <a href="https://trustwallet.com" target="_blank">Trust Wallet</a>.</span>';
+        if (isMobile) {
+            // Show mobile deep link options to open in wallet browser
+            status.innerHTML = `
+                <div style="text-align:center;padding:10px 0;">
+                    <p style="color:#f59e0b;margin-bottom:12px;font-size:0.85rem;">📱 Open this page in your wallet app:</p>
+                    <div style="display:flex;flex-direction:column;gap:8px;max-width:280px;margin:0 auto;">
+                        <a href="https://phantom.app/ul/browse/${currentUrl}" style="display:block;padding:12px;background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);border-radius:10px;color:#e8e8f0;text-decoration:none;font-weight:600;font-size:0.85rem;">👻 Open in Phantom</a>
+                        <a href="https://solflare.com/ul/v1/browse/${currentUrl}" style="display:block;padding:12px;background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);border-radius:10px;color:#e8e8f0;text-decoration:none;font-weight:600;font-size:0.85rem;">🔆 Open in Solflare</a>
+                        <a href="https://link.trustwallet.com/open_url?coin_id=501&url=${currentUrl}" style="display:block;padding:12px;background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);border-radius:10px;color:#e8e8f0;text-decoration:none;font-weight:600;font-size:0.85rem;">🛡️ Open in Trust Wallet</a>
+                    </div>
+                </div>
+            `;
+        } else {
+            status.innerHTML = '<span class="gate-error">❌ No Solana wallet detected. Please install <a href="https://phantom.app" target="_blank">Phantom</a>, <a href="https://solflare.com" target="_blank">Solflare</a>, or <a href="https://trustwallet.com" target="_blank">Trust Wallet</a>.</span>';
+        }
         return;
     }
 

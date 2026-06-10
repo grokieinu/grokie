@@ -295,17 +295,41 @@
     <script>
     // Wallet Connection for AI Engine
     async function aiConnectWallet() {
-        if (!window.solana || !window.solana.isPhantom) {
-            window.open('https://phantom.app/', '_blank');
+        var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        var currentUrl = encodeURIComponent(window.location.href);
+
+        // Check for any Solana wallet provider
+        var provider = null;
+        if (window.solana && window.solana.isPhantom) provider = window.solana;
+        else if (window.solflare && window.solflare.isSolflare) provider = window.solflare;
+        else if (window.trustwallet && window.trustwallet.solana) provider = window.trustwallet.solana;
+        else if (window.solana && window.solana.isTrust) provider = window.solana;
+        else if (window.backpack) provider = window.backpack;
+        else if (window.solana) provider = window.solana;
+
+        if (!provider) {
+            if (isMobile) {
+                // Open in wallet's built-in browser
+                var walletChoice = prompt('Open in wallet browser:\n1 = Phantom\n2 = Solflare\n3 = Trust Wallet\n\nType 1, 2, or 3:', '1');
+                if (walletChoice === '2') {
+                    window.location.href = 'https://solflare.com/ul/v1/browse/' + currentUrl;
+                } else if (walletChoice === '3') {
+                    window.location.href = 'https://link.trustwallet.com/open_url?coin_id=501&url=' + currentUrl;
+                } else {
+                    window.location.href = 'https://phantom.app/ul/browse/' + currentUrl;
+                }
+            } else {
+                window.open('https://phantom.app/', '_blank');
+            }
             return;
         }
         try {
-            var resp = await window.solana.connect();
+            var resp = await provider.connect();
             var pubkey = resp.publicKey.toString();
             var btn = document.getElementById('aiWalletBtn');
             btn.textContent = pubkey.substring(0,4) + '...' + pubkey.substring(pubkey.length-4);
             btn.classList.add('connected');
-            window._aiWallet = window.solana;
+            window._aiWallet = provider;
         } catch(e) {}
     }
 
