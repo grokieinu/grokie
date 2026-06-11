@@ -21,19 +21,25 @@ function toggleSocials() {
 
 // Update fee display
 function updateFee() {
-    var total = 0.1; // Fixed fee 0.1 SOL for all options
+    var base = 0.05; // Base fee 0.05 SOL
+    var total = base;
 
     var freezeChecked = document.getElementById('optFreeze').checked;
     var mintChecked = document.getElementById('optMint').checked;
     var immutableChecked = document.getElementById('optImmutable').checked;
     var socialsChecked = document.getElementById('optSocials').checked;
 
+    if (freezeChecked) total += 0.05;
+    if (mintChecked) total += 0.05;
+    if (immutableChecked) total += 0.05;
+    if (socialsChecked) total += 0.05;
+
     document.getElementById('feeFreeze').style.display = freezeChecked ? 'flex' : 'none';
     document.getElementById('feeMint').style.display = mintChecked ? 'flex' : 'none';
     document.getElementById('feeImmutable').style.display = immutableChecked ? 'flex' : 'none';
     document.getElementById('feeSocials').style.display = socialsChecked ? 'flex' : 'none';
 
-    document.getElementById('feeTotal').textContent = '~0.10 SOL';
+    document.getElementById('feeTotal').textContent = '~' + total.toFixed(2) + ' SOL';
 }
 
 // Logo upload

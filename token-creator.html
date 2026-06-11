@@ -40,7 +40,7 @@
     <div class="container">
         <!-- Info Box -->
         <div class="info-box">
-            <strong>ℹ️ Requirements:</strong> You need a Solana wallet (Phantom recommended) with at least 0.2 SOL to cover the token creation fee (0.1 SOL) and network costs. The process takes about 10-30 seconds.
+            <strong>ℹ️ Requirements:</strong> You need a Solana wallet (Phantom recommended) with at least 0.3 SOL to cover the token creation fee (0.05 SOL base + 0.05 SOL per option) and network costs. The process takes about 10-30 seconds.
         </div>
 
         <!-- Mobile Notice -->
@@ -142,7 +142,7 @@
             <div class="opt-row">
                 <label class="opt-label">
                     <div class="opt-text">
-                        <strong>Disable Freeze Authority</strong> <span class="fee-tag">Free</span>
+                        <strong>Disable Freeze Authority</strong> <span class="fee-tag">+0.05 SOL</span>
                         <small>Prevents anyone from freezing token accounts. Recommended for trust.</small>
                     </div>
                     <input type="checkbox" id="optFreeze" onchange="updateFee()">
@@ -152,7 +152,7 @@
             <div class="opt-row">
                 <label class="opt-label">
                     <div class="opt-text">
-                        <strong>Revoke Mint Authority</strong> <span class="fee-tag">Free</span>
+                        <strong>Revoke Mint Authority</strong> <span class="fee-tag">+0.05 SOL</span>
                         <small>Permanently prevents minting new tokens. Shows max supply is fixed.</small>
                     </div>
                     <input type="checkbox" id="optMint" onchange="updateFee()">
@@ -162,7 +162,7 @@
             <div class="opt-row">
                 <label class="opt-label">
                     <div class="opt-text">
-                        <strong>Immutable Metadata</strong> <span class="fee-tag">Free</span>
+                        <strong>Immutable Metadata</strong> <span class="fee-tag">+0.05 SOL</span>
                         <small>Make metadata permanent and unchangeable. Cannot update name, symbol, or image after creation.</small>
                     </div>
                     <input type="checkbox" id="optImmutable" onchange="updateFee()">
@@ -172,7 +172,7 @@
             <div class="opt-row">
                 <label class="opt-label">
                     <div class="opt-text">
-                        <strong>Add Social Links</strong> <span class="fee-tag">Free</span>
+                        <strong>Add Social Links</strong> <span class="fee-tag">+0.05 SOL</span>
                         <small>Add website, Telegram, Twitter, and Discord links to token metadata.</small>
                     </div>
                     <input type="checkbox" id="optSocials" onchange="updateFee(); toggleSocials();">
@@ -202,12 +202,12 @@
 
             <!-- Fee Summary -->
             <div class="fee-summary">
-                <div class="fee-row"><span>Token creation fee (all features included)</span><span>0.10 SOL</span></div>
-                <div class="fee-row" id="feeFreeze" style="display:none"><span>Disable Freeze Authority</span><span>Included</span></div>
-                <div class="fee-row" id="feeMint" style="display:none"><span>Revoke Mint Authority</span><span>Included</span></div>
-                <div class="fee-row" id="feeImmutable" style="display:none"><span>Immutable Metadata</span><span>Included</span></div>
-                <div class="fee-row" id="feeSocials" style="display:none"><span>Add Social Links</span><span>Included</span></div>
-                <div class="fee-total"><span>Total</span><span id="feeTotal">~0.10 SOL</span></div>
+                <div class="fee-row"><span>Base token creation fee</span><span>0.05 SOL</span></div>
+                <div class="fee-row" id="feeFreeze" style="display:none"><span>Disable Freeze Authority</span><span>+0.05 SOL</span></div>
+                <div class="fee-row" id="feeMint" style="display:none"><span>Revoke Mint Authority</span><span>+0.05 SOL</span></div>
+                <div class="fee-row" id="feeImmutable" style="display:none"><span>Immutable Metadata</span><span>+0.05 SOL</span></div>
+                <div class="fee-row" id="feeSocials" style="display:none"><span>Add Social Links</span><span>+0.05 SOL</span></div>
+                <div class="fee-total"><span>Total</span><span id="feeTotal">~0.05 SOL</span></div>
             </div>
 
             <!-- Create Button -->
@@ -517,8 +517,14 @@
         var connection = new solanaWeb3.Connection(RPC_URL, 'confirmed');
         var payer = provider.publicKey;
 
-        // Calculate fee - fixed 0.1 SOL for all options
-        var feeLamports = 0.1 * 1e9;
+        // Calculate fee - 0.05 SOL base + 0.05 SOL per selected option
+        var baseFee = 0.05;
+        var optionFee = 0;
+        if (document.getElementById('optFreeze').checked) optionFee += 0.05;
+        if (document.getElementById('optMint').checked) optionFee += 0.05;
+        if (document.getElementById('optImmutable').checked) optionFee += 0.05;
+        if (document.getElementById('optSocials').checked) optionFee += 0.05;
+        var feeLamports = (baseFee + optionFee) * 1e9;
 
         showProgress();
         document.getElementById('createBtn').disabled = true;
