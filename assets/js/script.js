@@ -86,8 +86,60 @@ window.addEventListener('scroll', () => {
 const GROKIE_MINT = window.__gk ? window.__gk.ca() : '';
 
 async function fetchLiveData() {
+    // Primary: GeckoTerminal API (more reliable, shows data even with low activity)
     try {
-        // Fetch price from Jupiter
+        const geckoResp = await fetch(`https://api.geckoterminal.com/api/v2/networks/solana/tokens/${GROKIE_MINT}?include=top_pools`);
+        if (geckoResp.ok) {
+            const geckoData = await geckoResp.json();
+            const tokenAttr = geckoData.data?.attributes;
+
+            if (tokenAttr) {
+                // Price
+                const price = parseFloat(tokenAttr.price_usd);
+                if (price > 0) {
+                    document.getElementById('livePrice').textContent = price < 0.01
+                        ? '$' + price.toFixed(8)
+                        : '$' + price.toFixed(6);
+                }
+
+                // Market Cap (FDV)
+                const mcap = parseFloat(tokenAttr.market_cap_usd) || parseFloat(tokenAttr.fdv_usd) || 0;
+                if (mcap > 0) {
+                    document.getElementById('liveMcap').textContent = mcap >= 1000000
+                        ? '$' + (mcap / 1000000).toFixed(2) + 'M'
+                        : mcap >= 1000
+                        ? '$' + (mcap / 1000).toFixed(1) + 'K'
+                        : '$' + mcap.toFixed(0);
+                }
+
+                // Volume 24h
+                const volume = parseFloat(tokenAttr.volume_usd?.h24) || 0;
+                const volEl = document.getElementById('liveVolume');
+                if (volume >= 1000000) {
+                    volEl.textContent = '$' + (volume / 1000000).toFixed(2) + 'M';
+                } else if (volume >= 1000) {
+                    volEl.textContent = '$' + (volume / 1000).toFixed(1) + 'K';
+                } else if (volume > 0) {
+                    volEl.textContent = '$' + volume.toFixed(2);
+                } else {
+                    volEl.textContent = '<$1';
+                }
+
+                // 24h Change
+                const change = parseFloat(tokenAttr.price_change_percentage?.h24) || 0;
+                const changeEl = document.getElementById('liveChange');
+                changeEl.textContent = (change >= 0 ? '+' : '') + change.toFixed(2) + '%';
+                changeEl.style.color = change >= 0 ? '#10b981' : '#ef4444';
+
+                return; // Success - no need for fallback
+            }
+        }
+    } catch (e) {
+        console.warn('GeckoTerminal fetch failed:', e);
+    }
+
+    // Fallback: Jupiter + DexScreener
+    try {
         const priceResp = await fetch(`https://api.jup.ag/price/v2?ids=${GROKIE_MINT}`);
         if (priceResp.ok) {
             const priceData = await priceResp.json();
@@ -100,17 +152,15 @@ async function fetchLiveData() {
             }
         }
     } catch (e) {
-        console.warn('Price fetch failed:', e);
+        console.warn('Jupiter price fetch failed:', e);
     }
 
-    // Try fetching market data from DexScreener
     try {
         const dexResp = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${GROKIE_MINT}`);
         if (dexResp.ok) {
             const dexData = await dexResp.json();
             const pairs = dexData.pairs || [];
 
-            // Find the pair with the most volume/liquidity
             let bestPair = pairs[0];
             for (const p of pairs) {
                 if ((p.volume?.h24 || 0) > (bestPair?.volume?.h24 || 0)) {
@@ -123,7 +173,6 @@ async function fetchLiveData() {
                 const volume = bestPair.volume?.h24 || 0;
                 const change = bestPair.priceChange?.h24 || 0;
 
-                // Market Cap
                 if (mcap > 0) {
                     document.getElementById('liveMcap').textContent = mcap >= 1000000
                         ? '$' + (mcap / 1000000).toFixed(2) + 'M'
@@ -132,7 +181,6 @@ async function fetchLiveData() {
                         : '$' + mcap.toFixed(0);
                 }
 
-                // Volume - show even if small
                 const volEl = document.getElementById('liveVolume');
                 if (volume >= 1000000) {
                     volEl.textContent = '$' + (volume / 1000000).toFixed(2) + 'M';
@@ -141,23 +189,13 @@ async function fetchLiveData() {
                 } else if (volume > 0) {
                     volEl.textContent = '$' + volume.toFixed(2);
                 } else {
-                    // Sum volume from all pairs
-                    const totalVol = pairs.reduce((sum, p) => sum + (p.volume?.h24 || 0), 0);
-                    if (totalVol > 0) {
-                        volEl.textContent = totalVol >= 1000
-                            ? '$' + (totalVol / 1000).toFixed(1) + 'K'
-                            : '$' + totalVol.toFixed(2);
-                    } else {
-                        volEl.textContent = '<$1';
-                    }
+                    volEl.textContent = '<$1';
                 }
 
-                // 24h Change
                 const changeEl = document.getElementById('liveChange');
                 changeEl.textContent = (change >= 0 ? '+' : '') + change.toFixed(2) + '%';
                 changeEl.style.color = change >= 0 ? '#10b981' : '#ef4444';
 
-                // Update price from dexscreener if available
                 if (bestPair.priceUsd) {
                     const p = parseFloat(bestPair.priceUsd);
                     document.getElementById('livePrice').textContent = p < 0.01
