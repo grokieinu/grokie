@@ -95,6 +95,14 @@ body {
 .nav-links { display: flex; list-style: none; gap: 6px; align-items: center; }
 .nav-links > li > a { color: var(--text); text-decoration: none; font-weight: 600; font-size: 0.95rem; padding: 8px 14px; border-radius: 8px; transition: all 0.2s; }
 .nav-links > li > a:hover { color: var(--cyan); background: rgba(0,245,255,0.06); }
+.nav-wallet-link {
+    background: linear-gradient(135deg, #8b5cf6, #06b6d4) !important;
+    color: #fff !important; padding: 8px 18px !important; border-radius: 50px !important;
+    font-weight: 700 !important; font-size: 0.9rem !important;
+    box-shadow: 0 4px 15px rgba(139,92,246,0.3);
+    transition: all 0.3s !important;
+}
+.nav-wallet-link:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(6,182,212,0.4) !important; color: #fff !important; background: linear-gradient(135deg, #06b6d4, #8b5cf6) !important; }
 .nav-swap-btn {
     background: linear-gradient(135deg, var(--accent), var(--primary)) !important;
     color: #fff !important; padding: 9px 22px !important; border-radius: 50px !important;
