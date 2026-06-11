@@ -5,7 +5,7 @@
     // API key segments (Helius + Groq)
     var _0x = [
         'ZDMzZDIzY2EtY2Ex', 'MC00YjliLWIyMzEt', 'MTMwNDNlOGY1M2M1',
-        'Z3NrX0ZQV3dRanZnbDdKS1NR', 'WUo4VjRvV0dkeWIzRllDdGxs', 'VHZoSmg3MWNHNVYyNUFrQXM4OFc='
+        'Z3NrX3YwWVhTM0ZxVHZDZFdWWA==', 'TkdmQ29XR2R5YjNGWUpISTZ5TA==', 'd1FqVHdSWHo1UW51Zk95VDM3'
     ];
 
     // Contract address segments
