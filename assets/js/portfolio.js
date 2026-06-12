@@ -1448,14 +1448,45 @@ function exportPDF() {
         </html>
     `;
 
-    // Open in new window and trigger print (save as PDF)
-    const printWindow = window.open('', '_blank');
-    printWindow.document.write(htmlContent);
-    printWindow.document.close();
-    printWindow.onload = () => {
-        printWindow.print();
-    };
-    showToast('PDF report opened — use Print > Save as PDF');
+    // Export as downloadable HTML file (works on mobile & desktop)
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+    if (isMobile) {
+        // Mobile: download as HTML file that user can open and print/save as PDF
+        const blob = new Blob([htmlContent], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Grokie_Tax_Report_${year}_${wallet.slice(0,6)}.html`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('PDF report downloaded — open the file and use Print > Save as PDF');
+    } else {
+        // Desktop: open in new window and trigger print
+        const printWindow = window.open('', '_blank');
+        if (printWindow) {
+            printWindow.document.write(htmlContent);
+            printWindow.document.close();
+            printWindow.onload = () => {
+                printWindow.print();
+            };
+            showToast('PDF report opened — use Print > Save as PDF');
+        } else {
+            // Popup blocked fallback - use download method
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Grokie_Tax_Report_${year}_${wallet.slice(0,6)}.html`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('PDF report downloaded — open the file and use Print > Save as PDF');
+        }
+    }
 }
 
 // ===== UTILITIES =====
